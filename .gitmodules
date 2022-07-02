@@ -1,0 +1,3 @@
+[submodule "src/common"]
+	path = src/common
+	url = https://gitlab.com/bitthing.io/service-common.git
