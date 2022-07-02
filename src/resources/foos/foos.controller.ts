@@ -12,17 +12,17 @@ import {
   Query,
   Optional,
 } from '@nestjs/common';
-import { ServiceAuthGuard } from 'src/guards/auth/auth.guard';
+import { ServiceAuthGuard } from 'src/common/guards/auth/auth.guard';
 import {
   handleClassValidation,
   handleMongoDBObjectIdValidation,
-} from 'src/utils/validator-helper';
+} from 'src/common/utils/validator-helper';
 import { FoosService } from './foos.service';
 import { CreateFooDTO } from './dto/create.dto';
 import { UpdateFooDTO } from './dto/update.dto';
 import { Foo } from './entities/foo.entity';
 import { Status } from './enums/foo.enum';
-import { Filter } from '../base/enum/base.enum';
+import { Filter } from '../../common/modules/base/enum/base.enum';
 
 @Controller('foos')
 export class FoosController {
