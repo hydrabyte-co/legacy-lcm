@@ -1,4 +1,4 @@
-import { Controller, Get, Req } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
 import { App } from './app.entity';
 import { AppService } from './app.service';

@@ -6,8 +6,8 @@ export class AppService {
   app: App;
   constructor() {
     // Change App Id, App Name
-    const appId = 'template-service';
-    const appName = 'Template Service';
+    const appId = 'lcm-service';
+    const appName = 'LCM Service';
     this.app = new App(appId, appName);
   }
 

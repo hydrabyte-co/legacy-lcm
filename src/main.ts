@@ -2,8 +2,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
-import { FoosService } from './resources/foos/foos.service';
-import { BarWorker } from './workers/bar.worker';
+// import { SampleWorker } from './workers/sample.worker';
 
 async function bootstrap() {
   const appType = process.env.APP_TYPE || 'api';
@@ -28,11 +27,11 @@ async function bootstrap() {
       break;
     }
     case 'worker': {
-      const app = await NestFactory.createApplicationContext(AppModule);
-      const foosService = app.get(FoosService);
-      const worker = new BarWorker(foosService);
+      // const app = await NestFactory.createApplicationContext(AppModule);
+      // const productsService = app.get(ProductsService);
+      // const worker = new SampleWorker(productsService);
 
-      await worker.start();
+      // await worker.start();
       break;
     }
     case 'api':
