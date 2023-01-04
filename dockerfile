@@ -2,7 +2,7 @@ FROM node:16.14.2-slim AS BASEIMAGE
 
 WORKDIR /src
 COPY package*.json ./
-RUN npm ci
+RUN npm i
 COPY . .
 RUN npm run prebuild && npm run build && npm prune --production
 
