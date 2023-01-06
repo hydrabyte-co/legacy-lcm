@@ -30,10 +30,10 @@ export class ContractService extends BaseService<Contract> {
     handler: DataHandler,
   ): Promise<Contract> {
     const partner = await this._partnersRepo.findOne({
-      code: data.partnerCode,
+      where: { code: data.partnerCode },
     });
     const customer = await this._customersRepo.findOne({
-      code: data.customerCode,
+      where: { code: data.customerCode },
     });
 
     if (partner) {

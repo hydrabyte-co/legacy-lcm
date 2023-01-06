@@ -39,10 +39,10 @@ export class ActivityService extends BaseService<Activity> {
     handler: DataHandler,
   ): Promise<Activity> {
     const contract = await this._contractsRepo.findOne({
-      code: data.contractCode,
+      where: { code: data.contractCode },
     });
     const result = await this._resultsRepo.findOne({
-      code: data.resultCode,
+      where: { code: data.resultCode },
     });
 
     if (contract && contract.isDeleted === false) {

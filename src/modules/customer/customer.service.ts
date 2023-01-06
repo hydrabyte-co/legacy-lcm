@@ -25,7 +25,7 @@ export class CustomerService extends BaseService<Customer> {
     handler: DataHandler,
   ): Promise<Customer> {
     const partner = await this._partnersRepo.findOne({
-      code: data.partnerCode,
+      where: { code: data.partnerCode },
     });
 
     if (partner) {
