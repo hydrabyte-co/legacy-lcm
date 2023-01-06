@@ -1,0 +1,69 @@
+
+stages:
+  - build
+  - test
+  - push
+  - deploy
+variables:
+  SERVICE_ID: lcm-service
+  SERVICE_PATH: /app/lcm-service/
+  K8S_NAMESPACE: bitthing
+  K8S_DEPLOYMENTS: lcm-api
+  GIT_SUBMODULE_STRATEGY: recursive
+
+build image:
+  stage: build
+  tags:
+    - $SERVICE_ID
+    - shell
+  before_script:
+    - echo "preparing for building image..."
+  script:
+    - whoami
+    - cd $SERVICE_PATH
+    - git pull origin main
+    - git submodule update --recursive
+    - docker build $SERVICE_PATH -t $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  only:
+    - main
+
+test service:
+  stage: test
+  tags:
+    - $SERVICE_ID
+    - shell
+  before_script:
+    - echo "preparing for testing service..."
+  script:
+    - echo "do some testing here"
+  only:
+    - main
+
+push image:
+  stage: push
+  tags:
+    - $SERVICE_ID
+    - shell
+  before_script:
+    - echo "preparing for pushing image..."
+  script:
+    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  only:
+    - main
+
+deploy to prod:
+  stage: deploy
+  tags:
+    - $SERVICE_ID
+    - shell
+  before_script:
+    - echo "preparing for deploy service..."
+  script:
+    - |
+      for DEPLOYMENT in $K8S_DEPLOYMENTS
+        do
+          kubectl rollout restart deployment $DEPLOYMENT -n $K8S_NAMESPACE
+        done
+  only:
+    - main
