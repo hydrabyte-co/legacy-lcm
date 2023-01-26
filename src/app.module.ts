@@ -10,6 +10,7 @@ import { CustomerModule } from './modules/customer/customer.module';
 import { ContractModule } from './modules/contract/contract.module';
 import { ResultModule } from './modules/result/result.module';
 import { ActivityModule } from './modules/activity/activity.module';
+import { DataFileModule } from './modules/data-file/data-file.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ActivityModule } from './modules/activity/activity.module';
     ContractModule,
     ResultModule,
     ActivityModule,
+    DataFileModule,
   ],
   controllers: [AppController],
   providers: [AppService, JWTAuthStrategy, BasicAuthStrategy],
