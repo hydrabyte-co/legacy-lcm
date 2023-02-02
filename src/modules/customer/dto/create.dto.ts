@@ -78,6 +78,9 @@ export class CreateCustomerData extends BaseCreateData {
   @IsString()
   @MaxLength(360)
   note = '';
+
+  @IsBoolean()
+  isMarked = false;
 }
 @Exclude()
 export class CreateCustomerResult extends BaseCreateResult {
@@ -125,4 +128,7 @@ export class CreateCustomerResult extends BaseCreateResult {
 
   @Expose()
   note = '';
+
+  @Expose()
+  isMarked = false;
 }

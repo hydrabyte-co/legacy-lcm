@@ -90,4 +90,8 @@ export class Customer extends Base {
   @IsString()
   @MaxLength(360)
   note = '';
+
+  @Column()
+  @IsBoolean()
+  isMarked = false;
 }

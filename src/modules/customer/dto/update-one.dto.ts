@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsDate,
   IsDateString,
+  isBoolean,
 } from 'class-validator';
 import {
   UpdateOneData,
@@ -93,6 +94,10 @@ export class UpdateCustomerData extends UpdateOneData {
   @IsString()
   @MaxLength(360)
   note;
+
+  @IsOptional()
+  @IsBoolean()
+  isMarked;
 }
 export class UpdateCustomerResult extends UpdateOneResult {
   @Expose()
@@ -139,4 +144,7 @@ export class UpdateCustomerResult extends UpdateOneResult {
 
   @Expose()
   note = '';
+
+  @Expose()
+  isMarked = false;
 }
