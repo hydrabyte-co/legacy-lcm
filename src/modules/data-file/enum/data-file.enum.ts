@@ -1,7 +1,7 @@
 export enum DataFileStatus {
   New = 'new',
-  Todo = 'active',
-  Processing = 'archived',
+  Read = 'read',
+  Processing = 'proccessing',
   Failed = 'failed',
   Done = 'done',
 }

@@ -3,9 +3,20 @@ import { DataFileService } from './data-file.service';
 import { DataFilesController } from './data-file.controller';
 import { DataFile } from './entity/data-file.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Customer } from '../customer/entity/customer.entity';
+import { CustomerModule } from '../customer/customer.module';
+import { Contract } from '../contract/entity/contract.entity';
+import { ContractModule } from '../contract/contract.module';
+import { Transaction } from '../transaction/entity/transaction.entity';
+import { TransactionModule } from '../transaction/transaction.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([DataFile])],
+  imports: [
+    TypeOrmModule.forFeature([DataFile, Customer, Contract, Transaction]),
+    CustomerModule,
+    ContractModule,
+    TransactionModule,
+  ],
   controllers: [DataFilesController],
   providers: [DataFileService],
 })

@@ -5,6 +5,7 @@ import {
   IsString,
   MaxLength,
   IsDate,
+  IsDateString,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
 import { Controllers } from 'src/common/enums/controllers';
@@ -45,14 +46,14 @@ export class Customer extends Base {
   gender = '';
 
   @Column()
-  @IsDate()
-  dob = new Date();
+  @IsString()
+  dob = '';
 
   @Column()
   @IsString()
   @IsNotEmpty()
   @MaxLength(16)
-  indentityNumber = '';
+  identityNumber = '';
 
   @Column()
   @IsString()

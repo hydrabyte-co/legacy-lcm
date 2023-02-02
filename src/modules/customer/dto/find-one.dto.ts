@@ -25,7 +25,7 @@ export class FindCustomerByIdResult extends BaseFindByIdResult {
   dob = new Date();
 
   @Expose()
-  indentityNumber = '';
+  identityNumber = '';
 
   @Expose()
   mobileNumber = '';

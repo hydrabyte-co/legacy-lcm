@@ -6,6 +6,7 @@ import {
   IsBoolean,
   IsOptional,
   IsDate,
+  IsDateString,
 } from 'class-validator';
 import {
   UpdateOneData,
@@ -48,14 +49,14 @@ export class UpdateCustomerData extends UpdateOneData {
   gender;
 
   @IsOptional()
-  @IsDate()
-  dob = new Date();
+  @IsDateString()
+  dob = '';
 
   @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(16)
-  indentityNumber;
+  identityNumber;
 
   @IsOptional()
   @IsString()
@@ -116,7 +117,7 @@ export class UpdateCustomerResult extends UpdateOneResult {
   dob = new Date();
 
   @Expose()
-  indentityNumber = '';
+  identityNumber = '';
 
   @Expose()
   mobileNumber = '';

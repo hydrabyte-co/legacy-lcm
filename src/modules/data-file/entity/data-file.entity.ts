@@ -20,11 +20,17 @@ export class DataFile extends Base {
 
   @Column()
   @IsObject()
-  info = {};
+  info: {
+    sheets?: { [key: string]: any }[];
+  } = {
+    sheets: [],
+  };
 
   @Column()
   @IsObject()
-  settings = {};
+  settings: {
+    sheets?: { [key: string]: any }[];
+  } = { sheets: [] };
 
   @Column()
   @IsString()

@@ -49,7 +49,7 @@ export class CreateCustomerData extends BaseCreateData {
   @IsString()
   @IsNotEmpty()
   @MaxLength(16)
-  indentityNumber = '';
+  identityNumber = '';
 
   @IsString()
   @IsNotEmpty()
@@ -103,7 +103,7 @@ export class CreateCustomerResult extends BaseCreateResult {
   dob = new Date();
 
   @Expose()
-  indentityNumber = '';
+  identityNumber = '';
 
   @Expose()
   mobileNumber = '';

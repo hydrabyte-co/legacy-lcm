@@ -11,6 +11,7 @@ import { ContractModule } from './modules/contract/contract.module';
 import { ResultModule } from './modules/result/result.module';
 import { ActivityModule } from './modules/activity/activity.module';
 import { DataFileModule } from './modules/data-file/data-file.module';
+import { TransactionModule } from './modules/transaction/transaction.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { DataFileModule } from './modules/data-file/data-file.module';
     ResultModule,
     ActivityModule,
     DataFileModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService, JWTAuthStrategy, BasicAuthStrategy],

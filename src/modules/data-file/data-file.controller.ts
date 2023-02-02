@@ -11,6 +11,7 @@ import {
   Query,
   Req,
   ValidationPipe,
+  Put,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/auth/roles.guard';
@@ -27,6 +28,7 @@ import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
 import { Controllers } from 'src/common/enums/controllers';
 import { DataFile } from './entity/data-file.entity';
+import { DataHandler } from 'src/common/modules/base/entity/data.class';
 
 @ServiceInfo(Services.Template)
 @ControllerInfo(Controllers.LCM_DataFiles)
@@ -73,6 +75,26 @@ export class DataFilesController extends BaseController {
     @Req() req,
   ): Promise<UpdateDataFileResult> {
     return await super.updateOne(id, data, req);
+  }
+
+  @Put(':id/read')
+  @UseGuards(AuthGuard, RolesGuard)
+  async read(
+    @Param('id') id: string,
+    @Req() req,
+  ): Promise<UpdateDataFileResult> {
+    const handler = req.user || new DataHandler();
+    return await this.dataFilesService.readDataFile(id, handler);
+  }
+
+  @Put(':id/process')
+  @UseGuards(AuthGuard, RolesGuard)
+  async process(
+    @Param('id') id: string,
+    @Req() req,
+  ): Promise<UpdateDataFileResult> {
+    const handler = req.user || new DataHandler();
+    return await this.dataFilesService.processDataFile(id, handler);
   }
 
   @Delete(':id')
