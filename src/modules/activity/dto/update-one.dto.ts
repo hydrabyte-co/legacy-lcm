@@ -15,7 +15,6 @@ import {
   UpdateOneResult,
 } from '../../../common/modules/base/dto/update-one.dto';
 import { ActivityType } from '../enum/activity.enum';
-import { Optional } from '@nestjs/common';
 
 export class UpdateActivityData extends UpdateOneData {
   @IsObject()
