@@ -36,7 +36,6 @@ export class ReferenceService extends BaseService<Reference> {
         //filter.where.or
       }
     }
-    filter.where.staffCode = handler.staffCode;
     return await super.findManyWithPaging(filter, handler);
   }
 
