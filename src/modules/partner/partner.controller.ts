@@ -28,7 +28,7 @@ import { Services } from 'src/common/enums/services';
 import { Controllers } from 'src/common/enums/controllers';
 import { Partner } from './entity/partner.entity';
 
-@ServiceInfo(Services.Template)
+@ServiceInfo(Services.LCM)
 @ControllerInfo(Controllers.LCM_Partners)
 @Controller(Controllers.LCM_Partners)
 export class PartnersController extends BaseController {

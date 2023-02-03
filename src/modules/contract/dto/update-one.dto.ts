@@ -86,6 +86,10 @@ export class UpdateContractData extends UpdateOneData {
   psAmount;
 
   @IsOptional()
+  @IsNumber()
+  ovdDays;
+
+  @IsOptional()
   @IsDate()
   valueDate;
 
@@ -167,6 +171,9 @@ export class UpdateContractResult extends UpdateOneResult {
 
   @Expose()
   psAmount = 0;
+
+  @Expose()
+  ovdDays = 0;
 
   @Expose()
   valueDate = new Date();

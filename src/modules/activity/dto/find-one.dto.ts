@@ -17,7 +17,10 @@ export class FindActivityByIdActivity extends BaseFindByIdResult {
   type = ActivityType.Call;
 
   @Expose()
-  referenceId = '';
+  contactInfo = {};
+
+  @Expose()
+  reference = {};
 
   @Expose()
   resultCode = '';
@@ -27,4 +30,10 @@ export class FindActivityByIdActivity extends BaseFindByIdResult {
 
   @Expose()
   note = '';
+
+  @Expose()
+  ptpDate;
+
+  @Expose()
+  ptpAmount;
 }

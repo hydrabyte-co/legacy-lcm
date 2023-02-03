@@ -11,6 +11,7 @@ import {
   Query,
   Req,
   ValidationPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/auth/roles.guard';
@@ -27,8 +28,9 @@ import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
 import { Controllers } from 'src/common/enums/controllers';
 import { Activity } from './entity/activity.entity';
+import { DataHandler } from 'src/common/modules/base/entity/data.class';
 
-@ServiceInfo(Services.Template)
+@ServiceInfo(Services.LCM)
 @ControllerInfo(Controllers.LCM_Activities)
 @Controller(Controllers.LCM_Activities)
 export class ActivitiesController extends BaseController {

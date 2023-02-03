@@ -36,6 +36,7 @@ export class CustomerService extends BaseService<Customer> {
         //filter.where.or
       }
     }
+    filter.where.staffCode = handler.staffCode;
     return await super.findManyWithPaging(filter, handler);
   }
 

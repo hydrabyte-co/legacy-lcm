@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsNumber,
   IsEnum,
+  IsObject,
 } from 'class-validator';
 import {
   CreateData as BaseCreateData,
@@ -19,11 +20,6 @@ export class CreateActivityData extends BaseCreateData {
   @IsString()
   @IsNotEmpty()
   @MaxLength(24)
-  staffCode = '';
-
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(24)
   contractCode = '';
 
   @IsString()
@@ -31,13 +27,33 @@ export class CreateActivityData extends BaseCreateData {
   @MaxLength(24)
   customerCode = '';
 
+  @IsString()
+  @IsOptional()
+  @MaxLength(24)
+  staffCode? = '';
+
   @IsEnum(ActivityType)
   @IsNotEmpty()
   type = ActivityType.Call;
 
-  @IsString()
-  @MaxLength(24)
-  referenceId = '';
+  @IsObject()
+  contactInfo: {
+    relation: string;
+    fullname: string;
+    phoneNumber?: string;
+    facebookId?: string;
+    zaloId?: string;
+    chatId?: string;
+  } = {
+    relation: '',
+    fullname: '',
+    phoneNumber: '',
+  };
+
+  @IsObject()
+  reference: {
+    [key: string]: any;
+  } = {};
 
   @IsString()
   @IsNotEmpty()
@@ -52,6 +68,14 @@ export class CreateActivityData extends BaseCreateData {
   @IsString()
   @IsNotEmpty()
   note = '';
+
+  @IsDate()
+  @IsOptional()
+  ptpDate;
+
+  @IsNumber()
+  @IsOptional()
+  ptpAmount = 0;
 }
 @Exclude()
 export class CreateActivityResult extends BaseCreateResult {
@@ -68,7 +92,10 @@ export class CreateActivityResult extends BaseCreateResult {
   type = ActivityType.Call;
 
   @Expose()
-  referenceId = '';
+  contactInfo = {};
+
+  @Expose()
+  reference = {};
 
   @Expose()
   resultCode = '';
@@ -78,4 +105,10 @@ export class CreateActivityResult extends BaseCreateResult {
 
   @Expose()
   note = '';
+
+  @Expose()
+  ptpDate;
+
+  @Expose()
+  ptpAmount;
 }

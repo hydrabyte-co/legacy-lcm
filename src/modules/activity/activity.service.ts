@@ -49,6 +49,7 @@ export class ActivityService extends BaseService<Activity> {
       if (contract.customerCode === data.customerCode) {
         if (result && result.isDeleted === false) {
           if (result.parentCode === data.resultParentCode) {
+            data.staffCode = handler.staffCode;
             return super.createOne(data, handler);
           } else {
             throw new BadRequestException(

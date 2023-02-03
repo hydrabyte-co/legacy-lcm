@@ -8,6 +8,7 @@ import {
   IsDate,
   IsNumber,
   IsEnum,
+  IsObject,
 } from 'class-validator';
 import {
   UpdateOneData,
@@ -40,25 +41,46 @@ export class UpdateActivityData extends UpdateOneData {
   @IsNotEmpty()
   type;
 
-  @Optional()
-  @IsString()
-  @MaxLength(24)
-  referenceId;
+  @IsObject()
+  contactInfo: {
+    relation: string;
+    fullname: string;
+    phoneNumber?: string;
+    facebookId?: string;
+    zaloId?: string;
+    chatId?: string;
+  } = {
+    relation: '',
+    fullname: '',
+    phoneNumber: '',
+  };
 
-  @Optional()
-  @IsString()
-  @MaxLength(24)
-  resultCode;
+  @IsObject()
+  reference: {
+    [key: string]: any;
+  } = {};
 
-  @Optional()
-  @IsString()
-  @MaxLength(24)
-  resultParentCode;
-
-  @Optional()
   @IsString()
   @IsNotEmpty()
-  note;
+  @MaxLength(24)
+  resultCode = '';
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(24)
+  resultParentCode = '';
+
+  @IsString()
+  @IsNotEmpty()
+  note = '';
+
+  @IsDate()
+  @IsOptional()
+  ptpDate;
+
+  @IsNumber()
+  @IsOptional()
+  ptpAmount = 0;
 }
 export class UpdateActivityResult extends UpdateOneResult {
   @Expose()
@@ -74,7 +96,10 @@ export class UpdateActivityResult extends UpdateOneResult {
   type = ActivityType.Call;
 
   @Expose()
-  referenceId = '';
+  contactInfo = {};
+
+  @Expose()
+  reference = {};
 
   @Expose()
   resultCode = '';
@@ -84,4 +109,10 @@ export class UpdateActivityResult extends UpdateOneResult {
 
   @Expose()
   note = '';
+
+  @Expose()
+  ptpDate;
+
+  @Expose()
+  ptpAmount;
 }

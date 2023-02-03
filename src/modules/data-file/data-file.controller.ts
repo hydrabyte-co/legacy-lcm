@@ -30,7 +30,7 @@ import { Controllers } from 'src/common/enums/controllers';
 import { DataFile } from './entity/data-file.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 
-@ServiceInfo(Services.Template)
+@ServiceInfo(Services.LCM)
 @ControllerInfo(Controllers.LCM_DataFiles)
 @Controller(Controllers.LCM_DataFiles)
 export class DataFilesController extends BaseController {

@@ -71,6 +71,9 @@ export class CreateContractData extends BaseCreateData {
   @IsNumber()
   psAmount = 0;
 
+  @IsNumber()
+  ovdDays = 0;
+
   @IsDateString()
   valueDate = new Date();
 

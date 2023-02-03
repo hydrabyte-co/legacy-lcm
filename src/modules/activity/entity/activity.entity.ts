@@ -7,6 +7,7 @@ import {
   IsDate,
   IsNumber,
   IsEnum,
+  IsObject,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
 import { Controllers } from 'src/common/enums/controllers';
@@ -33,14 +34,30 @@ export class Activity extends Base {
   customerCode = '';
 
   @Column()
+  @IsObject()
+  contactInfo: {
+    relation: string;
+    fullname: string;
+    phoneNumber?: string;
+    facebookId?: string;
+    zaloId?: string;
+    chatId?: string;
+  } = {
+    relation: '',
+    fullname: '',
+    phoneNumber: '',
+  };
+
+  @Column()
   @IsEnum(ActivityType)
   @IsNotEmpty()
   type = ActivityType.Call;
 
   @Column()
-  @IsString()
-  @MaxLength(24)
-  referenceId = '';
+  @IsObject()
+  reference: {
+    [key: string]: any;
+  } = {};
 
   @Column()
   @IsString()
@@ -53,6 +70,14 @@ export class Activity extends Base {
   @IsNotEmpty()
   @MaxLength(24)
   resultParentCode = '';
+
+  @Column()
+  @IsDate()
+  ptpDate;
+
+  @Column()
+  @IsNumber()
+  ptpAmount;
 
   @Column()
   @IsString()
