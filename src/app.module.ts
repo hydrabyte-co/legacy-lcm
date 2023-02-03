@@ -12,6 +12,7 @@ import { ResultModule } from './modules/result/result.module';
 import { ActivityModule } from './modules/activity/activity.module';
 import { DataFileModule } from './modules/data-file/data-file.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
+import { ReferenceModule } from './modules/reference/reference.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { TransactionModule } from './modules/transaction/transaction.module';
     ActivityModule,
     DataFileModule,
     TransactionModule,
+    ReferenceModule,
   ],
   controllers: [AppController],
   providers: [AppService, JWTAuthStrategy, BasicAuthStrategy],
