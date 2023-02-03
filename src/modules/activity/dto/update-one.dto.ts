@@ -9,6 +9,7 @@ import {
   IsNumber,
   IsEnum,
   IsObject,
+  IsDateString,
 } from 'class-validator';
 import {
   UpdateOneData,
@@ -36,7 +37,7 @@ export class UpdateActivityData extends UpdateOneData {
   @IsNotEmpty()
   note = '';
 
-  @IsDate()
+  @IsDateString()
   @IsOptional()
   ptpDate;
 

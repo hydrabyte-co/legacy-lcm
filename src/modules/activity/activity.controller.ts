@@ -74,6 +74,9 @@ export class ActivitiesController extends BaseController {
     @Body() data: UpdateActivityData,
     @Req() req,
   ): Promise<UpdateActivityResult> {
+    if (data.ptpDate) {
+      data.ptpDate = new Date(data.ptpDate);
+    }
     return await super.updateOne(id, data, req);
   }
 
