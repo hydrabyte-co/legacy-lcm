@@ -56,18 +56,18 @@ export class CreateActivityData extends BaseCreateData {
   } = {};
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(24)
-  resultCode = '';
+  resultCode? = '';
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(24)
-  resultParentCode = '';
+  resultParentCode? = '';
 
   @IsString()
-  @IsNotEmpty()
-  note = '';
+  @IsOptional()
+  note? = '';
 
   @IsDate()
   @IsOptional()
