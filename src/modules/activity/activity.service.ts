@@ -44,18 +44,19 @@ export class ActivityService extends BaseService<Activity> {
     const result = await this._resultsRepo.findOne({
       where: { code: data.resultCode },
     });
-
+    data.staffCode = handler.staffCode;
     if (contract && contract.isDeleted === false) {
       if (contract.customerCode === data.customerCode) {
         if (result && result.isDeleted === false) {
           if (result.parentCode === data.resultParentCode) {
-            data.staffCode = handler.staffCode;
             return super.createOne(data, handler);
           } else {
             throw new BadRequestException(
               `Result '${data.resultParentCode}' and '${result.parentCode}' is not matched!`,
             );
           }
+        } else if (data.resultCode === '') {
+          return super.createOne(data, handler);
         } else {
           throw new BadRequestException(
             `Result '${data.resultCode}' is not existed!`,

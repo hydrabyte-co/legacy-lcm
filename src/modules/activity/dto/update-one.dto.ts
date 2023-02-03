@@ -18,43 +18,6 @@ import { ActivityType } from '../enum/activity.enum';
 import { Optional } from '@nestjs/common';
 
 export class UpdateActivityData extends UpdateOneData {
-  @Optional()
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(24)
-  staffCode;
-
-  @Optional()
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(24)
-  contractCode;
-
-  @Optional()
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(24)
-  customerCode;
-
-  @Optional()
-  @IsEnum(ActivityType)
-  @IsNotEmpty()
-  type;
-
-  @IsObject()
-  contactInfo: {
-    relation: string;
-    fullname: string;
-    phoneNumber?: string;
-    facebookId?: string;
-    zaloId?: string;
-    chatId?: string;
-  } = {
-    relation: '',
-    fullname: '',
-    phoneNumber: '',
-  };
-
   @IsObject()
   reference: {
     [key: string]: any;
