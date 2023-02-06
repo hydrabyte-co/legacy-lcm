@@ -56,21 +56,22 @@ export class CustomerService extends BaseService<Customer> {
     }
     if (filter.where.sortBy) {
       switch (filter.where.sortBy) {
-        case 'fullname-asc': {
-          filter.order.fullname = 'ASC';
-          break;
-        }
         case 'update-desc': {
-          filter.order.changedAt = 'DESC';
+          filter.order.changedAt = -1;
           break;
         }
         case 'activity-asc': {
-          filter.order.priority = 'ASC';
+          filter.order.priority = 1;
           break;
         }
-        case 'priority-asc':
+        case 'priority-asc': {
+          filter.order.priority = 1;
+          filter.where.priority = { $gte: 1 };
+          break;
+        }
+        case 'fullname-asc':
         default: {
-          filter.order.priority = 'ASC';
+          filter.order.fullname = 1;
           break;
         }
       }
