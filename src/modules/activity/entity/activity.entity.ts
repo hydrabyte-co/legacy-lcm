@@ -36,14 +36,14 @@ export class Activity extends Base {
   @Column()
   @IsObject()
   contactInfo: {
-    relation: string;
+    relationCode: string;
     fullname: string;
     phoneNumber?: string;
     facebookId?: string;
     zaloId?: string;
     chatId?: string;
   } = {
-    relation: '',
+    relationCode: '',
     fullname: '',
     phoneNumber: '',
   };

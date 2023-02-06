@@ -54,7 +54,29 @@ export class CustomerService extends BaseService<Customer> {
         ];
       }
     }
+    if (filter.where.sortBy) {
+      switch (filter.where.sortBy) {
+        case 'fullname-asc': {
+          filter.order.fullname = 'ASC';
+          break;
+        }
+        case 'update-desc': {
+          filter.order.changedAt = 'DESC';
+          break;
+        }
+        case 'activity-asc': {
+          filter.order.priority = 'ASC';
+          break;
+        }
+        case 'priority-asc':
+        default: {
+          filter.order.priority = 'ASC';
+          break;
+        }
+      }
+    }
     delete filter.where.query;
+    delete filter.where.sortBy;
     filter.where.callStaffCode = handler.staffCode;
     return await super.findManyWithPaging(filter, handler);
   }

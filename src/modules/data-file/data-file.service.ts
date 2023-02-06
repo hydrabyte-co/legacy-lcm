@@ -393,6 +393,11 @@ const ReferenceXlsxSchema = {
     type: String,
     required: true,
   },
+  fullname: {
+    prop: 'fullname',
+    type: String,
+    required: true,
+  },
   gender: {
     prop: 'gender',
     type: (value) => {

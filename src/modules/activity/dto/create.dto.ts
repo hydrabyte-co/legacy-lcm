@@ -38,14 +38,14 @@ export class CreateActivityData extends BaseCreateData {
 
   @IsObject()
   contactInfo: {
-    relation: string;
+    relationCode: string;
     fullname: string;
     phoneNumber?: string;
     facebookId?: string;
     zaloId?: string;
     chatId?: string;
   } = {
-    relation: '',
+    relationCode: '',
     fullname: '',
     phoneNumber: '',
   };
