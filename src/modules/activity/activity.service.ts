@@ -54,7 +54,7 @@ export class ActivityService extends BaseService<Activity> {
     });
     data.staffCode = handler.staffCode;
 
-    if (uncompletedActivity === undefined) {
+    if (uncompletedActivity === undefined || uncompletedActivity === null) {
       if (contract && contract.isDeleted === false) {
         if (contract.customerCode === data.customerCode) {
           if (result && result.isDeleted === false) {
@@ -83,11 +83,8 @@ export class ActivityService extends BaseService<Activity> {
         );
       }
     } else {
-      console.log(uncompletedActivity);
       throw new BadRequestException(
-        `There uncompleted report on ${
-          uncompletedActivity ? uncompletedActivity.createdAt.toUTCString() : ''
-        }, please update result before make new activity!`,
+        `There uncompleted report on ${uncompletedActivity.createdAt.toUTCString()}, please update result before make new activity!`,
       );
     }
   }
