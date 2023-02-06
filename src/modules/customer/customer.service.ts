@@ -31,7 +31,7 @@ export class CustomerService extends BaseService<Customer> {
     if (filter.where.query) {
       const phoneRegex = /^0[1-9][0-9]+$/;
       const numberRegex = /^([1-9]|00)[0-9]+$/;
-      const codeRegex = /^[a-z]+-[0-9]+$/;
+      const codeRegex = /^[a-zA-Z]+-[0-9]+$/;
       const emailRegex = /^[a-z0-9.-_]+\@[a-z0-9.-_]+$/;
 
       if (phoneRegex.test(filter.where.query)) {
@@ -54,6 +54,7 @@ export class CustomerService extends BaseService<Customer> {
         ];
       }
     }
+    filter.order.fullname = 1;
     if (filter.where.sortBy) {
       switch (filter.where.sortBy) {
         case 'update-desc': {
@@ -61,7 +62,7 @@ export class CustomerService extends BaseService<Customer> {
           break;
         }
         case 'activity-asc': {
-          filter.order.priority = 1;
+          filter.order.lastActivityDate = 1;
           break;
         }
         case 'priority-asc': {
@@ -79,6 +80,8 @@ export class CustomerService extends BaseService<Customer> {
     delete filter.where.query;
     delete filter.where.sortBy;
     filter.where.callStaffCode = handler.staffCode;
+    console.log(filter);
+    
     return await super.findManyWithPaging(filter, handler);
   }
 

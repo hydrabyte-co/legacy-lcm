@@ -95,4 +95,8 @@ export class Customer extends Base {
   @Column()
   @IsNumber()
   priority;
+
+  @Column()
+  @IsDate()
+  lastActivityDate = new Date();
 }

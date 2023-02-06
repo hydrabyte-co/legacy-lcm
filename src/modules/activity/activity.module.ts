@@ -12,9 +12,10 @@ import { ContractModule } from '../contract/contract.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Activity, Contract, Result]),
+    TypeOrmModule.forFeature([Activity, Contract, Result, Customer]),
     ContractModule,
     ResultModule,
+    CustomerModule,
   ],
   controllers: [ActivitiesController],
   providers: [ActivityService],

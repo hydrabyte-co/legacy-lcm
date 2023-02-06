@@ -17,23 +17,23 @@ import {
 export class ActivityService extends BaseService<Activity> {
   private _activitiesRepo: MongoRepository<Activity>;
   private _customersRepo: MongoRepository<Customer>;
-  //private _customersRepo: MongoRepository<Customer>;
   private _contractsRepo: MongoRepository<Contract>;
   private _resultsRepo: MongoRepository<Result>;
   constructor(
     @InjectRepository(Activity)
     private readonly activitiesRepository: MongoRepository<Activity>,
-    //@InjectRepository(Customer)
-    //private readonly customersRepository: MongoRepository<Customer>,
     @InjectRepository(Contract)
     private readonly contractsRepository: MongoRepository<Contract>,
     @InjectRepository(Result)
     private readonly resultsRepository: MongoRepository<Result>,
+    @InjectRepository(Customer)
+    private readonly customersRepository: MongoRepository<Customer>,
   ) {
     super(activitiesRepository);
     this._activitiesRepo = activitiesRepository;
     this._contractsRepo = contractsRepository;
     this._resultsRepo = resultsRepository;
+    this._customersRepo = customersRepository;
   }
 
   async findOneByCode(code: string, handler: DataHandler): Promise<any> {
@@ -44,7 +44,7 @@ export class ActivityService extends BaseService<Activity> {
     filter: FindManyFilter,
     handler: DataHandler,
   ): Promise<FindAllResult<Activity>> {
-    filter.order = { createdAt: -1};
+    filter.order = { createdAt: -1 };
     return await super.findManyWithPaging(filter, handler);
   }
 
@@ -64,6 +64,9 @@ export class ActivityService extends BaseService<Activity> {
     const result = await this._resultsRepo.findOne({
       where: { code: data.resultCode },
     });
+    const customer = await this._customersRepo.findOne({
+      where: { code: data.customerCode },
+    });
     data.staffCode = handler.staffCode;
 
     if (uncompletedActivity === undefined || uncompletedActivity === null) {
@@ -78,7 +81,15 @@ export class ActivityService extends BaseService<Activity> {
               );
             }
           } else if (data.resultCode === '') {
-            return super.createOne(data, handler);
+            const result = await super.createOne(data, handler);
+            if (result) {
+              if (customer) {
+                this._customersRepo.update(customer.id, {
+                  lastActivityDate: new Date(),
+                });
+              }
+            }
+            return result;
           } else {
             throw new BadRequestException(
               `Result '${data.resultCode}' is not existed!`,

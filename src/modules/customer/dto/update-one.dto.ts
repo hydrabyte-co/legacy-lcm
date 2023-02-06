@@ -99,6 +99,10 @@ export class UpdateCustomerData extends UpdateOneData {
   @IsNumber()
   @IsOptional()
   priority?;
+
+  @IsDateString()
+  @IsOptional()
+  lastActivityDate?;
 }
 export class UpdateCustomerResult extends UpdateOneResult {
   @Expose()
@@ -148,4 +152,7 @@ export class UpdateCustomerResult extends UpdateOneResult {
 
   @Expose()
   priority;
+
+  @Expose()
+  lastActivityDate;
 }
