@@ -8,6 +8,10 @@ import { Customer } from '../customer/entity/customer.entity';
 import { Result } from '../result/entity/result.entity';
 import { CreateActivityData } from './dto/create.dto';
 import { Contract } from '../contract/entity/contract.entity';
+import {
+  FindManyFilter,
+  FindAllResult,
+} from 'src/common/modules/base/dto/find-many.dto';
 
 @Injectable()
 export class ActivityService extends BaseService<Activity> {
@@ -34,6 +38,14 @@ export class ActivityService extends BaseService<Activity> {
 
   async findOneByCode(code: string, handler: DataHandler): Promise<any> {
     return super.findOneByField('code', code, handler);
+  }
+
+  async findManyWithPaging(
+    filter: FindManyFilter,
+    handler: DataHandler,
+  ): Promise<FindAllResult<Activity>> {
+    filter.order = { createdAt: -1};
+    return await super.findManyWithPaging(filter, handler);
   }
 
   async createOne(
