@@ -58,21 +58,33 @@ export class CustomerService extends BaseService<Customer> {
     if (filter.where.sortBy) {
       switch (filter.where.sortBy) {
         case 'update-desc': {
-          filter.order.changedAt = -1;
+          filter.order = { changedAt: -1 };
+          break;
+        }
+        case 'update-asc': {
+          filter.order = { changedAt: 1 };
           break;
         }
         case 'activity-asc': {
-          filter.order.lastActivityDate = 1;
+          filter.order = { lastActivityDate: 1 };
+          break;
+        }
+        case 'activity-desc': {
+          filter.order = { lastActivityDate: -1 };
           break;
         }
         case 'priority-asc': {
-          filter.order.priority = 1;
+          filter.order = { priority: 1 };
           filter.where.priority = { $gte: 1 };
+          break;
+        }
+        case 'fullname-desc': {
+          filter.order = { fullname: -1 };
           break;
         }
         case 'fullname-asc':
         default: {
-          filter.order.fullname = 1;
+          filter.order = { fullname: 1 };
           break;
         }
       }
@@ -80,8 +92,6 @@ export class CustomerService extends BaseService<Customer> {
     delete filter.where.query;
     delete filter.where.sortBy;
     filter.where.callStaffCode = handler.staffCode;
-    console.log(filter);
-    
     return await super.findManyWithPaging(filter, handler);
   }
 

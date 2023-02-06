@@ -98,5 +98,5 @@ export class Customer extends Base {
 
   @Column()
   @IsDate()
-  lastActivityDate = new Date();
+  lastActivityDate: Date;
 }

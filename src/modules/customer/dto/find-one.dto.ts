@@ -50,4 +50,7 @@ export class FindCustomerByIdResult extends BaseFindByIdResult {
 
   @Expose()
   priority;
+
+  @Expose()
+  lastActivityDate;
 }
