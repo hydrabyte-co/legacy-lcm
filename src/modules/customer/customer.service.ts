@@ -29,14 +29,33 @@ export class CustomerService extends BaseService<Customer> {
     handler: DataHandler,
   ): Promise<FindAllResult<Customer>> {
     if (filter.where.query) {
-      const phoneRegex = /^0[1-9]+/;
-      const numberRegex = /^[0-9]+/;
+      const phoneRegex = /^0[1-9][0-9]+$/;
+      const numberRegex = /^([1-9]|00)[0-9]+$/;
+      const codeRegex = /^[a-z]+-[0-9]+$/;
+      const emailRegex = /^[a-z0-9.-_]+\@[a-z0-9.-_]+$/;
 
-      if(phoneRegex.test(filter.where.query)){
-        //filter.where.or
+      if (phoneRegex.test(filter.where.query)) {
+        // filter.where.mobileNumber = filter.where.query;
+        filter.where.$or = [
+          { mobileNumber: filter.where.query },
+          { officeNumber: filter.where.query },
+        ];
+      } else if (numberRegex.test(filter.where.query)) {
+        filter.where.identityNumber = filter.where.query;
+      } else if (codeRegex.test(filter.where.query)) {
+        filter.where.code = filter.where.query;
+      } else if (emailRegex.test(filter.where.query)) {
+        filter.where.email = filter.where.query;
+      } else {
+        filter.where.$or = [
+          { fullname: new RegExp(filter.where.query, 'g') },
+          { permanentAddress: new RegExp(filter.where.query, 'g') },
+          { temporaryAddress: new RegExp(filter.where.query, 'g') },
+        ];
       }
     }
-    filter.where.staffCode = handler.staffCode;
+    delete filter.where.query;
+    filter.where.callStaffCode = handler.staffCode;
     return await super.findManyWithPaging(filter, handler);
   }
 

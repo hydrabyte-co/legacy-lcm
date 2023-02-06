@@ -22,7 +22,7 @@ export class Reference extends Base {
   @IsString()
   @IsNotEmpty()
   @MaxLength(12)
-  relation = '';
+  relationCode = '';
 
   @Column()
   @IsString()

@@ -13,6 +13,99 @@ import { Customer } from '../customer/entity/customer.entity';
 import { replaceRegexPatternFromString } from 'src/common/utils/string-helper';
 import { Contract } from '../contract/entity/contract.entity';
 import { Transaction } from '../transaction/entity/transaction.entity';
+import { Reference } from '../reference/entity/reference.entity';
+import { Investigation } from '../investigation/entity/investigation.entity';
+
+const relations: {
+  name: string;
+  code: string;
+  tags: string[];
+}[] = [
+  {
+    name: 'Bố mẹ',
+    code: 'parent',
+    tags: ['bố mẹ', 'bố', 'mẹ'],
+  },
+  {
+    name: 'Vợ chồng',
+    code: 'spouse',
+    tags: ['vợ chồng', 'vợ', 'chồng'],
+  },
+  {
+    name: 'Anh chị em',
+    code: 'sibling',
+    tags: ['anh chị em', 'anh', 'chị', 'em'],
+  },
+  {
+    name: 'Con cái',
+    code: 'child',
+    tags: ['con', 'con trai', 'con gái'],
+  },
+  {
+    name: 'Bạn bè',
+    code: 'friend',
+    tags: ['bạn', 'bạn bè'],
+  },
+  {
+    name: 'Người thân khác',
+    code: 'other-relative',
+    tags: ['cô', 'chú', 'bác', 'cháu', 'ông', 'bà'],
+  },
+  {
+    name: 'Đồng nghiệp',
+    code: 'colleague',
+    tags: ['đồng nghiệp', 'công ty'],
+  },
+  {
+    name: 'Đồng nghiệp',
+    code: 'colleague',
+    tags: ['đồng nghiệp'],
+  },
+  {
+    name: 'Khác',
+    code: 'other',
+    tags: [''],
+  },
+];
+
+const investigationTypes: {
+  name: string;
+  code: string;
+  tags: string[];
+}[] = [
+  {
+    name: 'Địa chỉ',
+    code: 'address',
+    tags: ['địa chỉ', 'address'],
+  },
+  {
+    name: 'Email',
+    code: 'email',
+    tags: ['email'],
+  },
+  {
+    name: 'Mạng xã hội',
+    code: 'social-network',
+    tags: [
+      'mxh',
+      'facebook',
+      'mạng xã hội',
+      'twitter',
+      'zalo',
+      'social-network',
+    ],
+  },
+  {
+    name: 'Số điện thoại',
+    code: 'phone-number',
+    tags: ['điện thoại', 'di dộng', 'số điện thoại', 'phone-number'],
+  },
+  {
+    name: 'Thông tin khác',
+    code: 'other',
+    tags: ['thông tin khác', 'other'],
+  },
+];
 
 const CustomerXlsxSchema = {
   code: {
@@ -111,7 +204,7 @@ const CustomerXlsxSchema = {
   permanentAddress: {
     prop: 'permanentAddress',
     type: String,
-    required: true,
+    required: false,
   },
   note: {
     prop: 'note',
@@ -154,12 +247,12 @@ const ContractXlsxSchema = {
   totalBalance: {
     prop: 'totalBalance',
     type: Number,
-    required: true,
+    required: false,
   },
   ovdBalance: {
     prop: 'ovdBalance',
     type: Number,
-    required: true,
+    required: false,
   },
   performingBalance: {
     prop: 'performingBalance',
@@ -188,6 +281,21 @@ const ContractXlsxSchema = {
   },
   psAmount: {
     prop: 'psAmount',
+    type: Number,
+    required: false,
+  },
+  ovdDays: {
+    prop: 'ovdDays',
+    type: Number,
+    required: false,
+  },
+  totalRepayBank: {
+    prop: 'totalPaymentAmountFromPartner',
+    type: Number,
+    required: false,
+  },
+  totalRepayHK: {
+    prop: 'totalPaymentAmount',
     type: Number,
     required: false,
   },
@@ -235,7 +343,7 @@ const ContractXlsxSchema = {
     prop: 'status',
     type: (value) => {
       value = (value + '').toLocaleLowerCase().toString();
-      if (value.indexOf('active') >= 0) {
+      if (value.indexOf('active') >= 0 || value.toLocaleLowerCase() === 'a') {
         value = 'active';
       } else {
         value = 'inactive';
@@ -269,11 +377,142 @@ const TransactionXlsxSchema = {
   },
 };
 
+const ReferenceXlsxSchema = {
+  customerCode: {
+    prop: 'customerCode',
+    type: String,
+    required: true,
+  },
+  callStaffCode: {
+    prop: 'callStaffCode',
+    type: String,
+    required: true,
+  },
+  relationCode: {
+    prop: 'relationCode',
+    type: String,
+    required: true,
+  },
+  gender: {
+    prop: 'gender',
+    type: (value) => {
+      value = (value + '').toLocaleLowerCase().toString();
+      if (value.indexOf('female') >= 0) {
+        value = 'female';
+      } else if (value.indexOf('male') >= 0) {
+        value = 'male';
+      } else {
+        value = '';
+      }
+      return value;
+    },
+    required: false,
+  },
+  dob: {
+    prop: 'dob',
+    type: (value) => {
+      switch (getTypeOf(value)) {
+        case 'datetime': {
+          value = (value as Date).toISOString().split('T')[0];
+          break;
+        }
+        default: {
+          if (value === null) {
+            value = '';
+          }
+          if (value === undefined) {
+            value = '';
+          }
+          break;
+        }
+      }
+      return value;
+    },
+    required: false,
+  },
+  identityNumber: {
+    prop: 'identityNumber',
+    type: (value) => {
+      return replaceRegexPatternFromString(value, '[^0-9]+', '');
+    },
+    required: false,
+  },
+  mobileNumber: {
+    prop: 'mobileNumber',
+    type: (value) => {
+      return replaceRegexPatternFromString(value, '[^0-9]+', '');
+    },
+    required: true,
+  },
+  officeNumber: {
+    prop: 'officeNumber',
+    type: (value) => {
+      return replaceRegexPatternFromString(value, '[^0-9]+', '');
+    },
+    required: false,
+  },
+  email: {
+    prop: 'email',
+    type: String,
+    required: false,
+  },
+  temporaryAddress: {
+    prop: 'temporaryAddress',
+    type: String,
+    required: false,
+  },
+  permanentAddress: {
+    prop: 'permanentAddress',
+    type: String,
+    required: false,
+  },
+  note: {
+    prop: 'note',
+    type: String,
+    required: false,
+  },
+  createdAt: {
+    prop: 'date',
+    type: Date,
+    required: true,
+  },
+};
+
+const InvestigationXlsxSchema = {
+  customerCode: {
+    prop: 'customerCode',
+    type: String,
+    required: true,
+  },
+  staffCode: {
+    prop: 'staffCode',
+    type: String,
+    required: true,
+  },
+  typeCode: {
+    prop: 'typeCode',
+    type: String,
+    required: true,
+  },
+  value: {
+    prop: 'value',
+    type: String,
+    required: false,
+  },
+  note: {
+    prop: 'note',
+    type: String,
+    required: false,
+  },
+};
+
 @Injectable()
 export class DataFileService extends BaseService<DataFile> {
   private _customersRepo: MongoRepository<Customer>;
   private _contractsRepo: MongoRepository<Contract>;
-  private _transactionRepo: MongoRepository<Transaction>;
+  private _transactionsRepo: MongoRepository<Transaction>;
+  private _referencesRepo: MongoRepository<Reference>;
+  private _investigationsRepo: MongoRepository<Investigation>;
   constructor(
     @InjectRepository(DataFile)
     private readonly dataFilesRepository: MongoRepository<DataFile>,
@@ -283,11 +522,17 @@ export class DataFileService extends BaseService<DataFile> {
     private readonly contractsRepository: MongoRepository<Contract>,
     @InjectRepository(Transaction)
     private readonly transactionsRepository: MongoRepository<Transaction>,
+    @InjectRepository(Reference)
+    private readonly referencesRepository: MongoRepository<Reference>,
+    @InjectRepository(Investigation)
+    private readonly investigationsRepository: MongoRepository<Investigation>,
   ) {
     super(dataFilesRepository);
     this._customersRepo = customersRepository;
     this._contractsRepo = contractsRepository;
-    this._transactionRepo = transactionsRepository;
+    this._transactionsRepo = transactionsRepository;
+    this._referencesRepo = referencesRepository;
+    this._investigationsRepo = investigationsRepository;
   }
 
   async createOne(
@@ -303,7 +548,7 @@ export class DataFileService extends BaseService<DataFile> {
   async readDataFile(id: string, handler: DataHandler): Promise<any> {
     const dataFile = (await super.findOne(id, handler)) as DataFile;
     const info = {
-      sheetNames: [],
+      sheets: [],
     };
     if (dataFile.status === DataFileStatus.New) {
       const filePath = `./data/${dataFile.fileName}`;
@@ -313,7 +558,9 @@ export class DataFileService extends BaseService<DataFile> {
           console.log(e);
           return [];
         });
-      info.sheetNames = sheetNames;
+      info.sheets = sheetNames.map((name) => {
+        return { name };
+      });
     } else {
       throw new BadRequestException(
         `Status of Data File '${id}' is '${dataFile.status}'. Can not read Data File in status '${dataFile.status}'!`,
@@ -353,6 +600,14 @@ export class DataFileService extends BaseService<DataFile> {
               readSchema = TransactionXlsxSchema;
               break;
             }
+            case 'reference': {
+              readSchema = ReferenceXlsxSchema;
+              break;
+            }
+            case 'investigation': {
+              readSchema = InvestigationXlsxSchema;
+              break;
+            }
             default:
               break;
           }
@@ -374,7 +629,7 @@ export class DataFileService extends BaseService<DataFile> {
               `Process Data File './data/${dataFile.fileName}' Sheet(${i}/${dataFile.settings.sheets.length}) '${sheet.name}': ${readResult.rows.length} rows, ${readResult.errors.length} errors`,
             );
             console.log(`Errors:`, readResult.errors);
-
+            // throw new BadRequestException();
             for (let j = 0; j < readResult.rows.length; j++) {
               const row = readResult.rows[j];
               console.log(`-- Row(${j}/${readResult.rows.length})`, row);
@@ -450,17 +705,19 @@ export class DataFileService extends BaseService<DataFile> {
                   break;
                 }
                 case 'transaction': {
-                  const foundTransaction = await this._transactionRepo.findOne({
-                    where: {
-                      contractCode: row.contractCode,
-                      amount: row.amount,
-                      date: row.date,
+                  const foundTransaction = await this._transactionsRepo.findOne(
+                    {
+                      where: {
+                        contractCode: row.contractCode,
+                        amount: row.amount,
+                        date: row.date,
+                      },
                     },
-                  });
+                  );
 
                   if (foundTransaction) {
                     const updateTransactionResult =
-                      await this._transactionRepo.update(
+                      await this._transactionsRepo.update(
                         foundTransaction.id,
                         row,
                       );
@@ -482,12 +739,103 @@ export class DataFileService extends BaseService<DataFile> {
                       userId: '',
                     };
                     const createContractResult =
-                      await this._transactionRepo.save(row);
+                      await this._transactionsRepo.save(row);
                     console.log(
                       `---- Create transaction:`,
                       createContractResult,
                     );
                     if (createContractResult) {
+                      processResult.insert++;
+                    }
+                  }
+                  break;
+                }
+                case 'reference': {
+                  const relation = relations.find(
+                    (r) =>
+                      r.tags.indexOf(row.relationCode.toLocaleLowerCase()) >= 0,
+                  );
+                  if (relation) {
+                    row.relationCode = relation.code;
+                  } else {
+                    row.relationCode = 'other';
+                  }
+
+                  const foundRefence = await this._referencesRepo.findOne({
+                    where: {
+                      customerCode: row.customerCode,
+                      relationCode: row.relationCode,
+                      mobileNumber: row.mobileNumber,
+                    },
+                  });
+
+                  if (foundRefence) {
+                    const updateReferenceResult =
+                      await this._referencesRepo.update(foundRefence.id, row);
+                    console.log(`---- Find Reference`, foundRefence);
+                    console.log(
+                      `---- Update Reference:`,
+                      (updateReferenceResult as any).result,
+                    );
+                    if (updateReferenceResult.affected > 0) {
+                      processResult.update++;
+                    }
+                  } else {
+                    row.isDeleted = false;
+                    row.owner = {
+                      orgId: handler.orgId,
+                      userId: '',
+                    };
+                    const createReferenceResult =
+                      await this._referencesRepo.save(row);
+                    console.log(
+                      `---- Create Reference:`,
+                      createReferenceResult,
+                    );
+                    if (createReferenceResult) {
+                      processResult.insert++;
+                    }
+                  }
+                  break;
+                }
+                case 'investigation': {
+                  const type = investigationTypes.find(
+                    (r) =>
+                      r.tags.indexOf(row.typeCode.toLocaleLowerCase()) >= 0,
+                  );
+                  if (type) {
+                    row.typeCode = type.code;
+                  } else {
+                    row.typeCode = 'other';
+                  }
+
+                  const foundInvestigation =
+                    await this._investigationsRepo.findOne({
+                      where: {
+                        customerCode: row.customerCode,
+                        typeCode: row.typeCode,
+                        value: row.value,
+                      },
+                    });
+
+                  if (foundInvestigation) {
+                    console.log(
+                      `---- Find Investigation. No thing to do!`,
+                      foundInvestigation,
+                    );
+                  } else {
+                    row.isDeleted = false;
+                    row.owner = {
+                      orgId: handler.orgId,
+                      userId: '',
+                    };
+                    const createReferenceResult =
+                      await this._investigationsRepo.save(row);
+                    console.log(
+                      `---- Create Investigation:`,
+                      createReferenceResult,
+                    );
+                    if (createReferenceResult) {
                       processResult.insert++;
                     }
                   }
@@ -502,7 +850,8 @@ export class DataFileService extends BaseService<DataFile> {
               processResult,
             );
             for (let j = 0; j < dataFile.info.sheets.length; j++) {
-              dataFile.info.sheets[j] = { ...processResult };
+              if (dataFile.info.sheets[j].name === sheet.name)
+                dataFile.info.sheets[j] = { ...processResult };
             }
             console.log(dataFile.info);
           }

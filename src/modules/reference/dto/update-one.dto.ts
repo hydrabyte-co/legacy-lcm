@@ -25,7 +25,7 @@ export class UpdateReferenceData extends UpdateOneData {
   @IsString()
   @IsNotEmpty()
   @MaxLength(12)
-  relation;
+  relationCode;
 
   @IsOptional()
   @IsString()
@@ -84,7 +84,7 @@ export class UpdateReferenceResult extends UpdateOneResult {
   customerCode = '';
 
   @Expose()
-  relation = '';
+  relationCode = '';
 
   @Expose()
   fullname = '';

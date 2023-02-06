@@ -88,6 +88,14 @@ export class Contract extends Base {
   ovdDays = 0;
 
   @Column()
+  @IsNumber()
+  totalPaymentAmountFromPartner = 0;
+
+  @Column()
+  @IsNumber()
+  totalPaymentAmount = 0;
+
+  @Column()
   @IsDate()
   valueDate = new Date();
 

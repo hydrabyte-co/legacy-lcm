@@ -15,7 +15,7 @@ import { ActivityType } from '../enum/activity.enum';
 
 @Entity(Controllers.LCM_Activities)
 export class Activity extends Base {
-  @Column()
+  @Column({ unique: false })
   @IsString()
   @IsNotEmpty()
   @MaxLength(24)

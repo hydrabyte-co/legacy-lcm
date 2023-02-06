@@ -11,6 +11,7 @@ import { Contract } from '../contract/entity/contract.entity';
 
 @Injectable()
 export class ActivityService extends BaseService<Activity> {
+  private _activitiesRepo: MongoRepository<Activity>;
   private _customersRepo: MongoRepository<Customer>;
   //private _customersRepo: MongoRepository<Customer>;
   private _contractsRepo: MongoRepository<Contract>;
@@ -26,6 +27,7 @@ export class ActivityService extends BaseService<Activity> {
     private readonly resultsRepository: MongoRepository<Result>,
   ) {
     super(activitiesRepository);
+    this._activitiesRepo = activitiesRepository;
     this._contractsRepo = contractsRepository;
     this._resultsRepo = resultsRepository;
   }
@@ -38,6 +40,12 @@ export class ActivityService extends BaseService<Activity> {
     data: CreateActivityData,
     handler: DataHandler,
   ): Promise<Activity> {
+    const uncompletedActivity = await this._activitiesRepo.findOne({
+      where: { resultCode: '', staffCode: handler.staffCode },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
     const contract = await this._contractsRepo.findOne({
       where: { code: data.contractCode },
     });
@@ -45,31 +53,38 @@ export class ActivityService extends BaseService<Activity> {
       where: { code: data.resultCode },
     });
     data.staffCode = handler.staffCode;
-    if (contract && contract.isDeleted === false) {
-      if (contract.customerCode === data.customerCode) {
-        if (result && result.isDeleted === false) {
-          if (result.parentCode === data.resultParentCode) {
+
+    if (uncompletedActivity === undefined) {
+      if (contract && contract.isDeleted === false) {
+        if (contract.customerCode === data.customerCode) {
+          if (result && result.isDeleted === false) {
+            if (result.parentCode === data.resultParentCode) {
+              return super.createOne(data, handler);
+            } else {
+              throw new BadRequestException(
+                `Result '${data.resultParentCode}' and '${result.parentCode}' is not matched!`,
+              );
+            }
+          } else if (data.resultCode === '') {
             return super.createOne(data, handler);
           } else {
             throw new BadRequestException(
-              `Result '${data.resultParentCode}' and '${result.parentCode}' is not matched!`,
+              `Result '${data.resultCode}' is not existed!`,
             );
           }
-        } else if (data.resultCode === '') {
-          return super.createOne(data, handler);
         } else {
           throw new BadRequestException(
-            `Result '${data.resultCode}' is not existed!`,
+            `Customer '${data.customerCode}' and '${contract.customerCode}' is not matched!`,
           );
         }
       } else {
         throw new BadRequestException(
-          `Customer '${data.customerCode}' and '${contract.customerCode}' is not matched!`,
+          `Contract '${data.customerCode}' is not existed!`,
         );
       }
     } else {
       throw new BadRequestException(
-        `Contract '${data.customerCode}' is not existed!`,
+        `There uncompleted report on ${uncompletedActivity.createdAt.toUTCString()}, please update result before make new activity!`,
       );
     }
   }

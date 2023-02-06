@@ -7,7 +7,7 @@ export class FindReferenceByIdResult extends BaseFindByIdResult {
   customerCode = '';
 
   @Expose()
-  relation = '';
+  relationCode = '';
 
   @Expose()
   fullname = '';

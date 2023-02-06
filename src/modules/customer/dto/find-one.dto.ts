@@ -47,4 +47,7 @@ export class FindCustomerByIdResult extends BaseFindByIdResult {
 
   @Expose()
   note = '';
+
+  @Expose()
+  priority;
 }

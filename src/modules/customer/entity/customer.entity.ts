@@ -6,6 +6,7 @@ import {
   MaxLength,
   IsDate,
   IsDateString,
+  IsNumber,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
 import { Controllers } from 'src/common/enums/controllers';
@@ -92,6 +93,6 @@ export class Customer extends Base {
   note = '';
 
   @Column()
-  @IsBoolean()
-  isMarked = false;
+  @IsNumber()
+  priority;
 }

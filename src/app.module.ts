@@ -13,6 +13,7 @@ import { ActivityModule } from './modules/activity/activity.module';
 import { DataFileModule } from './modules/data-file/data-file.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { ReferenceModule } from './modules/reference/reference.module';
+import { InvestigationModule } from './modules/investigation/investigation.module';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { ReferenceModule } from './modules/reference/reference.module';
       ssl: false,
       useUnifiedTopology: true,
       useNewUrlParser: true,
-      synchronize: true,
+      synchronize: false,
     }),
     PartnerModule,
     CustomerModule,
@@ -34,6 +35,7 @@ import { ReferenceModule } from './modules/reference/reference.module';
     DataFileModule,
     TransactionModule,
     ReferenceModule,
+    InvestigationModule,
   ],
   controllers: [AppController],
   providers: [AppService, JWTAuthStrategy, BasicAuthStrategy],

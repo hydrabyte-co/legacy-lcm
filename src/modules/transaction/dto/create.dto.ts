@@ -7,6 +7,7 @@ import {
   IsDate,
   IsOptional,
   IsNumber,
+  IsDateString,
 } from 'class-validator';
 import {
   CreateData as BaseCreateData,
@@ -27,7 +28,7 @@ export class CreateTransactionData extends BaseCreateData {
   @IsNumber()
   amount = 0;
 
-  @IsDate()
+  @IsDateString()
   date: Date = new Date();
 }
 @Exclude()

@@ -49,6 +49,7 @@ export class TransactionsController extends BaseController {
     @Body() data: CreateTransactionData,
     @Req() req,
   ): Promise<CreateTransactionResult> {
+    data.date = new Date(data.date);
     return await super.createOne(data, req);
   }
 

@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsDateString,
   IsEnum,
+  IsNumber,
 } from 'class-validator';
 import {
   CreateData as BaseCreateData,
@@ -79,8 +80,9 @@ export class CreateCustomerData extends BaseCreateData {
   @MaxLength(360)
   note = '';
 
-  @IsBoolean()
-  isMarked = false;
+  @IsNumber()
+  @IsOptional()
+  priority?;
 }
 @Exclude()
 export class CreateCustomerResult extends BaseCreateResult {
@@ -130,5 +132,5 @@ export class CreateCustomerResult extends BaseCreateResult {
   note = '';
 
   @Expose()
-  isMarked = false;
+  priority;
 }

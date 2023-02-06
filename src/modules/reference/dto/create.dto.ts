@@ -24,7 +24,7 @@ export class CreateReferenceData extends BaseCreateData {
   @IsString()
   @IsNotEmpty()
   @MaxLength(24)
-  relation = '';
+  relationCode = '';
 
   @IsString()
   @IsNotEmpty()
@@ -74,7 +74,7 @@ export class CreateReferenceResult extends BaseCreateResult {
   customerCode = '';
 
   @Expose()
-  relation = '';
+  relationCode = '';
 
   @Expose()
   fullname = '';
