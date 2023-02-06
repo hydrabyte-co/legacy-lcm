@@ -83,8 +83,11 @@ export class ActivityService extends BaseService<Activity> {
         );
       }
     } else {
+      console.log(uncompletedActivity);
       throw new BadRequestException(
-        `There uncompleted report on ${uncompletedActivity.createdAt.toUTCString()}, please update result before make new activity!`,
+        `There uncompleted report on ${
+          uncompletedActivity ? uncompletedActivity.createdAt.toUTCString() : ''
+        }, please update result before make new activity!`,
       );
     }
   }
