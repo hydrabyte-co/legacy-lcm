@@ -53,7 +53,11 @@ export class ActivityService extends BaseService<Activity> {
     handler: DataHandler,
   ): Promise<Activity> {
     const uncompletedActivity = await this._activitiesRepo.findOne({
-      where: { resultCode: '', staffCode: handler.staffCode },
+      where: {
+        resultCode: '',
+        staffCode: handler.staffCode,
+        customerCode: data.customerCode,
+      },
       order: {
         createdAt: 'DESC',
       },
@@ -106,6 +110,7 @@ export class ActivityService extends BaseService<Activity> {
         );
       }
     } else {
+      console.log(uncompletedActivity);
       throw new BadRequestException(
         `There uncompleted report on ${uncompletedActivity.createdAt.toUTCString()}, please update result before make new activity!`,
       );
