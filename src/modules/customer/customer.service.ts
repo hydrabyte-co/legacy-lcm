@@ -41,16 +41,19 @@ export class CustomerService extends BaseService<Customer> {
           { officeNumber: filter.where.query },
         ];
       } else if (numberRegex.test(filter.where.query)) {
-        filter.where.identityNumber = filter.where.query;
+        filter.where.$or = [
+          { identityNumber: filter.where.query },
+          { code: new RegExp(filter.where.query, 'gi') },
+        ];
       } else if (codeRegex.test(filter.where.query)) {
         filter.where.code = filter.where.query;
       } else if (emailRegex.test(filter.where.query)) {
         filter.where.email = filter.where.query;
       } else {
         filter.where.$or = [
-          { fullname: new RegExp(filter.where.query, 'g') },
-          { permanentAddress: new RegExp(filter.where.query, 'g') },
-          { temporaryAddress: new RegExp(filter.where.query, 'g') },
+          { fullname: new RegExp(filter.where.query, 'gi') },
+          { permanentAddress: new RegExp(filter.where.query, 'gi') },
+          { temporaryAddress: new RegExp(filter.where.query, 'gi') },
         ];
       }
     }
