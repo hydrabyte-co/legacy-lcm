@@ -133,4 +133,7 @@ export class CreateCustomerResult extends BaseCreateResult {
 
   @Expose()
   priority;
+
+  @Expose()
+  lastActivity;
 }

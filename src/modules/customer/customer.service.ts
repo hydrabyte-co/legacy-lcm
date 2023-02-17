@@ -89,6 +89,10 @@ export class CustomerService extends BaseService<Customer> {
         }
       }
     }
+    if (filter.where.resultCode) {
+      filter.where['lastActivity.resultCode'] = filter.where.resultCode;
+      delete filter.where.resultCode;
+    }
     delete filter.where.query;
     delete filter.where.sortBy;
     filter.where.callStaffCode = handler.staffCode;

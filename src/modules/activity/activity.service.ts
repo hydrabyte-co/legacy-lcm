@@ -1,3 +1,4 @@
+import { ObjectID } from 'mongodb';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
@@ -115,5 +116,29 @@ export class ActivityService extends BaseService<Activity> {
         `There uncompleted report on ${uncompletedActivity.createdAt.toUTCString()}, please update result before make new activity!`,
       );
     }
+  }
+  async updateOne(
+    id: ObjectID,
+    data: any,
+    handler: DataHandler,
+  ): Promise<Activity> {
+    const result = await super.updateOne(id, data, handler);
+    const customer = await this._customersRepo.findOne({
+      where: { code: data.customerCode },
+    });
+    if (result) {
+      if (customer) {
+        this._customersRepo.update(customer.id, {
+          lastActivity: {
+            id: result.id,
+            parentCode: result.parentCode,
+            resultCode: result.resultCode,
+            ptpAmount: result.ptpAmount,
+            ptpDate: result.ptpDate,
+          },
+        });
+      }
+    }
+    return result;
   }
 }

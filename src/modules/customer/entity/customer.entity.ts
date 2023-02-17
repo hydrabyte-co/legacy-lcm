@@ -7,6 +7,7 @@ import {
   IsDate,
   IsDateString,
   IsNumber,
+  IsObject,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
 import { Controllers } from 'src/common/enums/controllers';
@@ -99,4 +100,10 @@ export class Customer extends Base {
   @Column()
   @IsDate()
   lastActivityDate: Date;
+
+  @Column()
+  @IsObject()
+  lastActivity: {
+    [key: string]: any;
+  };
 }

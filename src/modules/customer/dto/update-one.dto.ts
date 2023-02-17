@@ -9,6 +9,7 @@ import {
   IsDateString,
   isBoolean,
   IsNumber,
+  IsObject,
 } from 'class-validator';
 import {
   UpdateOneData,
@@ -103,6 +104,10 @@ export class UpdateCustomerData extends UpdateOneData {
   @IsDateString()
   @IsOptional()
   lastActivityDate?;
+
+  @IsObject()
+  @IsOptional()
+  lastActivity?;
 }
 export class UpdateCustomerResult extends UpdateOneResult {
   @Expose()
@@ -155,4 +160,7 @@ export class UpdateCustomerResult extends UpdateOneResult {
 
   @Expose()
   lastActivityDate;
+
+  @Expose()
+  lastActivity;
 }

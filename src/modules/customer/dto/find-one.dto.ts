@@ -53,4 +53,7 @@ export class FindCustomerByIdResult extends BaseFindByIdResult {
 
   @Expose()
   lastActivityDate;
+
+  @Expose()
+  lastActivity;
 }
