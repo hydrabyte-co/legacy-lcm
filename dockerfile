@@ -10,6 +10,8 @@ FROM node:16.14.2-slim
 
 WORKDIR /src
 ENV TZ=Asia/Ho_Chi_Minh
+RUN mkdir -p /src/data
+COPY --from=BASEIMAGE /tmp/* /src/data
 COPY --from=BASEIMAGE /src/dist /src/dist
 COPY --from=BASEIMAGE /src/node_modules /src/node_modules
 EXPOSE 3000
