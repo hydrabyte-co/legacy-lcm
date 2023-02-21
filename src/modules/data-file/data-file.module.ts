@@ -13,6 +13,8 @@ import { Reference } from '../reference/entity/reference.entity';
 import { Investigation } from '../investigation/entity/investigation.entity';
 import { ReferenceModule } from '../reference/reference.module';
 import { InvestigationModule } from '../investigation/investigation.module';
+import { Activity } from '../activity/entity/activity.entity';
+import { ActivityModule } from '../activity/activity.module';
 
 @Module({
   imports: [
@@ -23,12 +25,14 @@ import { InvestigationModule } from '../investigation/investigation.module';
       Transaction,
       Reference,
       Investigation,
+      Activity,
     ]),
     CustomerModule,
     ContractModule,
     TransactionModule,
     ReferenceModule,
     InvestigationModule,
+    ActivityModule,
   ],
   controllers: [DataFilesController],
   providers: [DataFileService],

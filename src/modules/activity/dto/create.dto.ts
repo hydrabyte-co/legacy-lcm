@@ -76,6 +76,10 @@ export class CreateActivityData extends BaseCreateData {
   @IsNumber()
   @IsOptional()
   ptpAmount = 0;
+
+  @IsDate()
+  @IsOptional()
+  performAt;
 }
 @Exclude()
 export class CreateActivityResult extends BaseCreateResult {
@@ -111,4 +115,7 @@ export class CreateActivityResult extends BaseCreateResult {
 
   @Expose()
   ptpAmount;
+
+  @Expose()
+  performAt;
 }

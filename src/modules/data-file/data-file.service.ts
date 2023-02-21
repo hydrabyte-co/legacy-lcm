@@ -15,6 +15,7 @@ import { Contract } from '../contract/entity/contract.entity';
 import { Transaction } from '../transaction/entity/transaction.entity';
 import { Reference } from '../reference/entity/reference.entity';
 import { Investigation } from '../investigation/entity/investigation.entity';
+import { Activity } from '../activity/entity/activity.entity';
 
 const relations: {
   name: string;
@@ -65,6 +66,28 @@ const relations: {
     name: 'Khác',
     code: 'other',
     tags: [''],
+  },
+];
+
+const activityTypes: {
+  name: string;
+  code: string;
+  tags: string[];
+}[] = [
+  {
+    name: 'Gọi',
+    code: 'call',
+    tags: ['call'],
+  },
+  {
+    name: 'Mạnh xã hội',
+    code: 'social-network',
+    tags: ['mạng xã hội', 'mxh', 'facebook', 'zalo'],
+  },
+  {
+    name: 'Điều tra',
+    code: 'skip',
+    tags: ['skip'],
   },
 ];
 
@@ -511,6 +534,59 @@ const InvestigationXlsxSchema = {
   },
 };
 
+const ActivityXlsxSchema = {
+  customerCode: {
+    prop: 'customerCode',
+    type: String,
+    required: true,
+  },
+  staffCode: {
+    prop: 'staffCode',
+    type: String,
+    required: true,
+  },
+  contractCode: {
+    prop: 'contractCode',
+    type: String,
+    required: true,
+  },
+  type: {
+    prop: 'type',
+    type: String,
+    required: true,
+  },
+  note: {
+    prop: 'note',
+    type: String,
+    required: false,
+  },
+  referenceId: {
+    prop: 'referenceId',
+    type: String,
+    required: false,
+  },
+  resultCode: {
+    prop: 'resultCode',
+    type: String,
+    required: false,
+  },
+  resultParentCode: {
+    prop: 'resultParentCode',
+    type: String,
+    required: false,
+  },
+  ptpDate: {
+    prop: 'ptpDate',
+    type: String,
+    required: false,
+  },
+  createdAt: {
+    prop: 'createdAt',
+    type: Date,
+    required: false,
+  },
+};
+
 @Injectable()
 export class DataFileService extends BaseService<DataFile> {
   private _customersRepo: MongoRepository<Customer>;
@@ -518,6 +594,7 @@ export class DataFileService extends BaseService<DataFile> {
   private _transactionsRepo: MongoRepository<Transaction>;
   private _referencesRepo: MongoRepository<Reference>;
   private _investigationsRepo: MongoRepository<Investigation>;
+  private _activitiesRepo: MongoRepository<Activity>;
   constructor(
     @InjectRepository(DataFile)
     private readonly dataFilesRepository: MongoRepository<DataFile>,
@@ -531,6 +608,8 @@ export class DataFileService extends BaseService<DataFile> {
     private readonly referencesRepository: MongoRepository<Reference>,
     @InjectRepository(Investigation)
     private readonly investigationsRepository: MongoRepository<Investigation>,
+    @InjectRepository(Activity)
+    private readonly activitiesRepository: MongoRepository<Activity>,
   ) {
     super(dataFilesRepository);
     this._customersRepo = customersRepository;
@@ -538,6 +617,7 @@ export class DataFileService extends BaseService<DataFile> {
     this._transactionsRepo = transactionsRepository;
     this._referencesRepo = referencesRepository;
     this._investigationsRepo = investigationsRepository;
+    this._activitiesRepo = activitiesRepository;
   }
 
   async createOne(
@@ -611,6 +691,10 @@ export class DataFileService extends BaseService<DataFile> {
             }
             case 'investigation': {
               readSchema = InvestigationXlsxSchema;
+              break;
+            }
+            case 'activity': {
+              readSchema = ActivityXlsxSchema;
               break;
             }
             default:
@@ -758,7 +842,8 @@ export class DataFileService extends BaseService<DataFile> {
                 case 'reference': {
                   const relation = relations.find(
                     (r) =>
-                      r.tags.indexOf(row.relationCode.toLocaleLowerCase()) >= 0,
+                      r.tags.indexOf((row.relationCode + '').toLowerCase()) >=
+                      0,
                   );
                   if (relation) {
                     row.relationCode = relation.code;
@@ -844,6 +929,68 @@ export class DataFileService extends BaseService<DataFile> {
                       processResult.insert++;
                     }
                   }
+                  break;
+                }
+                case 'activity': {
+                  const activity = new Activity();
+                  if (row.resultCode === 'DTT_Đã tất toán') {
+                    row.resultCode = 'DT2';
+                  }
+                  if (row.resultParentCode === 'DTT_Khách hàng đã tất toán') {
+                    row.resultParentCode = 'DT2';
+                  }
+                  row.resultCode = row.resultCode.split('_')[0];
+                  row.resultParentCode = row.resultParentCode.split('_')[0];
+
+                  activity.fromFile = dataFile.fileName;
+                  activity.note = row.note;
+                  activity.type = row.type.toLowerCase();
+                  activity.staffCode = row.staffCode;
+                  activity.customerCode = row.customerCode;
+                  activity.contractCode = row.contractCode;
+                  activity.resultCode = row.resultCode;
+                  activity.resultParentCode = row.resultParentCode;
+                  activity.contactInfo = {
+                    fullname: '',
+                    relation: {
+                      code: '',
+                      name: '',
+                    },
+                    phoneNumber: '',
+                  };
+                  activity.performAt = row.createdAt;
+                  activity.isDeleted = false;
+                  activity.owner = {
+                    orgId: handler.orgId,
+                    userId: '',
+                  };
+                  activity.createdBy = {
+                    appId: '',
+                    orgId: handler.orgId,
+                    userId: handler.userId,
+                    staffCode: handler.staffCode,
+                    roles: [],
+                  };
+
+                  if (activity.type === 'call') {
+                    if (row.referenceId) {
+                      const arr = row.referenceId.split('-');
+                      console.log(arr);
+                      if (arr.length === 2) {
+                        activity.contactInfo.relation.code = arr[0].trim();
+                        activity.contactInfo.phoneNumber = arr[1].trim();
+                      }
+                    }
+                  }
+                  console.log(`---- Activity:`, activity);
+                  const createActivityResult = await this._activitiesRepo.save(
+                    activity,
+                  );
+                  console.log(`---- Create Activity:`, createActivityResult);
+                  if (createActivityResult) {
+                    processResult.insert++;
+                  }
+                  throw new BadRequestException();
                   break;
                 }
                 default:

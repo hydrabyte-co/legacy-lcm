@@ -36,14 +36,17 @@ export class Activity extends Base {
   @Column()
   @IsObject()
   contactInfo: {
-    relationCode: string;
+    relation: {
+      code: string;
+      name: string;
+    };
     fullname: string;
     phoneNumber?: string;
     facebookId?: string;
     zaloId?: string;
     chatId?: string;
   } = {
-    relationCode: '',
+    relation: { code: '', name: '' },
     fullname: '',
     phoneNumber: '',
   };
@@ -83,4 +86,12 @@ export class Activity extends Base {
   @IsString()
   @IsNotEmpty()
   note = '';
+
+  @Column()
+  @IsString()
+  fromFile = '';
+
+  @Column()
+  @IsDate()
+  performAt;
 }

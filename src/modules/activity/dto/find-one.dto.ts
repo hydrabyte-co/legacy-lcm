@@ -36,4 +36,7 @@ export class FindActivityByIdActivity extends BaseFindByIdResult {
 
   @Expose()
   ptpAmount;
+
+  @Expose()
+  performAt;
 }

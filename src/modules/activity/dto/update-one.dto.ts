@@ -78,4 +78,7 @@ export class UpdateActivityResult extends UpdateOneResult {
 
   @Expose()
   ptpAmount;
+
+  @Expose()
+  performAt;
 }

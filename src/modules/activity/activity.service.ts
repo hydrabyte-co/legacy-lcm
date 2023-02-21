@@ -60,7 +60,7 @@ export class ActivityService extends BaseService<Activity> {
         customerCode: data.customerCode,
       },
       order: {
-        createdAt: 'DESC',
+        performAt: 'DESC',
       },
     });
     const contract = await this._contractsRepo.findOne({
@@ -73,6 +73,7 @@ export class ActivityService extends BaseService<Activity> {
       where: { code: data.customerCode },
     });
     data.staffCode = handler.staffCode;
+    data.performAt = new Date();
 
     if (uncompletedActivity === undefined || uncompletedActivity === null) {
       if (contract && contract.isDeleted === false) {
