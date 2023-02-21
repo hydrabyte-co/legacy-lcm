@@ -90,9 +90,37 @@ export class ActivityService extends BaseService<Activity> {
             const result = await super.createOne(data, handler);
             if (result) {
               if (customer) {
-                this._customersRepo.update(customer.id, {
-                  lastActivityDate: new Date(),
-                });
+                const updateCustomerData: any = {
+                  lastActivity: {
+                    id: result.id,
+                    parentCode: result.parentCode,
+                    resultParentCode: result.resultParentCode,
+                    ptpAmount: result.ptpAmount,
+                    ptpDate: result.ptpDate,
+                    performAt: result.performAt,
+                  },
+                  lastPTPActivity: {
+                    id: '',
+                    parentCode: '',
+                    resultParentCode: '',
+                    ptpAmount: 0,
+                    ptpDate: undefined,
+                    performAt: undefined,
+                  },
+                };
+                if (result.ptpAmount > 0) {
+                  updateCustomerData.lastPTPActivity.id = result.id;
+                  updateCustomerData.lastPTPActivity.resultParentCode =
+                    result.resultParentCode;
+                  updateCustomerData.lastPTPActivity.resultCode =
+                    result.resultCode;
+                  updateCustomerData.lastPTPActivity.ptpAmount =
+                    result.ptpAmount;
+                  updateCustomerData.lastPTPActivity.ptpDate = result.ptpDate;
+                  updateCustomerData.lastPTPActivity.performAt =
+                    result.performAt;
+                }
+                this._customersRepo.update(customer.id, updateCustomerData);
               }
             }
             return result;
