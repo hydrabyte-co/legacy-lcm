@@ -124,20 +124,46 @@ export class ActivityService extends BaseService<Activity> {
     handler: DataHandler,
   ): Promise<Activity> {
     const result = await super.updateOne(id, data, handler);
-    const customer = await this._customersRepo.findOne({
-      where: { code: data.customerCode },
-    });
     if (result) {
-      if (customer) {
-        this._customersRepo.update(customer.id, {
-          lastActivity: {
-            id: result.id,
-            parentCode: result.parentCode,
-            resultCode: result.resultCode,
-            ptpAmount: result.ptpAmount,
-            ptpDate: result.ptpDate,
-          },
+      const activity = await super.findOne(id, handler);
+      if (activity) {
+        const customer = await this._customersRepo.findOne({
+          where: { code: activity.customerCode },
         });
+        if (customer) {
+          const updateCustomerData: any = {
+            lastActivity: {
+              id: result.id,
+              parentCode: activity.parentCode,
+              resultParentCode: activity.resultParentCode,
+              ptpAmount: activity.ptpAmount,
+              ptpDate: activity.ptpDate,
+              performAt: activity.performAt,
+            },
+            lastPTPActivity: {
+              id: '',
+              parentCode: '',
+              resultParentCode: '',
+              ptpAmount: 0,
+              ptpDate: undefined,
+              performAt: undefined,
+            },
+          };
+
+          if (activity.ptpAmount > 0) {
+            updateCustomerData.lastPTPActivity.id = activity.id;
+            updateCustomerData.lastPTPActivity.resultParentCode =
+              activity.resultParentCode;
+            updateCustomerData.lastPTPActivity.resultCode = activity.resultCode;
+            updateCustomerData.lastPTPActivity.ptpAmount = activity.ptpAmount;
+            updateCustomerData.lastPTPActivity.ptpDate = activity.ptpDate;
+            updateCustomerData.lastPTPActivity.performAt = activity.performAt;
+          }
+          const updateCustomerResult = await this._customersRepo.update(
+            customer.id,
+            updateCustomerData,
+          );
+        }
       }
     }
     return result;

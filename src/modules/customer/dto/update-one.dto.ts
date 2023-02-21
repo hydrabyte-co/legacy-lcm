@@ -108,6 +108,10 @@ export class UpdateCustomerData extends UpdateOneData {
   @IsObject()
   @IsOptional()
   lastActivity?;
+
+  @IsObject()
+  @IsOptional()
+  lastPTPActivity?;
 }
 export class UpdateCustomerResult extends UpdateOneResult {
   @Expose()
@@ -163,4 +167,7 @@ export class UpdateCustomerResult extends UpdateOneResult {
 
   @Expose()
   lastActivity;
+
+  @Expose()
+  lastPTPActivity;
 }

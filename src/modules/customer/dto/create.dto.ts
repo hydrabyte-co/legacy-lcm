@@ -136,4 +136,7 @@ export class CreateCustomerResult extends BaseCreateResult {
 
   @Expose()
   lastActivity;
+
+  @Expose()
+  lastPTPActivity;
 }

@@ -106,4 +106,10 @@ export class Customer extends Base {
   lastActivity: {
     [key: string]: any;
   };
+
+  @Column()
+  @IsObject()
+  lastPTPActivity: {
+    [key: string]: any;
+  };
 }

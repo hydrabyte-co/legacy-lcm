@@ -56,4 +56,7 @@ export class FindCustomerByIdResult extends BaseFindByIdResult {
 
   @Expose()
   lastActivity;
+
+  @Expose()
+  lastPTPActivity;
 }
