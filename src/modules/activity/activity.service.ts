@@ -45,7 +45,7 @@ export class ActivityService extends BaseService<Activity> {
     filter: FindManyFilter,
     handler: DataHandler,
   ): Promise<FindAllResult<Activity>> {
-    filter.order = { createdAt: -1 };
+    filter.order = { performAt: -1 };
     return await super.findManyWithPaging(filter, handler);
   }
 

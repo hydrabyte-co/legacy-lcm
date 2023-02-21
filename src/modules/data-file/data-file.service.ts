@@ -990,7 +990,6 @@ export class DataFileService extends BaseService<DataFile> {
                   if (createActivityResult) {
                     processResult.insert++;
                   }
-                  throw new BadRequestException();
                   break;
                 }
                 default:
