@@ -97,15 +97,15 @@ export class Contract extends Base {
 
   @Column()
   @IsDate()
-  valueDate = new Date();
+  valueDate;
 
   @Column()
   @IsDate()
-  maturityDate = new Date();
+  maturityDate;
 
   @Column()
   @IsDate()
-  ovdDate = new Date();
+  ovdDate;
 
   @Column()
   @IsNumber()
@@ -122,11 +122,11 @@ export class Contract extends Base {
 
   @Column()
   @IsDate()
-  startedAt: Date = new Date();
+  startedAt;
 
   @Column()
   @IsDate()
-  endedAt: Date = new Date();
+  endedAt;
 
   @Column()
   @IsEnum(ContractStatus)
