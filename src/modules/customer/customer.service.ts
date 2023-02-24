@@ -99,7 +99,7 @@ export class CustomerService extends BaseService<Customer> {
     delete filter.where.query;
     delete filter.where.sortBy;
     filter.where.callStaffCode = handler.staffCode;
-
+    console.log(filter);
     return await super.findManyWithPaging(filter, handler);
   }
 
