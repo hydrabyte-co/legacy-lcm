@@ -87,43 +87,45 @@ export class ActivityService extends BaseService<Activity> {
               );
             }
           } else if (data.resultCode === '') {
-            const result = await super.createOne(data, handler);
-            if (result) {
+            const createResultActivity = await super.createOne(data, handler);
+            if (createResultActivity) {
               if (customer) {
                 const updateCustomerData: any = {
                   lastActivity: {
-                    id: result.id,
-                    parentCode: result.parentCode,
-                    resultParentCode: result.resultParentCode,
-                    ptpAmount: result.ptpAmount,
-                    ptpDate: result.ptpDate,
-                    performAt: result.performAt,
+                    id: createResultActivity.id,
+                    resultCode: createResultActivity.resultCode,
+                    resultParentCode: createResultActivity.resultParentCode,
+                    ptpAmount: createResultActivity.ptpAmount,
+                    ptpDate: createResultActivity.ptpDate,
+                    performAt: createResultActivity.performAt,
                   },
                   lastPTPActivity: {
                     id: '',
-                    parentCode: '',
+                    resultCode: '',
                     resultParentCode: '',
                     ptpAmount: 0,
                     ptpDate: undefined,
                     performAt: undefined,
                   },
                 };
-                if (result.ptpAmount > 0) {
-                  updateCustomerData.lastPTPActivity.id = result.id;
+                if (createResultActivity.ptpAmount > 0) {
+                  updateCustomerData.lastPTPActivity.id =
+                    createResultActivity.id;
                   updateCustomerData.lastPTPActivity.resultParentCode =
-                    result.resultParentCode;
+                    createResultActivity.resultParentCode;
                   updateCustomerData.lastPTPActivity.resultCode =
-                    result.resultCode;
+                    createResultActivity.resultCode;
                   updateCustomerData.lastPTPActivity.ptpAmount =
-                    result.ptpAmount;
-                  updateCustomerData.lastPTPActivity.ptpDate = result.ptpDate;
+                    createResultActivity.ptpAmount;
+                  updateCustomerData.lastPTPActivity.ptpDate =
+                    createResultActivity.ptpDate;
                   updateCustomerData.lastPTPActivity.performAt =
-                    result.performAt;
+                    createResultActivity.performAt;
                 }
                 this._customersRepo.update(customer.id, updateCustomerData);
               }
             }
-            return result;
+            return createResultActivity;
           } else {
             throw new BadRequestException(
               `Result '${data.resultCode}' is not existed!`,
@@ -162,7 +164,7 @@ export class ActivityService extends BaseService<Activity> {
           const updateCustomerData: any = {
             lastActivity: {
               id: result.id,
-              parentCode: activity.parentCode,
+              resultCode: activity.resultCode,
               resultParentCode: activity.resultParentCode,
               ptpAmount: activity.ptpAmount,
               ptpDate: activity.ptpDate,
@@ -170,7 +172,7 @@ export class ActivityService extends BaseService<Activity> {
             },
             lastPTPActivity: {
               id: '',
-              parentCode: '',
+              resultCode: '',
               resultParentCode: '',
               ptpAmount: 0,
               ptpDate: undefined,
