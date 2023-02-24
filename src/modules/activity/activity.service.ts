@@ -141,8 +141,13 @@ export class ActivityService extends BaseService<Activity> {
           `Contract '${data.customerCode}' is not existed!`,
         );
       }
+    } else if (
+      uncompletedActivity.contactInfo.phoneNumber ===
+        data.contactInfo.phoneNumber &&
+      data.resultCode === ''
+    ) {
+      return uncompletedActivity;
     } else {
-      console.log(uncompletedActivity);
       throw new BadRequestException(
         `There uncompleted report on ${uncompletedActivity.createdAt.toUTCString()}, please update result before make new activity!`,
       );
