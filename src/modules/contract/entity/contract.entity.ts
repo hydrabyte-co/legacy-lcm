@@ -109,7 +109,7 @@ export class Contract extends Base {
 
   @Column()
   @IsNumber()
-  dueDayOfMonth = 1;
+  dueDayOfMonth;
 
   @Column()
   @IsNumber()

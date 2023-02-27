@@ -221,7 +221,7 @@ export class UpdateContractResult extends UpdateOneResult {
   ovdDate = new Date();
 
   @Expose()
-  dueDayOfMonth = 1;
+  dueDayOfMonth;
 
   @Expose()
   bucket = 0;

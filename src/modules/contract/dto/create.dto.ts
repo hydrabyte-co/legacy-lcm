@@ -84,7 +84,7 @@ export class CreateContractData extends BaseCreateData {
   ovdDate = new Date();
 
   @IsNumber()
-  dueDayOfMonth = 1;
+  dueDayOfMonth;
 
   @IsNumber()
   bucket = 0;
@@ -186,7 +186,7 @@ export class CreateContractResult extends BaseCreateResult {
   ovdDate = new Date();
 
   @Expose()
-  dueDayOfMonth = 1;
+  dueDayOfMonth;
 
   @Expose()
   bucket = 0;

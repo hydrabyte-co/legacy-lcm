@@ -57,7 +57,7 @@ export class FindContractByIdResult extends BaseFindByIdResult {
   ovdDate = new Date();
 
   @Expose()
-  dueDayOfMonth = 1;
+  dueDayOfMonth;
 
   @Expose()
   bucket = 0;
