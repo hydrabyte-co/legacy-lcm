@@ -66,11 +66,38 @@ export class FindContractByIdResult extends BaseFindByIdResult {
   term = '';
 
   @Expose()
-  startedAt: Date = new Date();
+  transferDate: Date = new Date();
 
   @Expose()
-  endedAt: Date = new Date();
+  withDrawDate: Date = new Date();
 
   @Expose()
   status = '';
+
+  @Expose()
+  interestRate;
+
+  @Expose()
+  branchName;
+
+  @Expose()
+  branchCode;
+
+  @Expose()
+  accountNo;
+
+  @Expose()
+  lastPaymentAmount;
+
+  @Expose()
+  lastPaymentDate;
+
+  @Expose()
+  contractLink;
+
+  @Expose()
+  ovdPeriod;
+
+  @Expose()
+  statusOfLoan;
 }

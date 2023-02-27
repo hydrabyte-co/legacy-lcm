@@ -94,13 +94,40 @@ export class CreateContractData extends BaseCreateData {
   term = '';
 
   @IsDateString()
-  startedAt: Date = new Date();
+  transferDate: Date = new Date();
 
   @IsDateString()
-  endedAt: Date = new Date();
+  withDrawDate: Date = new Date();
 
   @IsEnum(ContractStatus)
   status = ContractStatus.Active;
+
+  @IsNumber()
+  interestRate = 0;
+
+  @IsString()
+  branchName = '';
+
+  @IsString()
+  branchCode = '';
+
+  @IsString()
+  accountNo = '';
+
+  @IsNumber()
+  lastPaymentAmount = 0;
+
+  @IsDate()
+  lastPaymentDate;
+
+  @IsString()
+  contractLink = '';
+
+  @IsNumber()
+  ovdPeriod;
+
+  @IsString()
+  statusOfLoan;
 }
 @Exclude()
 export class CreateContractResult extends BaseCreateResult {
@@ -168,11 +195,38 @@ export class CreateContractResult extends BaseCreateResult {
   term = '';
 
   @Expose()
-  startedAt: Date = new Date();
+  transferDate: Date = new Date();
 
   @Expose()
-  endedAt: Date = new Date();
+  withDrawDate: Date = new Date();
 
   @Expose()
   status = '';
+
+  @Expose()
+  interestRate;
+
+  @Expose()
+  branchName;
+
+  @Expose()
+  branchCode;
+
+  @Expose()
+  accountNo;
+
+  @Expose()
+  lastPaymentAmount;
+
+  @Expose()
+  lastPaymentDate;
+
+  @Expose()
+  contractLink;
+
+  @Expose()
+  ovdPeriod;
+
+  @Expose()
+  statusOfLoan;
 }

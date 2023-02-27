@@ -116,15 +116,51 @@ export class UpdateContractData extends UpdateOneData {
 
   @IsOptional()
   @IsDate()
-  startedAt: Date;
+  transferDate: Date;
 
   @IsOptional()
   @IsDate()
-  endedAt: Date;
+  withDrawDate: Date;
 
   @IsOptional()
   @IsEnum(ContractStatus)
   status;
+
+  @IsOptional()
+  @IsNumber()
+  interestRate;
+
+  @IsOptional()
+  @IsString()
+  branchName;
+
+  @IsOptional()
+  @IsString()
+  branchCode;
+
+  @IsOptional()
+  @IsString()
+  accountNo;
+
+  @IsOptional()
+  @IsNumber()
+  lastPaymentAmount;
+
+  @IsOptional()
+  @IsDate()
+  lastPaymentDate;
+
+  @IsOptional()
+  @IsString()
+  contractLink;
+
+  @IsOptional()
+  @IsNumber()
+  ovdPeriod;
+
+  @IsOptional()
+  @IsString()
+  statusOfLoan;
 }
 export class UpdateContractResult extends UpdateOneResult {
   @Expose()
@@ -194,11 +230,38 @@ export class UpdateContractResult extends UpdateOneResult {
   term = '';
 
   @Expose()
-  startedAt: Date = new Date();
+  transferDate: Date = new Date();
 
   @Expose()
-  endedAt: Date = new Date();
+  withDrawDate: Date = new Date();
 
   @Expose()
   status = '';
+
+  @Expose()
+  interestRate;
+
+  @Expose()
+  branchName;
+
+  @Expose()
+  branchCode;
+
+  @Expose()
+  accountNo;
+
+  @Expose()
+  lastPaymentAmount;
+
+  @Expose()
+  lastPaymentDate;
+
+  @Expose()
+  contractLink;
+
+  @Expose()
+  ovdPeriod;
+
+  @Expose()
+  statusOfLoan;
 }

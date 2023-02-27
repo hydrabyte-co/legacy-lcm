@@ -122,13 +122,49 @@ export class Contract extends Base {
 
   @Column()
   @IsDate()
-  startedAt;
+  transferDate;
 
   @Column()
   @IsDate()
-  endedAt;
+  withDrawDate;
 
   @Column()
   @IsEnum(ContractStatus)
   status = ContractStatus.Active;
+
+  @Column()
+  @IsNumber()
+  interestRate = 0;
+
+  @Column()
+  @IsString()
+  branchName = '';
+
+  @Column()
+  @IsString()
+  branchCode = '';
+
+  @Column()
+  @IsString()
+  accountNo = '';
+
+  @Column()
+  @IsNumber()
+  lastPaymentAmount = 0;
+
+  @Column()
+  @IsDate()
+  lastPaymentDate;
+
+  @Column()
+  @IsString()
+  contractLink = '';
+
+  @Column()
+  @IsNumber()
+  ovdPeriod;
+
+  @Column()
+  @IsString()
+  statusOfLoan;
 }

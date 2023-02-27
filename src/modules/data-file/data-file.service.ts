@@ -252,6 +252,11 @@ const ContractXlsxSchema = {
     type: String,
     required: false,
   },
+  guid: {
+    prop: 'guid',
+    type: String,
+    required: false,
+  },
   customerCIF: {
     prop: 'customerCIF',
     type: String,
@@ -312,12 +317,12 @@ const ContractXlsxSchema = {
     type: Number,
     required: false,
   },
-  totalRepayBank: {
+  totalPaymentPartner: {
     prop: 'totalPaymentAmountFromPartner',
     type: Number,
     required: false,
   },
-  totalRepayHK: {
+  totalPayment: {
     prop: 'totalPaymentAmount',
     type: Number,
     required: false,
@@ -352,13 +357,8 @@ const ContractXlsxSchema = {
     type: String,
     required: false,
   },
-  startedAt: {
-    prop: 'startedAt',
-    type: Date,
-    required: true,
-  },
-  endedAt: {
-    prop: 'endedAt',
+  transferDate: {
+    prop: 'transferDate',
     type: Date,
     required: false,
   },
@@ -373,7 +373,52 @@ const ContractXlsxSchema = {
       }
       return value;
     },
+    required: false,
+  },
+  interestRate: {
+    prop: 'interestRate',
+    type: Number,
+    required: false,
+  },
+  branchName: {
+    prop: 'branchName',
+    type: String,
+    required: false,
+  },
+  branchCode: {
+    prop: 'branchCode',
+    type: String,
+    required: false,
+  },
+  accountNo: {
+    prop: 'accountNo',
+    type: String,
     required: true,
+  },
+  lastPaymentAmount: {
+    prop: 'lastPaymentAmount',
+    type: Number,
+    required: false,
+  },
+  lastPaymentDate: {
+    prop: 'lastPaymentDate',
+    type: Date,
+    required: false,
+  },
+  contractLink: {
+    prop: 'contractLink',
+    type: String,
+    required: false,
+  },
+  ovdPeriod: {
+    prop: 'ovdPeriod',
+    type: Number,
+    required: false,
+  },
+  statusOfLoan: {
+    prop: 'statusOfLoan',
+    type: String,
+    required: false,
   },
 };
 
