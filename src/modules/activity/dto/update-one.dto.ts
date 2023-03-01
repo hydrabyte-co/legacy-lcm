@@ -25,7 +25,7 @@ export class UpdateActivityData extends UpdateOneData {
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(24)
+  @MaxLength(48)
   resultCode = '';
 
   @IsString()
