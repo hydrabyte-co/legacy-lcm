@@ -142,53 +142,22 @@ export const CustomerXlsxSchema = {
   },
   gender: {
     prop: 'gender',
-    type: (value) => {
-      value = (value + '').toLocaleLowerCase().toString();
-      if (value.indexOf('female') >= 0) {
-        value = 'female';
-      } else if (value.indexOf('male') >= 0) {
-        value = 'male';
-      } else {
-        value = '';
-      }
-      return value;
-    },
+    type: String,
     required: false,
   },
   dob: {
     prop: 'dob',
-    type: (value) => {
-      switch (getTypeOf(value)) {
-        case 'datetime': {
-          value = (value as Date).toISOString().split('T')[0];
-          break;
-        }
-        default: {
-          if (value === null) {
-            value = '';
-          }
-          if (value === undefined) {
-            value = '';
-          }
-          break;
-        }
-      }
-      return value;
-    },
+    type: Date,
     required: false,
   },
   identityNumber: {
     prop: 'identityNumber',
-    type: (value) => {
-      return replaceRegexPatternFromString(value, '[^0-9]+', '');
-    },
-    required: false,
+    type: String,
+    required: true,
   },
   mobileNumber: {
     prop: 'mobileNumber',
-    type: (value) => {
-      return replaceRegexPatternFromString(value, '[^0-9]+', '');
-    },
+    type: String,
     required: true,
   },
   officeNumber: {
@@ -235,6 +204,11 @@ export const CustomerXlsxSchema = {
   },
   note: {
     prop: 'note',
+    type: String,
+    required: false,
+  },
+  status: {
+    prop: 'status',
     type: String,
     required: false,
   },
@@ -321,12 +295,12 @@ export const ContractXlsxSchema = {
     type: Number,
     required: false,
   },
-  totalPaymentPartner: {
+  totalPaymentAmountFromPartner: {
     prop: 'totalPaymentAmountFromPartner',
     type: Number,
     required: false,
   },
-  totalPayment: {
+  totalPaymentAmount: {
     prop: 'totalPaymentAmount',
     type: Number,
     required: false,
@@ -368,15 +342,7 @@ export const ContractXlsxSchema = {
   },
   status: {
     prop: 'status',
-    type: (value) => {
-      value = (value + '').toLocaleLowerCase().toString();
-      if (value.indexOf('active') >= 0 || value.toLocaleLowerCase() === 'a') {
-        value = 'active';
-      } else {
-        value = 'inactive';
-      }
-      return value;
-    },
+    type: String,
     required: false,
   },
   interestRate: {
@@ -397,7 +363,7 @@ export const ContractXlsxSchema = {
   accountNo: {
     prop: 'accountNo',
     type: String,
-    required: true,
+    required: false,
   },
   lastPaymentAmount: {
     prop: 'lastPaymentAmount',
@@ -463,7 +429,7 @@ export const ReferenceXlsxSchema = {
   relationCode: {
     prop: 'relationCode',
     type: String,
-    required: true,
+    required: false,
   },
   fullname: {
     prop: 'fullname',
@@ -472,60 +438,27 @@ export const ReferenceXlsxSchema = {
   },
   gender: {
     prop: 'gender',
-    type: (value) => {
-      value = (value + '').toLocaleLowerCase().toString();
-      if (value.indexOf('female') >= 0) {
-        value = 'female';
-      } else if (value.indexOf('male') >= 0) {
-        value = 'male';
-      } else {
-        value = '';
-      }
-      return value;
-    },
+    type: String,
     required: false,
   },
   dob: {
     prop: 'dob',
-    type: (value) => {
-      switch (getTypeOf(value)) {
-        case 'datetime': {
-          value = (value as Date).toISOString().split('T')[0];
-          break;
-        }
-        default: {
-          if (value === null) {
-            value = '';
-          }
-          if (value === undefined) {
-            value = '';
-          }
-          break;
-        }
-      }
-      return value;
-    },
+    type: Date,
     required: false,
   },
   identityNumber: {
     prop: 'identityNumber',
-    type: (value) => {
-      return replaceRegexPatternFromString(value, '[^0-9]+', '');
-    },
+    type: String,
     required: false,
   },
   mobileNumber: {
     prop: 'mobileNumber',
-    type: (value) => {
-      return replaceRegexPatternFromString(value, '[^0-9]+', '');
-    },
+    type: String,
     required: true,
   },
   officeNumber: {
     prop: 'officeNumber',
-    type: (value) => {
-      return replaceRegexPatternFromString(value, '[^0-9]+', '');
-    },
+    type: String,
     required: false,
   },
   email: {
@@ -597,7 +530,7 @@ export const ActivityXlsxSchema = {
   contractCode: {
     prop: 'contractCode',
     type: String,
-    required: true,
+    required: false,
   },
   type: {
     prop: 'type',
@@ -627,6 +560,11 @@ export const ActivityXlsxSchema = {
   ptpDate: {
     prop: 'ptpDate',
     type: String,
+    required: false,
+  },
+  ptpAmount: {
+    prop: 'ptpAmount',
+    type: Number,
     required: false,
   },
   createdAt: {

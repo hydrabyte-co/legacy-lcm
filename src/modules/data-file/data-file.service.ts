@@ -206,7 +206,7 @@ export class DataFileService extends BaseService<DataFile> {
     console.log(``);
     console.log(``);
     console.log(`Process Data File`);
-    console.log(`-- Data file id`, data.dataFileId);
+    console.log(`-- Received data from message queue`, data);
     const dataFile = await this.dataFilesRepository.findOne(data.dataFileId);
     console.log(`-- Data file`, dataFile);
     if (dataFile) {
@@ -275,7 +275,7 @@ export class DataFileService extends BaseService<DataFile> {
               break;
             }
             case DataFile_ToTable.Transaction: {
-              readSchema = Transaction;
+              readSchema = TransactionXlsxSchema;
               break;
             }
             default:
@@ -299,31 +299,31 @@ export class DataFileService extends BaseService<DataFile> {
             console.log(
               `---- Process Data File '${dataFilePath}' Sheet(${i}/${dataFile.settings.sheets.length}) '${sheet.name}': ${readResult.rows.length} rows, ${readResult.errors.length} errors`,
             );
-            console.log(`---- Import Rule`, sheet.rule);
-            console.log(`---- To Table`, sheet.toTable);
+            console.log(`---- Import Rule '${sheet.rule}'`);
+            console.log(`---- To Table '${sheet.toTable}'`);
 
             switch (sheet.rule) {
               case DataFile_ImportRule.CloseAll: {
                 if (sheet.toTable === DataFile_ToTable.Customer) {
                   const updateAllCustomerResult =
-                    await this.customersRepository.updateMany(
+                    await this.customersRepository.update(
                       { partnerCode: dataFile.partnerCode },
                       { status: CustomerStatus.Closed },
                     );
                   console.log(
                     `---- Update status of all customers  to 'closed'`,
-                    updateAllCustomerResult.result,
+                    updateAllCustomerResult,
                   );
                 }
                 if (sheet.toTable === DataFile_ToTable.Contract) {
                   const updateAllContractResult =
-                    await this.contractsRepository.updateMany(
-                      {},
+                    await this.contractsRepository.update(
+                      { partnerCode: dataFile.partnerCode },
                       { status: ContractStatus.Closed },
                     );
                   console.log(
                     `---- Update status of all contracts to 'closed'`,
-                    updateAllContractResult.result,
+                    updateAllContractResult,
                   );
                 }
                 break;
@@ -378,9 +378,44 @@ export class DataFileService extends BaseService<DataFile> {
             }
             for (let j = 0; j < readResult.rows.length; j++) {
               const row = readResult.rows[j];
-              console.log(`------ Row(${j}/${readResult.rows.length})`, row);
+              console.log(
+                `------ Row(${j}/${readResult.rows.length}) raw data`,
+                row,
+              );
+
               switch (sheet.toTable) {
                 case DataFile_ToTable.Customer: {
+                  row.identityNumber = replaceRegexPatternFromString(
+                    row.identityNumber,
+                    '[^0-9]+',
+                    '',
+                  );
+                  row.mobileNumber = replaceRegexPatternFromString(
+                    row.mobileNumber,
+                    '[^0-9]+',
+                    '',
+                  );
+                  row.officeNumber = replaceRegexPatternFromString(
+                    row.officeNumber,
+                    '[^0-9]+',
+                    '',
+                  );
+                  row.gender = row.gender.toString().toLowerCase().trim();
+                  if (['phụ nữ', 'nữ', 'gái'].indexOf(row.gender) >= 0) {
+                    row.gender = 'female';
+                  }
+                  if (['đàn ông', 'nam', 'trai'].indexOf(row.gender) >= 0) {
+                    row.gender = 'male';
+                  }
+                  if (row.status.toLowerCase().indexOf('a') === 0) {
+                    row.status = 'active';
+                  }
+                  if (row.dob) row.dob = row.dob.toISOString().split('T')[0];
+                  row.fromFile = dataFile.fileName;
+                  console.log(
+                    `------ Row(${j}/${readResult.rows.length}) handled data`,
+                    row,
+                  );
                   const foundCustomer = await this._customersRepo.findOne({
                     where: { code: row.code },
                   });
@@ -417,9 +452,295 @@ export class DataFileService extends BaseService<DataFile> {
                     }
                   }
                   break;
-                  break;
                 }
                 case DataFile_ToTable.Contract: {
+                  if (row.status.toLowerCase().indexOf('a') === 0) {
+                    row.status = 'active';
+                  }
+                  row.fromFile = dataFile.fileName;
+                  console.log(
+                    `------ Row(${j}/${readResult.rows.length}) handled data`,
+                    row,
+                  );
+                  const foundContract = await this._contractsRepo.findOne({
+                    where: { code: row.code },
+                  });
+
+                  if (foundContract) {
+                    const updateContractResult =
+                      await this._contractsRepo.update(foundContract.id, row);
+                    console.log(
+                      `------ Find contract by code '${row.code}'`,
+                      foundContract,
+                    );
+                    console.log(
+                      `------ Update contract:`,
+                      (updateContractResult as any).result,
+                    );
+                    if (updateContractResult.affected > 0) {
+                      sheetProcessResult.updateCount++;
+                    }
+                  } else {
+                    row.isDeleted = false;
+                    row.owner = {
+                      orgId: data.handler.orgId,
+                      userId: '',
+                    };
+                    const createContractResult = await this._contractsRepo.save(
+                      row,
+                    );
+                    console.log(
+                      `------ Create contract:`,
+                      createContractResult,
+                    );
+                    if (createContractResult) {
+                      sheetProcessResult.insertCount++;
+                    }
+                  }
+                  break;
+                }
+                case DataFile_ToTable.Transaction: {
+                  row.fromFile = dataFile.fileName;
+                  console.log(
+                    `------ Row(${j}/${readResult.rows.length}) handled data`,
+                    row,
+                  );
+                  const foundTransaction = await this._transactionsRepo.findOne(
+                    {
+                      where: {
+                        customerCode: row.customerCode,
+                        amount: row.amount,
+                        date: row.date,
+                      },
+                    },
+                  );
+
+                  if (foundTransaction) {
+                    const updateTransactionResult =
+                      await this._transactionsRepo.update(
+                        foundTransaction.id,
+                        row,
+                      );
+                    console.log(
+                      `------ Find transaction by customerCode '${row.customerCode}', amount '${row.amount}', date '${row.date}'`,
+                      foundTransaction,
+                    );
+                    console.log(
+                      `------ Update transaction:`,
+                      (updateTransactionResult as any).result,
+                    );
+                    if (updateTransactionResult.affected > 0) {
+                      sheetProcessResult.updateCount++;
+                    }
+                  } else {
+                    row.isDeleted = false;
+                    row.owner = {
+                      orgId: data.handler.orgId,
+                      userId: '',
+                    };
+                    const createContractResult =
+                      await this._transactionsRepo.save(row);
+                    console.log(
+                      `------ Create transaction:`,
+                      createContractResult,
+                    );
+                    if (createContractResult) {
+                      sheetProcessResult.updateCount++;
+                    }
+                  }
+                  break;
+                }
+                case DataFile_ToTable.Reference: {
+                  row.identityNumber = replaceRegexPatternFromString(
+                    row.identityNumber,
+                    '[^0-9]+',
+                    '',
+                  );
+                  row.mobileNumber = replaceRegexPatternFromString(
+                    row.mobileNumber,
+                    '[^0-9]+',
+                    '',
+                  );
+                  row.officeNumber = replaceRegexPatternFromString(
+                    row.officeNumber,
+                    '[^0-9]+',
+                    '',
+                  );
+                  row.gender = (row.gender || '')
+                    .toString()
+                    .toLowerCase()
+                    .trim();
+                  if (['phụ nữ', 'nữ', 'gái'].indexOf(row.gender) >= 0) {
+                    row.gender = 'female';
+                  }
+                  if (['đàn ông', 'nam', 'trai'].indexOf(row.gender) >= 0) {
+                    row.gender = 'male';
+                  }
+                  if (row.dob) row.dob = row.dob.toISOString().split('T')[0];
+                  row.fromFile = dataFile.fileName;
+                  console.log(
+                    `------ Row(${j}/${readResult.rows.length}) handled data`,
+                    row,
+                  );
+                  const relation = relations.find(
+                    (r) =>
+                      r.tags.indexOf((row.relationCode + '').toLowerCase()) >=
+                      0,
+                  );
+                  if (relation) {
+                    row.relationCode = relation.code;
+                  } else {
+                    row.relationCode = 'other';
+                  }
+
+                  const foundRefence = await this._referencesRepo.findOne({
+                    where: {
+                      customerCode: row.customerCode,
+                      relationCode: row.relationCode,
+                      mobileNumber: row.mobileNumber,
+                    },
+                  });
+
+                  if (foundRefence) {
+                    const updateReferenceResult =
+                      await this._referencesRepo.update(foundRefence.id, row);
+                    console.log(`------ Find Reference`, foundRefence);
+                    console.log(
+                      `------ Update Reference:`,
+                      (updateReferenceResult as any).result,
+                    );
+                    if (updateReferenceResult.affected > 0) {
+                      sheetProcessResult.updateCount++;
+                    }
+                  } else {
+                    row.isDeleted = false;
+                    row.owner = {
+                      orgId: data.handler.orgId,
+                      userId: '',
+                    };
+                    const createReferenceResult =
+                      await this._referencesRepo.save(row);
+                    console.log(
+                      `------ Create Reference:`,
+                      createReferenceResult,
+                    );
+                    if (createReferenceResult) {
+                      sheetProcessResult.insertCount++;
+                    }
+                  }
+                  break;
+                }
+                case DataFile_ToTable.Investigation: {
+                  row.fromFile = dataFile.fileName;
+                  console.log(
+                    `------ Row(${j}/${readResult.rows.length}) handled data`,
+                    row,
+                  );
+                  const type = investigationTypes.find(
+                    (r) =>
+                      r.tags.indexOf(row.typeCode.toLocaleLowerCase()) >= 0,
+                  );
+                  if (type) {
+                    row.typeCode = type.code;
+                  } else {
+                    row.typeCode = 'other';
+                  }
+
+                  const foundInvestigation =
+                    await this._investigationsRepo.findOne({
+                      where: {
+                        customerCode: row.customerCode,
+                        typeCode: row.typeCode,
+                        value: row.value,
+                      },
+                    });
+
+                  if (foundInvestigation) {
+                    console.log(
+                      `------ Find Investigation. No thing to do!`,
+                      foundInvestigation,
+                    );
+                  } else {
+                    row.isDeleted = false;
+                    row.owner = {
+                      orgId: data.handler.orgId,
+                      userId: '',
+                    };
+                    const createReferenceResult =
+                      await this._investigationsRepo.save(row);
+                    console.log(
+                      `------ Create Investigation:`,
+                      createReferenceResult,
+                    );
+                    if (createReferenceResult) {
+                      sheetProcessResult.insertCount++;
+                    }
+                  }
+                  break;
+                }
+                case DataFile_ToTable.Activity: {
+                  const activity = new Activity();
+                  if (row.resultCode === 'DTT_Đã tất toán') {
+                    row.resultCode = 'DT2';
+                  }
+                  if (row.resultParentCode === 'DTT_Khách hàng đã tất toán') {
+                    row.resultParentCode = 'DT2';
+                  }
+                  row.resultCode = row.resultCode.split('_')[0];
+                  row.resultParentCode = row.resultParentCode.split('_')[0];
+                  row.fromFile = dataFile.fileName;
+                  console.log(
+                    `------ Row(${j}/${readResult.rows.length}) handled data`,
+                    row,
+                  );
+
+                  activity.fromFile = dataFile.fileName;
+                  activity.note = row.note;
+                  activity.type = row.type.toLowerCase();
+                  activity.staffCode = row.staffCode;
+                  activity.customerCode = row.customerCode;
+                  activity.contractCode = row.contractCode;
+                  activity.resultCode = row.resultCode;
+                  activity.resultParentCode = row.resultParentCode;
+                  activity.contactInfo = {
+                    fullname: '',
+                    relation: {
+                      code: '',
+                      name: '',
+                    },
+                    phoneNumber: '',
+                  };
+                  activity.performAt = row.createdAt;
+                  activity.isDeleted = false;
+                  activity.owner = {
+                    orgId: data.handler.orgId,
+                    userId: '',
+                  };
+                  activity.createdBy = {
+                    appId: '',
+                    orgId: data.handler.orgId,
+                    userId: data.handler.userId,
+                    staffCode: data.handler.staffCode,
+                    roles: [],
+                  };
+
+                  if (activity.type === 'call') {
+                    if (row.referenceId) {
+                      const arr = row.referenceId.split('-');
+                      if (arr.length === 2) {
+                        activity.contactInfo.relation.code = arr[0].trim();
+                        activity.contactInfo.phoneNumber = arr[1].trim();
+                      }
+                    }
+                  }
+                  console.log(`------ Activity:`, activity);
+                  const createActivityResult = await this._activitiesRepo.save(
+                    activity,
+                  );
+                  console.log(`------ Create Activity:`, createActivityResult);
+                  if (createActivityResult) {
+                    sheetProcessResult.insertCount++;
+                  }
                   break;
                 }
                 default:
