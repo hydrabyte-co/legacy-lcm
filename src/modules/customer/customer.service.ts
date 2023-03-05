@@ -93,6 +93,10 @@ export class CustomerService extends BaseService<Customer> {
           filter.order = { ['lastPTPActivity.ptpDate']: -1 };
           break;
         }
+        case 'ptp-date-asc': {
+          filter.order = { ['lastPTPActivity.ptpDate']: 1 };
+          break;
+        }
         case 'not-report': {
           //filter.order = { ['lastPTPActivity.ptpDate']: -1 };
           break;
