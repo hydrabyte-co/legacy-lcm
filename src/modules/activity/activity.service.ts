@@ -46,6 +46,39 @@ export class ActivityService extends BaseService<Activity> {
     handler: DataHandler,
   ): Promise<FindAllResult<Activity>> {
     filter.order = { performAt: -1 };
+    if (filter.where.sortBy) {
+      switch (filter.where.sortBy) {
+        case 'performAt-desc': {
+          filter.order = { performAt: -1 };
+          break;
+        }
+        case 'ptpDate-desc': {
+          filter.order = { ptpDate: -1 };
+          break;
+        }
+        case 'not-reported': {
+          filter.where.resultCode = { $eq: '' };
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    if (filter.where.query) {
+      const numberRegex = /^[0-9]+$/;
+      if (numberRegex.test(filter.where.query)) {
+        filter.where['contactInfo.phoneNumber'] = filter.where.query;
+      } else {
+        filter.where['contactInfo.relation.name'] = new RegExp(
+          filter.where.query,
+          'gi',
+        );
+      }
+    }
+    delete filter.where.sortBy;
+    delete filter.where.query;
+    console.log(filter);
+
     return await super.findManyWithPaging(filter, handler);
   }
 
@@ -149,6 +182,7 @@ export class ActivityService extends BaseService<Activity> {
       return uncompletedActivity;
     } else {
       throw new BadRequestException(
+        uncompletedActivity,
         `There uncompleted report on ${uncompletedActivity.createdAt.toUTCString()}, please update result before make new activity!`,
       );
     }

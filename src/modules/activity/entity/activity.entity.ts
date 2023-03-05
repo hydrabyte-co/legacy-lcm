@@ -24,7 +24,7 @@ export class Activity extends Base {
   @Column()
   @IsString()
   @IsNotEmpty()
-  @MaxLength(24)
+  @MaxLength(48)
   contractCode = '';
 
   @Column()

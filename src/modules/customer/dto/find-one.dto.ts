@@ -43,6 +43,18 @@ export class FindCustomerByIdResult extends BaseFindByIdResult {
   permanentAddress = '';
 
   @Expose()
+  officeAddress = '';
+
+  @Expose()
+  officeName = '';
+
+  @Expose()
+  jobPosition = '';
+
+  @Expose()
+  businessDomain = '';
+
+  @Expose()
   status = '';
 
   @Expose()

@@ -75,13 +75,33 @@ export class Customer extends Base {
 
   @Column()
   @IsString()
-  @MaxLength(180)
+  @MaxLength(360)
   temporaryAddress = '';
 
   @Column()
   @IsString()
-  @MaxLength(180)
+  @MaxLength(360)
   permanentAddress = '';
+
+  @Column()
+  @IsString()
+  @MaxLength(360)
+  officeAddress = '';
+
+  @Column()
+  @IsString()
+  @MaxLength(360)
+  officeName = '';
+
+  @Column()
+  @IsString()
+  @MaxLength(60)
+  jobPosition = '';
+
+  @Column()
+  @IsString()
+  @MaxLength(60)
+  businessDomain = '';
 
   @Column()
   @IsString()

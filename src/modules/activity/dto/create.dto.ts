@@ -18,7 +18,6 @@ import { ActivityType } from '../enum/activity.enum';
 
 export class CreateActivityData extends BaseCreateData {
   @IsString()
-  @IsNotEmpty()
   @MaxLength(48)
   contractCode = '';
 

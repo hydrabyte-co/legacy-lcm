@@ -66,12 +66,28 @@ export class CreateCustomerData extends BaseCreateData {
   email = '';
 
   @IsString()
-  @MaxLength(180)
+  @MaxLength(360)
   temporaryAddress = '';
 
   @IsString()
-  @MaxLength(180)
+  @MaxLength(360)
   permanentAddress = '';
+
+  @IsString()
+  @MaxLength(360)
+  officeAddress = '';
+
+  @IsString()
+  @MaxLength(120)
+  officeName = '';
+
+  @IsString()
+  @MaxLength(60)
+  jobPosition = '';
+
+  @IsString()
+  @MaxLength(60)
+  businessDomain = '';
 
   @IsEnum(CustomerStatus)
   status = CustomerStatus.Active;
@@ -124,6 +140,18 @@ export class CreateCustomerResult extends BaseCreateResult {
 
   @Expose()
   permanentAddress = '';
+
+  @Expose()
+  officeAddress = '';
+
+  @Expose()
+  officeName = '';
+
+  @Expose()
+  jobPosition = '';
+
+  @Expose()
+  businessDomain = '';
 
   @Expose()
   status = '';

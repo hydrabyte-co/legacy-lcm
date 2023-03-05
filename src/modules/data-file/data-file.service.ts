@@ -229,6 +229,26 @@ const CustomerXlsxSchema = {
     type: String,
     required: false,
   },
+  officeAddress: {
+    prop: 'officeAddress',
+    type: String,
+    required: false,
+  },
+  officeName: {
+    prop: 'officeName',
+    type: String,
+    required: false,
+  },
+  jobPosition: {
+    prop: 'jobPosition',
+    type: String,
+    required: false,
+  },
+  businessDomain: {
+    prop: 'businessDomain',
+    type: String,
+    required: false,
+  },
   note: {
     prop: 'note',
     type: String,

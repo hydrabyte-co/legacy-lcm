@@ -79,13 +79,33 @@ export class UpdateCustomerData extends UpdateOneData {
 
   @IsOptional()
   @IsString()
-  @MaxLength(180)
+  @MaxLength(360)
   temporaryAddress;
 
   @IsOptional()
   @IsString()
-  @MaxLength(180)
+  @MaxLength(360)
   permanentAddress;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(360)
+  officeAddress = '';
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  officeName = '';
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  jobPosition = '';
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  businessDomain = '';
 
   @IsOptional()
   @IsString()
@@ -152,6 +172,18 @@ export class UpdateCustomerResult extends UpdateOneResult {
 
   @Expose()
   permanentAddress = '';
+
+  @Expose()
+  officeAddress = '';
+
+  @Expose()
+  officeName = '';
+
+  @Expose()
+  jobPosition = '';
+
+  @Expose()
+  businessDomain = '';
 
   @Expose()
   status = '';
