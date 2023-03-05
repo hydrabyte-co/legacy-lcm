@@ -87,14 +87,17 @@ export class CustomerService extends BaseService<Customer> {
         }
         case 'ptp-amount-desc': {
           filter.order = { ['lastPTPActivity.ptpAmount']: -1 };
+          filter.where['lastPTPActivity.ptpAmount'] = { $ne: null };
           break;
         }
         case 'ptp-date-desc': {
           filter.order = { ['lastPTPActivity.ptpDate']: -1 };
+          filter.where['lastPTPActivity.ptpDate'] = { $ne: null };
           break;
         }
         case 'ptp-date-asc': {
           filter.order = { ['lastPTPActivity.ptpDate']: 1 };
+          filter.where['lastPTPActivity.ptpDate'] = { $ne: null };
           break;
         }
         case 'not-report': {
