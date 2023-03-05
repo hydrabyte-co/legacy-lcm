@@ -400,7 +400,10 @@ export class DataFileService extends BaseService<DataFile> {
                     '[^0-9]+',
                     '',
                   );
-                  row.gender = row.gender.toString().toLowerCase().trim();
+                  row.gender = (row.gender || '')
+                    .toString()
+                    .toLowerCase()
+                    .trim();
                   if (['phụ nữ', 'nữ', 'gái'].indexOf(row.gender) >= 0) {
                     row.gender = 'female';
                   }
