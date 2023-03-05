@@ -808,7 +808,7 @@ export class DataFileService extends BaseService<DataFile> {
 
     console.log(``);
     console.log(``);
-    console.log(`Request to process Data File '${id}`);
+    console.log(`Request to process Data File '${id}'`);
     if (updateResult) {
       const emitResult = await this.client.emit(
         'process-data-file',
