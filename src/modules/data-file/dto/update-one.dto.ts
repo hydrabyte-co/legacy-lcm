@@ -1,9 +1,16 @@
 import { Expose } from 'class-transformer';
-import { IsString, IsOptional, IsObject } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsObject,
+  IsNotEmpty,
+  MaxLength,
+} from 'class-validator';
 import {
   UpdateOneData,
   UpdateOneResult,
 } from '../../../common/modules/base/dto/update-one.dto';
+import { DataFile_ImportRule } from '../enum/data-file.enum';
 
 export class UpdateDataFileData extends UpdateOneData {
   @IsOptional()
@@ -12,11 +19,21 @@ export class UpdateDataFileData extends UpdateOneData {
 
   @IsOptional()
   @IsObject()
-  settings;
+  settings: {
+    sheets: {
+      name: string;
+      toTable: string;
+      rule: DataFile_ImportRule;
+      [key: string]: any;
+    }[];
+  };
 }
 export class UpdateDataFileResult extends UpdateOneResult {
   @Expose()
   fileName = '';
+
+  @Expose()
+  partnerCode = '';
 
   @Expose()
   info = {};

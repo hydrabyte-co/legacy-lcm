@@ -1,11 +1,18 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
+import { ObjectID } from 'mongodb';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 import { DataFile } from './entity/data-file.entity';
 import { BaseService } from 'src/common/modules/base/base.service';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { CreateDataFileData } from './dto/create.dto';
-import { DataFileStatus } from './enum/data-file.enum';
+import {
+  DataFile_Status,
+  DataFile_ImportRule,
+  DataFile_ToTable,
+} from './enum/data-file.enum';
 import { readSheetNames } from 'read-excel-file/node';
 import readXlsxFile from 'read-excel-file/node';
 import { getTypeOf } from 'src/common/utils/object-helper';
@@ -16,6 +23,10 @@ import { Transaction } from '../transaction/entity/transaction.entity';
 import { Reference } from '../reference/entity/reference.entity';
 import { Investigation } from '../investigation/entity/investigation.entity';
 import { Activity } from '../activity/entity/activity.entity';
+import { downloadFile } from 'src/common/utils/web-helper';
+import { UpdateDataFileData } from './dto/update-one.dto';
+import { Services } from 'src/common/enums/services';
+import { ClientProxy } from '@nestjs/microservices';
 
 const relations: {
   name: string;
@@ -675,6 +686,7 @@ export class DataFileService extends BaseService<DataFile> {
     private readonly investigationsRepository: MongoRepository<Investigation>,
     @InjectRepository(Activity)
     private readonly activitiesRepository: MongoRepository<Activity>,
+    @Inject(Services.LCM) private client: ClientProxy,
   ) {
     super(dataFilesRepository);
     this._customersRepo = customersRepository;
@@ -689,40 +701,139 @@ export class DataFileService extends BaseService<DataFile> {
     data: CreateDataFileData,
     handler: DataHandler,
   ): Promise<any> {
+    const urlRegex = new RegExp(
+      /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/,
+    );
     const dataFile = new DataFile();
     dataFile.fileName = data.fileName;
     dataFile.note = data.note;
-    return super.createOne(dataFile, handler);
-  }
-
-  async readDataFile(id: string, handler: DataHandler): Promise<any> {
-    const dataFile = (await super.findOne(id, handler)) as DataFile;
-    const info = {
-      sheets: [],
-    };
-    if (dataFile.status === DataFileStatus.New) {
-      const filePath = `./data/${dataFile.fileName}`;
-      const sheetNames = await readSheetNames(filePath)
-        .then((names) => names)
-        .catch((e) => {
-          console.log(e);
-          return [];
-        });
-      info.sheets = sheetNames.map((name) => {
-        return { name };
-      });
-    } else {
-      throw new BadRequestException(
-        `Status of Data File '${id}' is '${dataFile.status}'. Can not read Data File in status '${dataFile.status}'!`,
+    dataFile.partnerCode = data.partnerCode;
+    dataFile.status = DataFile_Status.New;
+    console.log(``);
+    console.log(``);
+    console.log(`Create new Data File`, dataFile);
+    if (urlRegex.test(dataFile.fileName)) {
+      const now = new Date();
+      const dataDirPath = './data';
+      const dataFilePath = `${dataDirPath}/${now.getTime()}.xlsx`;
+      if (!fs.existsSync(dataDirPath)) {
+        console.log(
+          `-- Directory '${dataDirPath} not existed, create new one...'`,
+        );
+        fs.mkdirSync(dataDirPath);
+      }
+      const downloadFileResult = await downloadFile(
+        dataFile.fileName,
+        dataFilePath,
       );
+      console.log(
+        `-- Download file '${dataFile.fileName} to '${dataFilePath}'`,
+        downloadFileResult,
+      );
+      if (downloadFileResult === true) {
+        const sheetNames = await readSheetNames(dataFilePath)
+          .then((names) => names)
+          .catch((e) => {
+            console.log(`-- Read Sheet name of file ${dataDirPath} error`, e);
+            return [];
+          });
+        console.log(`-- Read Sheet name of file ${dataDirPath}`, sheetNames);
+        dataFile.info.sheets = sheetNames.map((name) => {
+          return { name };
+        });
+        return super.createOne(dataFile, handler);
+      }
+    } else {
+      throw new BadRequestException({
+        message: `-- Can not download file '${dataFile.fileName}'!`,
+      });
     }
-    return super.updateOne(id, { status: DataFileStatus.Read, info }, handler);
   }
 
+  async updateOne(
+    id: ObjectID,
+    data: UpdateDataFileData,
+    handler: DataHandler,
+  ): Promise<any> {
+    const currentDataFile: DataFile = await super.findOne(id, handler);
+    if (data.settings) {
+      if (getTypeOf(data.settings.sheets) === 'array') {
+        if (data.settings.sheets.length > 0) {
+          for (let i = 0; i < data.settings.sheets.length; i++) {
+            const sheet = data.settings.sheets[i];
+            const foundSheet = currentDataFile.info.sheets.find(
+              (s) => s.name === sheet.name,
+            );
+            const isValidRule =
+              DataFile_ImportRule.CloseAll === sheet.rule ||
+              DataFile_ImportRule.ReplaceAll === sheet.rule ||
+              DataFile_ImportRule.DeleteAll === sheet.rule;
+            const isValidToTable =
+              DataFile_ToTable.Activity === sheet.toTable ||
+              DataFile_ToTable.Contract === sheet.toTable ||
+              DataFile_ToTable.Customer === sheet.toTable ||
+              DataFile_ToTable.Investigation === sheet.toTable ||
+              DataFile_ToTable.Reference === sheet.toTable ||
+              DataFile_ToTable.Transaction === sheet.toTable;
+
+            if (foundSheet === undefined) {
+              throw new BadRequestException({
+                message: `Sheet '${sheet.name}' is not found in file!`,
+              });
+            }
+
+            if (isValidRule === false) {
+              throw new BadRequestException({
+                message: `Import rule '${sheet.rule}' is not valid for sheet '${sheet.name}'!`,
+              });
+            }
+
+            if (isValidToTable === false) {
+              throw new BadRequestException({
+                message: `To table '${sheet.toTable}' is not valid for sheet '${sheet.name}'!`,
+              });
+            }
+          }
+        }
+      }
+    }
+    return super.updateOne(id, data, handler);
+  }
   async processDataFile(id: string, handler: DataHandler): Promise<any> {
+    const updateResult = await super.updateOne(
+      id,
+      { status: DataFile_Status.Queued },
+      handler,
+    );
+
+    console.log(``);
+    console.log(``);
+    console.log(`Request to process Data File '${id}`);
+    if (updateResult) {
+      const emitResult = await this.client.emit(
+        'process-data-file',
+        id.toString(),
+      );
+      console.log(`-- Emit result`, emitResult);
+      const subscriberResult = await emitResult.subscribe();
+      console.log(`-- Subcriber result`, subscriberResult);
+    }
+
+    return updateResult;
+  }
+
+  async handleProcessFile(data: any): Promise<any> {
+    console.log(``);
+    console.log(``);
+    console.log(`Process Data File`);
+    console.log(`Data`, data);
+    return true;
+  }
+
+  async processDataFile_(id: string, handler: DataHandler): Promise<any> {
     const dataFile = (await super.findOne(id, handler)) as DataFile;
     const info = dataFile.info;
-    if (dataFile.status === DataFileStatus.Read) {
+    if (dataFile.status === DataFile_Status.Read) {
       const filePath = `./data/${dataFile.fileName}`;
       if (getTypeOf(dataFile.settings.sheets) === 'array') {
         for (let i = 0; i < dataFile.settings.sheets.length; i++) {
@@ -1080,7 +1191,7 @@ export class DataFileService extends BaseService<DataFile> {
     }
     return super.updateOne(
       id,
-      { status: DataFileStatus.Read, info: dataFile.info },
+      { status: DataFile_Status.Read, info: dataFile.info },
       handler,
     );
   }

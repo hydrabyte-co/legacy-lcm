@@ -8,7 +8,11 @@ import {
 export class CreateDataFileData extends BaseCreateData {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(64)
+  @MaxLength(12)
+  partnerCode = '';
+
+  @IsString()
+  @IsNotEmpty()
   fileName = '';
 
   @IsString()
@@ -19,6 +23,9 @@ export class CreateDataFileData extends BaseCreateData {
 export class CreateDataFileResult extends BaseCreateResult {
   @Expose()
   fileName = '';
+
+  @Expose()
+  partnerCode = '';
 
   @Expose()
   info = {};

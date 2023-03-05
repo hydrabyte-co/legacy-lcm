@@ -8,15 +8,26 @@ import {
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
 import { Controllers } from 'src/common/enums/controllers';
-import { DataFileStatus } from '../enum/data-file.enum';
+import { DataFile_Status } from '../enum/data-file.enum';
 
 @Entity(Controllers.LCM_DataFiles)
 export class DataFile extends Base {
   @Column()
   @IsString()
   @IsNotEmpty()
-  @MaxLength(64)
   fileName = '';
+
+  @Column()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(12)
+  partnerCode = '';
+
+  @Column()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(24)
+  importRule = '';
 
   @Column()
   @IsObject()
@@ -38,6 +49,6 @@ export class DataFile extends Base {
   note = '';
 
   @Column()
-  @IsEnum(DataFileStatus)
-  status = DataFileStatus.New;
+  @IsEnum(DataFile_Status)
+  status = DataFile_Status.New;
 }

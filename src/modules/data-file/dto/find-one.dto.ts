@@ -7,6 +7,9 @@ export class FindDataFileByIdResult extends BaseFindByIdResult {
   fileName = '';
 
   @Expose()
+  partnerCode = '';
+
+  @Expose()
   info = {};
 
   @Expose()

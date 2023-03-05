@@ -16,14 +16,14 @@ async function bootstrap() {
           transport: Transport.RMQ,
           options: {
             urls: [process.env.RABBITMQ_URL],
-            queue: 'foo-event-queue',
+            queue: process.env.RABBITMQ_QUEUE,
             queueOptions: {
-              durable: false,
+              durable: true,
             },
           },
         },
       );
-      await app.listen();
+      app.listen();
       break;
     }
     case 'worker': {

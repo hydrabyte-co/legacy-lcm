@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { DataFileService } from './data-file.service';
 import { DataFilesController } from './data-file.controller';
 import { DataFile } from './entity/data-file.entity';
@@ -15,6 +16,7 @@ import { ReferenceModule } from '../reference/reference.module';
 import { InvestigationModule } from '../investigation/investigation.module';
 import { Activity } from '../activity/entity/activity.entity';
 import { ActivityModule } from '../activity/activity.module';
+import { Services } from 'src/common/enums/services';
 
 @Module({
   imports: [
@@ -26,6 +28,19 @@ import { ActivityModule } from '../activity/activity.module';
       Reference,
       Investigation,
       Activity,
+    ]),
+    ClientsModule.register([
+      {
+        name: Services.LCM,
+        transport: Transport.RMQ,
+        options: {
+          urls: [process.env.RABBITMQ_URL],
+          queue: process.env.RABBITMQ_QUEUE,
+          queueOptions: {
+            durable: true,
+          },
+        },
+      },
     ]),
     CustomerModule,
     ContractModule,

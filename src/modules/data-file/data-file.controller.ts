@@ -29,6 +29,7 @@ import { Services } from 'src/common/enums/services';
 import { Controllers } from 'src/common/enums/controllers';
 import { DataFile } from './entity/data-file.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
+import { EventPattern } from '@nestjs/microservices';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Controllers.LCM_DataFiles)
@@ -77,16 +78,6 @@ export class DataFilesController extends BaseController {
     return await super.updateOne(id, data, req);
   }
 
-  @Put(':id/read')
-  @UseGuards(AuthGuard, RolesGuard)
-  async read(
-    @Param('id') id: string,
-    @Req() req,
-  ): Promise<UpdateDataFileResult> {
-    const handler = req.user || new DataHandler();
-    return await this.dataFilesService.readDataFile(id, handler);
-  }
-
   @Put(':id/process')
   @UseGuards(AuthGuard, RolesGuard)
   async process(
@@ -101,5 +92,12 @@ export class DataFilesController extends BaseController {
   @UseGuards(AuthGuard, RolesGuard)
   async deleteOne(@Param('id') id: string, @Req() req) {
     return await super.deleteOne(id, req);
+  }
+
+  @EventPattern('process-data-file')
+  async handleEvent(dataString: Record<string, unknown>) {
+    const data = JSON.parse(dataString.toString());
+    await this.dataFilesService.handleProcessFile(data);
+    return 'ack';
   }
 }
