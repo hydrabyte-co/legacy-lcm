@@ -167,4 +167,8 @@ export class Contract extends Base {
   @Column()
   @IsString()
   statusOfLoan;
+
+  @Column()
+  @IsString()
+  fromFile = '';
 }

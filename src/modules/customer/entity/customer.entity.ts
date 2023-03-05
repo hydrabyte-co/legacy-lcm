@@ -8,9 +8,11 @@ import {
   IsDateString,
   IsNumber,
   IsObject,
+  IsEnum,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
 import { Controllers } from 'src/common/enums/controllers';
+import { CustomerStatus } from '../enum/customer.enum';
 
 @Entity(Controllers.LCM_Customers)
 export class Customer extends Base {
@@ -104,9 +106,8 @@ export class Customer extends Base {
   businessDomain = '';
 
   @Column()
-  @IsString()
-  @MaxLength(12)
-  status = '';
+  @IsEnum(CustomerStatus)
+  status = CustomerStatus.Active;
 
   @Column()
   @IsString()

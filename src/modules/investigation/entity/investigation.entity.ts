@@ -43,4 +43,8 @@ export class Investigation extends Base {
   @Column()
   @IsDate()
   date: Date = new Date();
+
+  @Column()
+  @IsString()
+  fromFile = '';
 }

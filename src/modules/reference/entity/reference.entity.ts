@@ -75,4 +75,8 @@ export class Reference extends Base {
   @IsString()
   @MaxLength(360)
   note = '';
+
+  @Column()
+  @IsString()
+  fromFile = '';
 }

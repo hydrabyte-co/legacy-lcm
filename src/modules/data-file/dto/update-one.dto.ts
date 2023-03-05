@@ -10,7 +10,7 @@ import {
   UpdateOneData,
   UpdateOneResult,
 } from '../../../common/modules/base/dto/update-one.dto';
-import { DataFile_ImportRule } from '../enum/data-file.enum';
+import { DataFile_ImportRule, DataFile_ToTable } from '../enum/data-file.enum';
 
 export class UpdateDataFileData extends UpdateOneData {
   @IsOptional()
@@ -22,7 +22,7 @@ export class UpdateDataFileData extends UpdateOneData {
   settings: {
     sheets: {
       name: string;
-      toTable: string;
+      toTable: DataFile_ToTable;
       rule: DataFile_ImportRule;
       [key: string]: any;
     }[];

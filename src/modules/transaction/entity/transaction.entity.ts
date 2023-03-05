@@ -31,4 +31,8 @@ export class Transaction extends Base {
   @Column()
   @IsDate()
   date: Date = new Date();
+
+  @Column()
+  @IsString()
+  fromFile = '';
 }

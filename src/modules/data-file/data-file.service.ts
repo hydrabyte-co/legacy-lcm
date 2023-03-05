@@ -27,641 +27,18 @@ import { downloadFile } from 'src/common/utils/web-helper';
 import { UpdateDataFileData } from './dto/update-one.dto';
 import { Services } from 'src/common/enums/services';
 import { ClientProxy } from '@nestjs/microservices';
-
-const relations: {
-  name: string;
-  code: string;
-  tags: string[];
-}[] = [
-  {
-    name: 'Bố mẹ',
-    code: 'parent',
-    tags: ['bố mẹ', 'bố', 'mẹ'],
-  },
-  {
-    name: 'Vợ chồng',
-    code: 'spouse',
-    tags: ['vợ chồng', 'vợ', 'chồng'],
-  },
-  {
-    name: 'Anh chị em',
-    code: 'sibling',
-    tags: ['anh chị em', 'anh', 'chị', 'em'],
-  },
-  {
-    name: 'Con cái',
-    code: 'child',
-    tags: ['con', 'con trai', 'con gái'],
-  },
-  {
-    name: 'Bạn bè',
-    code: 'friend',
-    tags: ['bạn', 'bạn bè'],
-  },
-  {
-    name: 'Người thân khác',
-    code: 'other-relative',
-    tags: ['cô', 'chú', 'bác', 'cháu', 'ông', 'bà'],
-  },
-  {
-    name: 'Đồng nghiệp',
-    code: 'colleague',
-    tags: ['đồng nghiệp', 'công ty'],
-  },
-  {
-    name: 'Đồng nghiệp',
-    code: 'colleague',
-    tags: ['đồng nghiệp'],
-  },
-  {
-    name: 'Khác',
-    code: 'other',
-    tags: [''],
-  },
-];
-
-const activityTypes: {
-  name: string;
-  code: string;
-  tags: string[];
-}[] = [
-  {
-    name: 'Gọi',
-    code: 'call',
-    tags: ['call'],
-  },
-  {
-    name: 'Mạnh xã hội',
-    code: 'social-network',
-    tags: ['mạng xã hội', 'mxh', 'facebook', 'zalo'],
-  },
-  {
-    name: 'Điều tra',
-    code: 'skip',
-    tags: ['skip'],
-  },
-];
-
-const investigationTypes: {
-  name: string;
-  code: string;
-  tags: string[];
-}[] = [
-  {
-    name: 'Địa chỉ',
-    code: 'address',
-    tags: ['địa chỉ', 'address'],
-  },
-  {
-    name: 'Email',
-    code: 'email',
-    tags: ['email'],
-  },
-  {
-    name: 'Mạng xã hội',
-    code: 'social-network',
-    tags: [
-      'mxh',
-      'facebook',
-      'mạng xã hội',
-      'twitter',
-      'zalo',
-      'social-network',
-    ],
-  },
-  {
-    name: 'Số điện thoại',
-    code: 'phone-number',
-    tags: ['điện thoại', 'di dộng', 'số điện thoại', 'phone-number'],
-  },
-  {
-    name: 'Thông tin khác',
-    code: 'other',
-    tags: ['thông tin khác', 'other'],
-  },
-];
-
-const CustomerXlsxSchema = {
-  code: {
-    prop: 'code',
-    type: String,
-    required: true,
-  },
-  partnerCode: {
-    prop: 'partnerCode',
-    type: String,
-    required: true,
-  },
-  callStaffCode: {
-    prop: 'callStaffCode',
-    type: String,
-    required: false,
-  },
-  fieldStaffCode: {
-    prop: 'fieldStaffCode',
-    type: String,
-    required: false,
-  },
-  fullname: {
-    prop: 'fullname',
-    type: String,
-    required: true,
-  },
-  gender: {
-    prop: 'gender',
-    type: (value) => {
-      value = (value + '').toLocaleLowerCase().toString();
-      if (value.indexOf('female') >= 0) {
-        value = 'female';
-      } else if (value.indexOf('male') >= 0) {
-        value = 'male';
-      } else {
-        value = '';
-      }
-      return value;
-    },
-    required: false,
-  },
-  dob: {
-    prop: 'dob',
-    type: (value) => {
-      switch (getTypeOf(value)) {
-        case 'datetime': {
-          value = (value as Date).toISOString().split('T')[0];
-          break;
-        }
-        default: {
-          if (value === null) {
-            value = '';
-          }
-          if (value === undefined) {
-            value = '';
-          }
-          break;
-        }
-      }
-      return value;
-    },
-    required: false,
-  },
-  identityNumber: {
-    prop: 'identityNumber',
-    type: (value) => {
-      return replaceRegexPatternFromString(value, '[^0-9]+', '');
-    },
-    required: false,
-  },
-  mobileNumber: {
-    prop: 'mobileNumber',
-    type: (value) => {
-      return replaceRegexPatternFromString(value, '[^0-9]+', '');
-    },
-    required: true,
-  },
-  officeNumber: {
-    prop: 'officeNumber',
-    type: (value) => {
-      return replaceRegexPatternFromString(value, '[^0-9]+', '');
-    },
-    required: false,
-  },
-  email: {
-    prop: 'email',
-    type: String,
-    required: false,
-  },
-  temporaryAddress: {
-    prop: 'temporaryAddress',
-    type: String,
-    required: false,
-  },
-  permanentAddress: {
-    prop: 'permanentAddress',
-    type: String,
-    required: false,
-  },
-  officeAddress: {
-    prop: 'officeAddress',
-    type: String,
-    required: false,
-  },
-  officeName: {
-    prop: 'officeName',
-    type: String,
-    required: false,
-  },
-  jobPosition: {
-    prop: 'jobPosition',
-    type: String,
-    required: false,
-  },
-  businessDomain: {
-    prop: 'businessDomain',
-    type: String,
-    required: false,
-  },
-  note: {
-    prop: 'note',
-    type: String,
-    required: false,
-  },
-};
-
-const ContractXlsxSchema = {
-  code: {
-    prop: 'code',
-    type: String,
-    required: true,
-  },
-  partnerCode: {
-    prop: 'partnerCode',
-    type: String,
-    required: true,
-  },
-  customerCode: {
-    prop: 'customerCode',
-    type: String,
-    required: false,
-  },
-  guid: {
-    prop: 'guid',
-    type: String,
-    required: false,
-  },
-  customerCIF: {
-    prop: 'customerCIF',
-    type: String,
-    required: false,
-  },
-  productGroup: {
-    prop: 'productGroup',
-    type: String,
-    required: false,
-  },
-  originalBalance: {
-    prop: 'originalBalance',
-    type: Number,
-    required: false,
-  },
-  totalBalance: {
-    prop: 'totalBalance',
-    type: Number,
-    required: false,
-  },
-  ovdBalance: {
-    prop: 'ovdBalance',
-    type: Number,
-    required: false,
-  },
-  performingBalance: {
-    prop: 'performingBalance',
-    type: Number,
-    required: false,
-  },
-  periodicalPaymentAmount: {
-    prop: 'periodicalPaymentAmount',
-    type: Number,
-    required: false,
-  },
-  prAmount: {
-    prop: 'prAmount',
-    type: Number,
-    required: false,
-  },
-  inAmount: {
-    prop: 'inAmount',
-    type: Number,
-    required: false,
-  },
-  peAmount: {
-    prop: 'peAmount',
-    type: Number,
-    required: false,
-  },
-  psAmount: {
-    prop: 'psAmount',
-    type: Number,
-    required: false,
-  },
-  ovdDays: {
-    prop: 'ovdDays',
-    type: Number,
-    required: false,
-  },
-  totalPaymentPartner: {
-    prop: 'totalPaymentAmountFromPartner',
-    type: Number,
-    required: false,
-  },
-  totalPayment: {
-    prop: 'totalPaymentAmount',
-    type: Number,
-    required: false,
-  },
-  valueDate: {
-    prop: 'valueDate',
-    type: Date,
-    required: false,
-  },
-  maturityDate: {
-    prop: 'maturityDate',
-    type: Date,
-    required: false,
-  },
-  ovdDate: {
-    prop: 'ovdDate',
-    type: Date,
-    required: false,
-  },
-  dueDayOfMonth: {
-    prop: 'dueDayOfMonth',
-    type: Number,
-    required: false,
-  },
-  bucket: {
-    prop: 'bucket',
-    type: Number,
-    required: false,
-  },
-  term: {
-    prop: 'term',
-    type: String,
-    required: false,
-  },
-  transferDate: {
-    prop: 'transferDate',
-    type: Date,
-    required: false,
-  },
-  status: {
-    prop: 'status',
-    type: (value) => {
-      value = (value + '').toLocaleLowerCase().toString();
-      if (value.indexOf('active') >= 0 || value.toLocaleLowerCase() === 'a') {
-        value = 'active';
-      } else {
-        value = 'inactive';
-      }
-      return value;
-    },
-    required: false,
-  },
-  interestRate: {
-    prop: 'interestRate',
-    type: Number,
-    required: false,
-  },
-  branchName: {
-    prop: 'branchName',
-    type: String,
-    required: false,
-  },
-  branchCode: {
-    prop: 'branchCode',
-    type: String,
-    required: false,
-  },
-  accountNo: {
-    prop: 'accountNo',
-    type: String,
-    required: true,
-  },
-  lastPaymentAmount: {
-    prop: 'lastPaymentAmount',
-    type: Number,
-    required: false,
-  },
-  lastPaymentDate: {
-    prop: 'lastPaymentDate',
-    type: Date,
-    required: false,
-  },
-  contractLink: {
-    prop: 'contractLink',
-    type: String,
-    required: false,
-  },
-  ovdPeriod: {
-    prop: 'ovdPeriod',
-    type: Number,
-    required: false,
-  },
-  statusOfLoan: {
-    prop: 'statusOfLoan',
-    type: String,
-    required: false,
-  },
-};
-
-const TransactionXlsxSchema = {
-  customerCode: {
-    prop: 'customerCode',
-    type: String,
-    required: true,
-  },
-  contractCode: {
-    prop: 'contractCode',
-    type: String,
-    required: true,
-  },
-  amount: {
-    prop: 'amount',
-    type: Number,
-    required: true,
-  },
-  date: {
-    prop: 'date',
-    type: Date,
-    required: true,
-  },
-};
-
-const ReferenceXlsxSchema = {
-  customerCode: {
-    prop: 'customerCode',
-    type: String,
-    required: true,
-  },
-  callStaffCode: {
-    prop: 'callStaffCode',
-    type: String,
-    required: true,
-  },
-  relationCode: {
-    prop: 'relationCode',
-    type: String,
-    required: true,
-  },
-  fullname: {
-    prop: 'fullname',
-    type: String,
-    required: true,
-  },
-  gender: {
-    prop: 'gender',
-    type: (value) => {
-      value = (value + '').toLocaleLowerCase().toString();
-      if (value.indexOf('female') >= 0) {
-        value = 'female';
-      } else if (value.indexOf('male') >= 0) {
-        value = 'male';
-      } else {
-        value = '';
-      }
-      return value;
-    },
-    required: false,
-  },
-  dob: {
-    prop: 'dob',
-    type: (value) => {
-      switch (getTypeOf(value)) {
-        case 'datetime': {
-          value = (value as Date).toISOString().split('T')[0];
-          break;
-        }
-        default: {
-          if (value === null) {
-            value = '';
-          }
-          if (value === undefined) {
-            value = '';
-          }
-          break;
-        }
-      }
-      return value;
-    },
-    required: false,
-  },
-  identityNumber: {
-    prop: 'identityNumber',
-    type: (value) => {
-      return replaceRegexPatternFromString(value, '[^0-9]+', '');
-    },
-    required: false,
-  },
-  mobileNumber: {
-    prop: 'mobileNumber',
-    type: (value) => {
-      return replaceRegexPatternFromString(value, '[^0-9]+', '');
-    },
-    required: true,
-  },
-  officeNumber: {
-    prop: 'officeNumber',
-    type: (value) => {
-      return replaceRegexPatternFromString(value, '[^0-9]+', '');
-    },
-    required: false,
-  },
-  email: {
-    prop: 'email',
-    type: String,
-    required: false,
-  },
-  temporaryAddress: {
-    prop: 'temporaryAddress',
-    type: String,
-    required: false,
-  },
-  permanentAddress: {
-    prop: 'permanentAddress',
-    type: String,
-    required: false,
-  },
-  note: {
-    prop: 'note',
-    type: String,
-    required: false,
-  },
-  createdAt: {
-    prop: 'date',
-    type: Date,
-    required: true,
-  },
-};
-
-const InvestigationXlsxSchema = {
-  customerCode: {
-    prop: 'customerCode',
-    type: String,
-    required: true,
-  },
-  staffCode: {
-    prop: 'staffCode',
-    type: String,
-    required: true,
-  },
-  typeCode: {
-    prop: 'typeCode',
-    type: String,
-    required: true,
-  },
-  value: {
-    prop: 'value',
-    type: String,
-    required: false,
-  },
-  note: {
-    prop: 'note',
-    type: String,
-    required: false,
-  },
-};
-
-const ActivityXlsxSchema = {
-  customerCode: {
-    prop: 'customerCode',
-    type: String,
-    required: true,
-  },
-  staffCode: {
-    prop: 'staffCode',
-    type: String,
-    required: true,
-  },
-  contractCode: {
-    prop: 'contractCode',
-    type: String,
-    required: true,
-  },
-  type: {
-    prop: 'type',
-    type: String,
-    required: true,
-  },
-  note: {
-    prop: 'note',
-    type: String,
-    required: false,
-  },
-  referenceId: {
-    prop: 'referenceId',
-    type: String,
-    required: false,
-  },
-  resultCode: {
-    prop: 'resultCode',
-    type: String,
-    required: false,
-  },
-  resultParentCode: {
-    prop: 'resultParentCode',
-    type: String,
-    required: false,
-  },
-  ptpDate: {
-    prop: 'ptpDate',
-    type: String,
-    required: false,
-  },
-  createdAt: {
-    prop: 'createdAt',
-    type: Date,
-    required: false,
-  },
-};
+import {
+  ActivityXlsxSchema,
+  ContractXlsxSchema,
+  CustomerXlsxSchema,
+  InvestigationXlsxSchema,
+  ReferenceXlsxSchema,
+  TransactionXlsxSchema,
+  investigationTypes,
+  relations,
+} from './constant/data-file.constant';
+import { CustomerStatus } from '../customer/enum/customer.enum';
+import { ContractStatus } from '../contract/enum/contract.enum';
 
 @Injectable()
 export class DataFileService extends BaseService<DataFile> {
@@ -812,7 +189,7 @@ export class DataFileService extends BaseService<DataFile> {
     if (updateResult) {
       const emitResult = await this.client.emit(
         'process-data-file',
-        id.toString(),
+        JSON.stringify({ dataFileId: id, handler }),
       );
       console.log(`-- Emit result`, emitResult);
       const subscriberResult = await emitResult.subscribe();
@@ -822,62 +199,89 @@ export class DataFileService extends BaseService<DataFile> {
     return updateResult;
   }
 
-  async handleProcessFile(data: any): Promise<any> {
+  async handleProcessFile(data: {
+    dataFileId: ObjectID;
+    handler: DataHandler;
+  }): Promise<any> {
     console.log(``);
     console.log(``);
     console.log(`Process Data File`);
-    console.log(`Data`, data);
-    return true;
-  }
+    console.log(`-- Data file id`, data.dataFileId);
+    const dataFile = await this.dataFilesRepository.findOne(data.dataFileId);
+    console.log(`-- Data file`, dataFile);
+    if (dataFile) {
+      const updateDataFileResult = await this.dataFilesRepository.update(
+        dataFile.id,
+        { status: DataFile_Status.Processing },
+      );
+      console.log(
+        `-- Update data file status to 'processing'`,
+        updateDataFileResult.affected > 0,
+      );
+      dataFile.status = DataFile_Status.Processing;
 
-  async processDataFile_(id: string, handler: DataHandler): Promise<any> {
-    const dataFile = (await super.findOne(id, handler)) as DataFile;
-    const info = dataFile.info;
-    if (dataFile.status === DataFile_Status.Read) {
-      const filePath = `./data/${dataFile.fileName}`;
+      const now = new Date();
+      const dataDirPath = './data';
+      const dataFilePath = `${dataDirPath}/${now.getTime()}.xlsx`;
+      if (!fs.existsSync(dataDirPath)) {
+        console.log(
+          `-- Directory '${dataDirPath} not existed, create new one...'`,
+        );
+        fs.mkdirSync(dataDirPath);
+      }
+      const downloadFileResult = await downloadFile(
+        dataFile.fileName,
+        dataFilePath,
+      );
+      console.log(
+        `-- Download file '${dataFile.fileName} to '${dataFilePath}'`,
+        downloadFileResult,
+      );
+
       if (getTypeOf(dataFile.settings.sheets) === 'array') {
         for (let i = 0; i < dataFile.settings.sheets.length; i++) {
           const sheet = dataFile.settings.sheets[i];
-          const processResult = {
+          const sheetProcessResult = {
             name: sheet.name,
-            validRows: 0,
-            errorRows: 0,
-            insert: 0,
-            update: 0,
+            totalCount: 0,
+            validCount: 0,
+            errorCount: 0,
+            insertCount: 0,
+            updateCount: 0,
+            errors: [],
           };
           let readResult = undefined;
           let readSchema = undefined;
 
-          switch (sheet.schema) {
-            case 'customer': {
+          switch (sheet.toTable) {
+            case DataFile_ToTable.Customer: {
               readSchema = CustomerXlsxSchema;
               break;
             }
-            case 'contract': {
+            case DataFile_ToTable.Contract: {
               readSchema = ContractXlsxSchema;
               break;
             }
-            case 'transaction': {
-              readSchema = TransactionXlsxSchema;
-              break;
-            }
-            case 'reference': {
+            case DataFile_ToTable.Reference: {
               readSchema = ReferenceXlsxSchema;
               break;
             }
-            case 'investigation': {
+            case DataFile_ToTable.Activity: {
+              readSchema = ActivityXlsxSchema;
+              break;
+            }
+            case DataFile_ToTable.Investigation: {
               readSchema = InvestigationXlsxSchema;
               break;
             }
-            case 'activity': {
-              readSchema = ActivityXlsxSchema;
+            case DataFile_ToTable.Transaction: {
+              readSchema = Transaction;
               break;
             }
             default:
               break;
           }
-
-          readResult = await readXlsxFile(filePath, {
+          readResult = await readXlsxFile(dataFilePath, {
             schema: readSchema,
             sheet: sheet.name,
           })
@@ -888,18 +292,95 @@ export class DataFileService extends BaseService<DataFile> {
               return undefined;
             });
           if (readResult != undefined) {
-            processResult.validRows = readResult.rows.length;
-            processResult.errorRows = readResult.errors.length;
+            sheetProcessResult.validCount = readResult.rows.length;
+            sheetProcessResult.errorCount = readResult.errors.length;
+            sheetProcessResult.errors = readResult.errors;
+            console.log(`---- `);
             console.log(
-              `Process Data File './data/${dataFile.fileName}' Sheet(${i}/${dataFile.settings.sheets.length}) '${sheet.name}': ${readResult.rows.length} rows, ${readResult.errors.length} errors`,
+              `---- Process Data File '${dataFilePath}' Sheet(${i}/${dataFile.settings.sheets.length}) '${sheet.name}': ${readResult.rows.length} rows, ${readResult.errors.length} errors`,
             );
-            console.log(`Errors:`, readResult.errors);
-            // throw new BadRequestException();
+            console.log(`---- Import Rule`, sheet.rule);
+            console.log(`---- To Table`, sheet.toTable);
+
+            switch (sheet.rule) {
+              case DataFile_ImportRule.CloseAll: {
+                if (sheet.toTable === DataFile_ToTable.Customer) {
+                  const updateAllCustomerResult =
+                    await this.customersRepository.updateMany(
+                      { partnerCode: dataFile.partnerCode },
+                      { status: CustomerStatus.Closed },
+                    );
+                  console.log(
+                    `---- Update status of all customers  to 'closed'`,
+                    updateAllCustomerResult.result,
+                  );
+                }
+                if (sheet.toTable === DataFile_ToTable.Contract) {
+                  const updateAllContractResult =
+                    await this.contractsRepository.updateMany(
+                      {},
+                      { status: ContractStatus.Closed },
+                    );
+                  console.log(
+                    `---- Update status of all contracts to 'closed'`,
+                    updateAllContractResult.result,
+                  );
+                }
+                break;
+              }
+              case DataFile_ImportRule.DeleteAll: {
+                if (sheet.toTable === DataFile_ToTable.Investigation) {
+                  const deleteAllImportedRecordsResults =
+                    await this.investigationsRepository.deleteMany({
+                      $and: [
+                        { fromFile: { $ne: null } },
+                        { fromFile: { $ne: '' } },
+                        { partnerCode: dataFile.partnerCode },
+                      ],
+                    });
+                  console.log(
+                    `---- Delete all imported Investigations`,
+                    deleteAllImportedRecordsResults,
+                  );
+                }
+                if (sheet.toTable === DataFile_ToTable.Reference) {
+                  const deleteAllImportedRecordsResults =
+                    await this.referencesRepository.deleteMany({
+                      $and: [
+                        { fromFile: { $ne: null } },
+                        { fromFile: { $ne: '' } },
+                        { partnerCode: dataFile.partnerCode },
+                      ],
+                    });
+                  console.log(
+                    `---- Delete all imported References`,
+                    deleteAllImportedRecordsResults,
+                  );
+                }
+                if (sheet.toTable === DataFile_ToTable.Transaction) {
+                  const deleteAllImportedRecordsResults =
+                    await this.transactionsRepository.deleteMany({
+                      $and: [
+                        { fromFile: { $ne: null } },
+                        { fromFile: { $ne: '' } },
+                        { partnerCode: dataFile.partnerCode },
+                      ],
+                    });
+                  console.log(
+                    `---- Delete all imported Transactions`,
+                    deleteAllImportedRecordsResults,
+                  );
+                }
+                break;
+              }
+              default:
+                break;
+            }
             for (let j = 0; j < readResult.rows.length; j++) {
               const row = readResult.rows[j];
-              console.log(`-- Row(${j}/${readResult.rows.length})`, row);
-              switch (sheet.schema) {
-                case 'customer': {
+              console.log(`------ Row(${j}/${readResult.rows.length})`, row);
+              switch (sheet.toTable) {
+                case DataFile_ToTable.Customer: {
                   const foundCustomer = await this._customersRepo.findOne({
                     where: { code: row.code },
                   });
@@ -908,291 +389,63 @@ export class DataFileService extends BaseService<DataFile> {
                     const updateCustomerResult =
                       await this._customersRepo.update(foundCustomer.id, row);
                     console.log(
-                      `---- Find customer by code '${row.code}'`,
+                      `------ Find customer by code '${row.code}'`,
                       foundCustomer,
                     );
                     console.log(
-                      `---- Update customer:`,
+                      `------ Update customer:`,
                       (updateCustomerResult as any).result,
                     );
                     if (updateCustomerResult.affected > 0) {
-                      processResult.update++;
+                      sheetProcessResult.updateCount++;
                     }
                   } else {
                     row.isDeleted = false;
                     row.owner = {
-                      orgId: handler.orgId,
+                      orgId: data.handler.orgId,
                       userId: '',
                     };
                     const createCustomerResult = await this._customersRepo.save(
                       row,
                     );
-                    console.log(`---- Create customer:`, createCustomerResult);
+                    console.log(
+                      `------ Create customer:`,
+                      createCustomerResult,
+                    );
                     if (createCustomerResult) {
-                      processResult.insert++;
+                      sheetProcessResult.insertCount++;
                     }
                   }
                   break;
-                }
-                case 'contract': {
-                  const foundContract = await this._contractsRepo.findOne({
-                    where: { code: row.code },
-                  });
-
-                  if (foundContract) {
-                    const updateContractResult =
-                      await this._contractsRepo.update(foundContract.id, row);
-                    console.log(
-                      `---- Find contract by code '${row.code}'`,
-                      foundContract,
-                    );
-                    console.log(
-                      `---- Update contract:`,
-                      (updateContractResult as any).result,
-                    );
-                    if (updateContractResult.affected > 0) {
-                      processResult.update++;
-                    }
-                  } else {
-                    row.isDeleted = false;
-                    row.owner = {
-                      orgId: handler.orgId,
-                      userId: '',
-                    };
-                    const createContractResult = await this._contractsRepo.save(
-                      row,
-                    );
-                    console.log(`---- Create contract:`, createContractResult);
-                    if (createContractResult) {
-                      processResult.insert++;
-                    }
-                  }
                   break;
                 }
-                case 'transaction': {
-                  const foundTransaction = await this._transactionsRepo.findOne(
-                    {
-                      where: {
-                        contractCode: row.contractCode,
-                        amount: row.amount,
-                        date: row.date,
-                      },
-                    },
-                  );
-
-                  if (foundTransaction) {
-                    const updateTransactionResult =
-                      await this._transactionsRepo.update(
-                        foundTransaction.id,
-                        row,
-                      );
-                    console.log(
-                      `---- Find transaction by contractCode '${row.code}', amount '${row.amount}', date '${row.date}'`,
-                      foundTransaction,
-                    );
-                    console.log(
-                      `---- Update transaction:`,
-                      (updateTransactionResult as any).result,
-                    );
-                    if (updateTransactionResult.affected > 0) {
-                      processResult.update++;
-                    }
-                  } else {
-                    row.isDeleted = false;
-                    row.owner = {
-                      orgId: handler.orgId,
-                      userId: '',
-                    };
-                    const createContractResult =
-                      await this._transactionsRepo.save(row);
-                    console.log(
-                      `---- Create transaction:`,
-                      createContractResult,
-                    );
-                    if (createContractResult) {
-                      processResult.insert++;
-                    }
-                  }
-                  break;
-                }
-                case 'reference': {
-                  const relation = relations.find(
-                    (r) =>
-                      r.tags.indexOf((row.relationCode + '').toLowerCase()) >=
-                      0,
-                  );
-                  if (relation) {
-                    row.relationCode = relation.code;
-                  } else {
-                    row.relationCode = 'other';
-                  }
-
-                  const foundRefence = await this._referencesRepo.findOne({
-                    where: {
-                      customerCode: row.customerCode,
-                      relationCode: row.relationCode,
-                      mobileNumber: row.mobileNumber,
-                    },
-                  });
-
-                  if (foundRefence) {
-                    const updateReferenceResult =
-                      await this._referencesRepo.update(foundRefence.id, row);
-                    console.log(`---- Find Reference`, foundRefence);
-                    console.log(
-                      `---- Update Reference:`,
-                      (updateReferenceResult as any).result,
-                    );
-                    if (updateReferenceResult.affected > 0) {
-                      processResult.update++;
-                    }
-                  } else {
-                    row.isDeleted = false;
-                    row.owner = {
-                      orgId: handler.orgId,
-                      userId: '',
-                    };
-                    const createReferenceResult =
-                      await this._referencesRepo.save(row);
-                    console.log(
-                      `---- Create Reference:`,
-                      createReferenceResult,
-                    );
-                    if (createReferenceResult) {
-                      processResult.insert++;
-                    }
-                  }
-                  break;
-                }
-                case 'investigation': {
-                  const type = investigationTypes.find(
-                    (r) =>
-                      r.tags.indexOf(row.typeCode.toLocaleLowerCase()) >= 0,
-                  );
-                  if (type) {
-                    row.typeCode = type.code;
-                  } else {
-                    row.typeCode = 'other';
-                  }
-
-                  const foundInvestigation =
-                    await this._investigationsRepo.findOne({
-                      where: {
-                        customerCode: row.customerCode,
-                        typeCode: row.typeCode,
-                        value: row.value,
-                      },
-                    });
-
-                  if (foundInvestigation) {
-                    console.log(
-                      `---- Find Investigation. No thing to do!`,
-                      foundInvestigation,
-                    );
-                  } else {
-                    row.isDeleted = false;
-                    row.owner = {
-                      orgId: handler.orgId,
-                      userId: '',
-                    };
-                    const createReferenceResult =
-                      await this._investigationsRepo.save(row);
-                    console.log(
-                      `---- Create Investigation:`,
-                      createReferenceResult,
-                    );
-                    if (createReferenceResult) {
-                      processResult.insert++;
-                    }
-                  }
-                  break;
-                }
-                case 'activity': {
-                  const activity = new Activity();
-                  if (row.resultCode === 'DTT_Đã tất toán') {
-                    row.resultCode = 'DT2';
-                  }
-                  if (row.resultParentCode === 'DTT_Khách hàng đã tất toán') {
-                    row.resultParentCode = 'DT2';
-                  }
-                  row.resultCode = row.resultCode.split('_')[0];
-                  row.resultParentCode = row.resultParentCode.split('_')[0];
-
-                  activity.fromFile = dataFile.fileName;
-                  activity.note = row.note;
-                  activity.type = row.type.toLowerCase();
-                  activity.staffCode = row.staffCode;
-                  activity.customerCode = row.customerCode;
-                  activity.contractCode = row.contractCode;
-                  activity.resultCode = row.resultCode;
-                  activity.resultParentCode = row.resultParentCode;
-                  activity.contactInfo = {
-                    fullname: '',
-                    relation: {
-                      code: '',
-                      name: '',
-                    },
-                    phoneNumber: '',
-                  };
-                  activity.performAt = row.createdAt;
-                  activity.isDeleted = false;
-                  activity.owner = {
-                    orgId: handler.orgId,
-                    userId: '',
-                  };
-                  activity.createdBy = {
-                    appId: '',
-                    orgId: handler.orgId,
-                    userId: handler.userId,
-                    staffCode: handler.staffCode,
-                    roles: [],
-                  };
-
-                  if (activity.type === 'call') {
-                    if (row.referenceId) {
-                      const arr = row.referenceId.split('-');
-                      console.log(arr);
-                      if (arr.length === 2) {
-                        activity.contactInfo.relation.code = arr[0].trim();
-                        activity.contactInfo.phoneNumber = arr[1].trim();
-                      }
-                    }
-                  }
-                  console.log(`---- Activity:`, activity);
-                  const createActivityResult = await this._activitiesRepo.save(
-                    activity,
-                  );
-                  console.log(`---- Create Activity:`, createActivityResult);
-                  if (createActivityResult) {
-                    processResult.insert++;
-                  }
+                case DataFile_ToTable.Contract: {
                   break;
                 }
                 default:
                   break;
               }
             }
+            // End loop of rows
             console.log(
-              `Process Data File './data/${dataFile.fileName}' Sheet(${i}/${dataFile.settings.sheets.length}) '${sheet.name}':`,
-              processResult,
+              `---- Process Data File '${dataFilePath}' Sheet(${i}/${dataFile.settings.sheets.length}) '${sheet.name}' result`,
+              sheetProcessResult,
             );
             for (let j = 0; j < dataFile.info.sheets.length; j++) {
               if (dataFile.info.sheets[j].name === sheet.name)
-                dataFile.info.sheets[j] = { ...processResult };
+                dataFile.info.sheets[j] = { ...sheetProcessResult };
             }
-            console.log(dataFile.info);
           }
         }
+        // End loop of sheets
       }
-    } else {
-      throw new BadRequestException(
-        `Status of Data File '${id}' is '${dataFile.status}'. Can not process Data File in status '${dataFile.status}'!`,
-      );
     }
-    return super.updateOne(
-      id,
-      { status: DataFile_Status.Read, info: dataFile.info },
-      handler,
+    const updateDataFileResult = await super.updateOne(
+      dataFile.id,
+      { status: DataFile_Status.Done, info: dataFile.info },
+      data.handler,
     );
+
+    return updateDataFileResult;
   }
 }
