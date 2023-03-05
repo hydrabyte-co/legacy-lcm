@@ -85,6 +85,18 @@ export class CustomerService extends BaseService<Customer> {
           filter.order = { fullname: -1 };
           break;
         }
+        case 'ptp-amount-desc': {
+          filter.order = { ['lastPTPActivity.ptpAmount']: -1 };
+          break;
+        }
+        case 'ptp-date-desc': {
+          filter.order = { ['lastPTPActivity.ptpDate']: -1 };
+          break;
+        }
+        case 'not-report': {
+          //filter.order = { ['lastPTPActivity.ptpDate']: -1 };
+          break;
+        }
         case 'fullname-asc':
         default: {
           filter.order = { fullname: 1 };
