@@ -181,10 +181,10 @@ export class ActivityService extends BaseService<Activity> {
     ) {
       return uncompletedActivity;
     } else {
-      throw new BadRequestException(
-        uncompletedActivity,
-        `There uncompleted report on ${uncompletedActivity.createdAt.toUTCString()}, please update result before make new activity!`,
-      );
+      throw new BadRequestException({
+        message: `There uncompleted report on ${uncompletedActivity.createdAt.toUTCString()}, please update result before make new activity!`,
+        data: uncompletedActivity,
+      });
     }
   }
   async updateOne(
