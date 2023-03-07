@@ -27,7 +27,6 @@ export class DataHandlerService {
   async processCustomerData(handler: DataHandler): Promise<any> {
     const customers = await this.customersRepository.find({
       where: { lastActivity: null, status: 'active' },
-      take: 10,
     });
     for (let i = 0; i < customers.length; i++) {
       const customer = customers[i];
