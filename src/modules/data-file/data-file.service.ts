@@ -752,6 +752,20 @@ export class DataFileService extends BaseService<DataFile> {
                         activity.contactInfo.relation.code = arr[0].trim();
                         activity.contactInfo.phoneNumber = arr[1].trim();
                         activity.contactInfo.note = arr[0].trim();
+
+                        const relation = relations.find(
+                          (r) =>
+                            r.tags.indexOf(
+                              (
+                                activity.contactInfo.relation.code + ''
+                              ).toLowerCase(),
+                            ) >= 0,
+                        );
+
+                        if (relation) {
+                          activity.contactInfo.relation.code = relation.code;
+                          activity.contactInfo.relation.name = relation.name;
+                        }
                       }
                     }
                   }
