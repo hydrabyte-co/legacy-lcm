@@ -24,9 +24,10 @@ export class DataHandlerService {
     private readonly activitiesRepository: MongoRepository<Activity>,
   ) {}
 
-  async processCustomerData(chandler: DataHandler): Promise<any> {
+  async processCustomerData(handler: DataHandler): Promise<any> {
     const customers = await this.customersRepository.find({
       where: { lastActivity: null, status: 'active' },
+      take: 10,
     });
     for (let i = 0; i < customers.length; i++) {
       const customer = customers[i];
@@ -34,11 +35,10 @@ export class DataHandlerService {
       const fdom = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
       console.log(`${i}/${customers.length} ${customer.code}`);
       const contracts = await this.contractsRepository.find({
-        customerCode: customer.code,
+        where: { customerCode: customer.code },
       });
       const activities = await this.activitiesRepository.find({
-        customerCode: customer.code,
-        performAt: { $gt: fdom },
+        where: { customerCode: customer.code, performAt: { $gt: fdom } },
       });
       const newData: any = {
         acim: 0,
