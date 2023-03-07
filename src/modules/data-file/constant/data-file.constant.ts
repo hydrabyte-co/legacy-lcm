@@ -446,7 +446,7 @@ export const ActivityXlsxSchema = {
   },
   ptpDate: {
     prop: 'ptpDate',
-    type: String,
+    type: Date,
     required: false,
   },
   ptpAmount: {
