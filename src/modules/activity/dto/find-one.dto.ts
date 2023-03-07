@@ -1,6 +1,6 @@
 import { Exclude, Expose } from 'class-transformer';
 import { FindOneResult as BaseFindByIdResult } from '../../../common/modules/base/dto/find-one.dto';
-import { ActivityType } from '../enum/activity.enum';
+import { ActivityTypeCode } from '../enum/activity.enum';
 
 @Exclude()
 export class FindActivityByIdActivity extends BaseFindByIdResult {
@@ -14,7 +14,7 @@ export class FindActivityByIdActivity extends BaseFindByIdResult {
   customerCode = '';
 
   @Expose()
-  type = ActivityType.Call;
+  type = ActivityTypeCode.Call;
 
   @Expose()
   contactInfo = {};

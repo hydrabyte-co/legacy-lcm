@@ -34,11 +34,15 @@ import {
   InvestigationXlsxSchema,
   ReferenceXlsxSchema,
   TransactionXlsxSchema,
-  investigationTypes,
-  relations,
 } from './constant/data-file.constant';
 import { CustomerStatus } from '../customer/enum/customer.enum';
 import { ContractStatus } from '../contract/enum/contract.enum';
+import { ActivityTypeCode } from '../activity/enum/activity.enum';
+import {
+  activityTypes,
+  investigationTypes,
+  relations,
+} from 'src/constants/service';
 
 @Injectable()
 export class DataFileService extends BaseService<DataFile> {
@@ -640,8 +644,7 @@ export class DataFileService extends BaseService<DataFile> {
                     row,
                   );
                   const type = investigationTypes.find(
-                    (r) =>
-                      r.tags.indexOf(row.typeCode.toLocaleLowerCase()) >= 0,
+                    (r) => r.tags.indexOf(row.typeCode.toLowerCase()) >= 0,
                   );
                   if (type) {
                     row.typeCode = type.code;
@@ -699,12 +702,12 @@ export class DataFileService extends BaseService<DataFile> {
 
                   activity.fromFile = dataFile.fileName;
                   activity.note = row.note;
-                  activity.type = row.type.toLowerCase();
-                  activity.staffCode = row.staffCode;
-                  activity.customerCode = row.customerCode;
-                  activity.contractCode = row.contractCode;
-                  activity.resultCode = row.resultCode;
-                  activity.resultParentCode = row.resultParentCode;
+                  activity.type = row.type.toLowerCase().Trim();
+                  activity.staffCode = row.staffCode.Trim();
+                  activity.customerCode = row.customerCode.Trim();
+                  activity.contractCode = row.contractCode.Trim();
+                  activity.resultCode = row.resultCode.Trim();
+                  activity.resultParentCode = row.resultParentCode.Trim();
                   activity.contactInfo = {
                     fullname: '',
                     relation: {
@@ -712,6 +715,7 @@ export class DataFileService extends BaseService<DataFile> {
                       name: '',
                     },
                     phoneNumber: '',
+                    note: '',
                   };
                   activity.performAt = row.createdAt;
                   activity.isDeleted = false;
@@ -727,15 +731,34 @@ export class DataFileService extends BaseService<DataFile> {
                     roles: [],
                   };
 
-                  if (activity.type === 'call') {
+                  const activityType = activityTypes.find(
+                    (r) =>
+                      r.tags.indexOf((activity.type + '').toLowerCase()) >= 0,
+                  );
+                  if (activityType) {
+                    activity.type = activityType.code;
+                  }
+
+                  if (
+                    activity.type === ActivityTypeCode.Call ||
+                    activity.type === ActivityTypeCode.Letter ||
+                    activity.type === ActivityTypeCode.Chat
+                  ) {
                     if (row.referenceId) {
                       const arr = row.referenceId.split('-');
                       if (arr.length === 2) {
                         activity.contactInfo.relation.code = arr[0].trim();
                         activity.contactInfo.phoneNumber = arr[1].trim();
+                        activity.contactInfo.note = arr[0].trim();
                       }
                     }
                   }
+                  if (activity.type === ActivityTypeCode.Visit) {
+                    if (row.referenceId) {
+                      activity.contactInfo.address = row.referenceId;
+                    }
+                  }
+
                   console.log(`------ Activity:`, activity);
                   const createActivityResult = await this._activitiesRepo.save(
                     activity,

@@ -138,4 +138,14 @@ export class CustomerService extends BaseService<Customer> {
       );
     }
   }
+
+  async updateLastActivity(handler: DataHandler): Promise<any> {
+    const customers = await this.customersRepository.find({
+      where: { lastActivity: null, status: 'active' },
+    });
+    customers.forEach((customer: Customer, i: number) => {
+      console.log(`${i}/${customers.length} ${customer.code}`);
+    });
+    return {};
+  }
 }

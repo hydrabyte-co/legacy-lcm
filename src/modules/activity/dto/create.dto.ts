@@ -14,7 +14,7 @@ import {
   CreateData as BaseCreateData,
   CreateResult as BaseCreateResult,
 } from '../../../common/modules/base/dto/create.dto';
-import { ActivityType } from '../enum/activity.enum';
+import { ActivityTypeCode } from '../enum/activity.enum';
 
 export class CreateActivityData extends BaseCreateData {
   @IsString()
@@ -31,9 +31,9 @@ export class CreateActivityData extends BaseCreateData {
   @MaxLength(24)
   staffCode? = '';
 
-  @IsEnum(ActivityType)
+  @IsEnum(ActivityTypeCode)
   @IsNotEmpty()
-  type = ActivityType.Call;
+  type = ActivityTypeCode.Call;
 
   @IsObject()
   contactInfo: {
@@ -92,7 +92,7 @@ export class CreateActivityResult extends BaseCreateResult {
   customerCode = '';
 
   @Expose()
-  type = ActivityType.Call;
+  type = ActivityTypeCode.Call;
 
   @Expose()
   contactInfo = {};

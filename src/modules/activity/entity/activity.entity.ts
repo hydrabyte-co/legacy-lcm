@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
 import { Controllers } from 'src/common/enums/controllers';
-import { ActivityType } from '../enum/activity.enum';
+import { ActivityTypeCode } from '../enum/activity.enum';
 
 @Entity(Controllers.LCM_Activities)
 export class Activity extends Base {
@@ -40,6 +40,8 @@ export class Activity extends Base {
       code: string;
       name: string;
     };
+    note?: string;
+    address?: string;
     fullname: string;
     phoneNumber?: string;
     facebookId?: string;
@@ -49,12 +51,14 @@ export class Activity extends Base {
     relation: { code: '', name: '' },
     fullname: '',
     phoneNumber: '',
+    note: '',
+    address: '',
   };
 
   @Column()
-  @IsEnum(ActivityType)
+  @IsEnum(ActivityTypeCode)
   @IsNotEmpty()
-  type = ActivityType.Call;
+  type = ActivityTypeCode.Call;
 
   @Column()
   @IsObject()

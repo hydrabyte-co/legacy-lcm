@@ -27,6 +27,7 @@ import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
 import { Controllers } from 'src/common/enums/controllers';
 import { Customer } from './entity/customer.entity';
+import { DataHandler } from 'src/common/modules/base/entity/data.class';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Controllers.LCM_Customers)
@@ -44,6 +45,17 @@ export class CustomersController extends BaseController {
     @Req() req,
   ): Promise<CreateCustomerResult> {
     return await super.createOne(data, req);
+  }
+
+  @Post('/update-last-activity')
+  //@UseGuards(AuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  async updateLastActivity(
+    //@Body() data: CreateCustomerData,
+    @Req() req,
+  ): Promise<CreateCustomerResult> {
+    const handler = req.user || new DataHandler();
+    return await this.customersService.updateLastActivity(handler);
   }
 
   @Get(':id')

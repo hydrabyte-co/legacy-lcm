@@ -15,7 +15,7 @@ import {
   UpdateOneData,
   UpdateOneResult,
 } from '../../../common/modules/base/dto/update-one.dto';
-import { ActivityType } from '../enum/activity.enum';
+import { ActivityTypeCode } from '../enum/activity.enum';
 
 export class UpdateActivityData extends UpdateOneData {
   @IsObject()
@@ -56,7 +56,7 @@ export class UpdateActivityResult extends UpdateOneResult {
   customerCode = '';
 
   @Expose()
-  type = ActivityType.Call;
+  type = ActivityTypeCode.Call;
 
   @Expose()
   contactInfo = {};
