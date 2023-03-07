@@ -777,7 +777,7 @@ export class DataFileService extends BaseService<DataFile> {
                           );
                           if (customers) {
                             if (customers.length > 0) {
-                              activity.contactInfo.relation.name =
+                              activity.contactInfo.fullname =
                                 customers[0].fullname;
                             }
                           }
