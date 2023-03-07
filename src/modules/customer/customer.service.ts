@@ -10,6 +10,8 @@ import {
   FindManyFilter,
   FindAllResult,
 } from 'src/common/modules/base/dto/find-many.dto';
+import { Contract } from '../contract/entity/contract.entity';
+import { Activity } from '../activity/entity/activity.entity';
 
 @Injectable()
 export class CustomerService extends BaseService<Customer> {
@@ -69,11 +71,13 @@ export class CustomerService extends BaseService<Customer> {
           break;
         }
         case 'activity-asc': {
-          filter.order = { lastActivityDate: 1 };
+          filter.order = { 'lastActivity.performAt': 1 };
+          filter.where['lastActivity.performAt'] = { $ne: null };
           break;
         }
         case 'activity-desc': {
-          filter.order = { lastActivityDate: -1 };
+          filter.order = { 'lastActivity.performAt': -1 };
+          filter.where['lastActivity.performAt'] = { $ne: null };
           break;
         }
         case 'priority-asc': {
@@ -101,7 +105,7 @@ export class CustomerService extends BaseService<Customer> {
           break;
         }
         case 'not-report': {
-          //filter.order = { ['lastPTPActivity.ptpDate']: -1 };
+          filter.where['rcim'] = [];
           break;
         }
         case 'fullname-asc':
@@ -112,7 +116,7 @@ export class CustomerService extends BaseService<Customer> {
       }
     }
     if (filter.where.resultCode) {
-      filter.where['lastActivity.resultCode'] = filter.where.resultCode;
+      filter.where['rcim'] = filter.where.resultCode;
       delete filter.where.resultCode;
     }
     delete filter.where.query;
@@ -137,15 +141,5 @@ export class CustomerService extends BaseService<Customer> {
         `Partner '${data.partnerCode}' is not existed!`,
       );
     }
-  }
-
-  async updateLastActivity(handler: DataHandler): Promise<any> {
-    const customers = await this.customersRepository.find({
-      where: { lastActivity: null, status: 'active' },
-    });
-    customers.forEach((customer: Customer, i: number) => {
-      console.log(`${i}/${customers.length} ${customer.code}`);
-    });
-    return {};
   }
 }

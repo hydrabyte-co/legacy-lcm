@@ -47,17 +47,6 @@ export class CustomersController extends BaseController {
     return await super.createOne(data, req);
   }
 
-  @Post('/update-last-activity')
-  //@UseGuards(AuthGuard, RolesGuard)
-  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async updateLastActivity(
-    //@Body() data: CreateCustomerData,
-    @Req() req,
-  ): Promise<CreateCustomerResult> {
-    const handler = req.user || new DataHandler();
-    return await this.customersService.updateLastActivity(handler);
-  }
-
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
   async findOne(

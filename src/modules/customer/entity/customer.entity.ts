@@ -9,6 +9,7 @@ import {
   IsNumber,
   IsObject,
   IsEnum,
+  IsArray,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
 import { Controllers } from 'src/common/enums/controllers';
@@ -119,14 +120,40 @@ export class Customer extends Base {
   priority;
 
   @Column()
-  @IsDate()
-  lastActivityDate: Date;
-
-  @Column()
   @IsObject()
   lastActivity: {
     [key: string]: any;
   };
+
+  //activitiesCountInMonth
+  @Column()
+  @IsNumber()
+  acim = 0;
+
+  //totalPaymentAmountInMonth
+  @Column()
+  @IsNumber()
+  tpaim = 0;
+
+  //totalPaymentAmountFromPartnerInMonth
+  @Column()
+  @IsNumber()
+  tpafpim = 0;
+
+  //resultCodesInMonth
+  @Column()
+  @IsArray()
+  rcim: string[] = [];
+
+  //totalBalanceInMonth
+  @Column()
+  @IsNumber()
+  tbim = 0;
+
+  //largestOVDDays
+  @Column()
+  @IsNumber()
+  lovdd = 0;
 
   @Column()
   @IsObject()

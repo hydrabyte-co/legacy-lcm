@@ -14,6 +14,7 @@ import { DataFileModule } from './modules/data-file/data-file.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { ReferenceModule } from './modules/reference/reference.module';
 import { InvestigationModule } from './modules/investigation/investigation.module';
+import { DataHandlerModule } from './modules/data-handler/data-handler.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { InvestigationModule } from './modules/investigation/investigation.modul
     TransactionModule,
     ReferenceModule,
     InvestigationModule,
+    DataHandlerModule,
   ],
   controllers: [AppController],
   providers: [AppService, JWTAuthStrategy, BasicAuthStrategy],

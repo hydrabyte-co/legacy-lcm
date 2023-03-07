@@ -202,4 +202,28 @@ export class UpdateCustomerResult extends UpdateOneResult {
 
   @Expose()
   lastPTPActivity;
+
+  //activitiesCountInMonth
+  @Expose()
+  acim = 0;
+
+  //totalPaymentAmountInMonth
+  @Expose()
+  tpaim = 0;
+
+  //totalPaymentAmountFromPartnerInMonth
+  @Expose()
+  tpafpim = 0;
+
+  //resultCodesInMonth
+  @Expose()
+  rcim: string[] = [];
+
+  //totalBalanceInMonth
+  @Expose()
+  tbim = 0;
+
+  //largestOVDDays
+  @Expose()
+  lovdd = 0;
 }
