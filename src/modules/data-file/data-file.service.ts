@@ -37,7 +37,7 @@ import {
 } from './constant/data-file.constant';
 import { CustomerStatus } from '../customer/enum/customer.enum';
 import { ContractStatus } from '../contract/enum/contract.enum';
-import { ActivityTypeCode } from '../activity/enum/activity.enum';
+import { ActivityTypeCode, RelationCode } from '../activity/enum/activity.enum';
 import {
   activityTypes,
   investigationTypes,
@@ -686,6 +686,7 @@ export class DataFileService extends BaseService<DataFile> {
                 }
                 case DataFile_ToTable.Activity: {
                   const activity = new Activity();
+
                   if (row.resultCode === 'DTT_Đã tất toán') {
                     row.resultCode = 'DT2';
                   }
@@ -765,6 +766,21 @@ export class DataFileService extends BaseService<DataFile> {
                         if (relation) {
                           activity.contactInfo.relation.code = relation.code;
                           activity.contactInfo.relation.name = relation.name;
+                        }
+
+                        if (
+                          activity.contactInfo.relation.code ===
+                          RelationCode.Client
+                        ) {
+                          const customers = await this.customersRepository.find(
+                            { where: { code: activity.customerCode } },
+                          );
+                          if (customers) {
+                            if (customers.length > 0) {
+                              activity.contactInfo.relation.name =
+                                customers[0].fullname;
+                            }
+                          }
                         }
                       }
                     }
