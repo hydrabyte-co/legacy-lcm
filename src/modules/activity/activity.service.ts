@@ -124,6 +124,7 @@ export class ActivityService extends BaseService<Activity> {
             if (createResultActivity) {
               if (customer) {
                 const updateCustomerData: any = {
+                  acim: customer.acim + 1,
                   lastActivity: {
                     id: createResultActivity.id,
                     resultCode: createResultActivity.resultCode,
