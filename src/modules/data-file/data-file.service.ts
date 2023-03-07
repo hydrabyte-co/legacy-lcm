@@ -702,12 +702,14 @@ export class DataFileService extends BaseService<DataFile> {
 
                   activity.fromFile = dataFile.fileName;
                   activity.note = row.note;
-                  activity.type = row.type.toLowerCase().trim();
-                  activity.staffCode = row.staffCode.trim();
-                  activity.customerCode = row.customerCode.trim();
-                  activity.contractCode = row.contractCode.trim();
-                  activity.resultCode = row.resultCode.trim();
-                  activity.resultParentCode = row.resultParentCode.trim();
+                  activity.type = (row.type || '').toLowerCase().trim();
+                  activity.staffCode = (row.staffCode || '').trim();
+                  activity.customerCode = (row.customerCode || '').trim();
+                  activity.contractCode = (row.contractCode || '').trim();
+                  activity.resultCode = (row.resultCode || '').trim();
+                  activity.resultParentCode = (
+                    row.resultParentCode || ''
+                  ).trim();
                   activity.contactInfo = {
                     fullname: '',
                     relation: {
