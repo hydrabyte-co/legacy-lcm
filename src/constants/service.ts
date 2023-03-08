@@ -50,12 +50,12 @@ export const relations = [
   {
     name: 'Bố mẹ',
     code: RelationCode.Parent,
-    tags: ['bố mẹ', 'bố', 'mẹ', 'me', 'bo'],
+    tags: ['bố mẹ', 'bố', 'mẹ', 'me', 'bo', 'bố/mẹ', 'cha'],
   },
   {
     name: 'Vợ chồng',
     code: RelationCode.Spouse,
-    tags: ['vợ chồng', 'vợ', 'chồng'],
+    tags: ['vợ chồng', 'vợ', 'chồng', 'vợ/chồng', 'vo chong'],
   },
   {
     name: 'Anh chị em',
@@ -65,22 +65,37 @@ export const relations = [
   {
     name: 'Con cái',
     code: RelationCode.Child,
-    tags: ['con', 'con trai', 'con gái'],
+    tags: ['con', 'con trai', 'con gái', 'con cái', 'con cai'],
   },
   {
     name: 'Bạn bè',
     code: RelationCode.Friend,
-    tags: ['bạn', 'bạn bè'],
+    tags: ['bạn', 'bạn bè', 'ban be'],
   },
   {
     name: 'Người thân khác',
     code: RelationCode.OtherRelative,
-    tags: ['cô', 'chú', 'bác', 'cháu', 'ông', 'bà'],
+    tags: [
+      'cô',
+      'chú',
+      'bác',
+      'cháu',
+      'ông',
+      'bà',
+      'anh re',
+      'anh rể',
+      'chị họ',
+      'chi ho',
+      'người thân',
+      'nguoi than',
+      'cháu',
+      'chau',
+    ],
   },
   {
     name: 'Đồng nghiệp',
     code: RelationCode.Colleague,
-    tags: ['đồng nghiệp', 'công ty', 'colleague'],
+    tags: ['đồng nghiệp', 'công ty', 'colleague', 'dong nghiep', 'dn'],
   },
   {
     name: 'Khách hàng',
