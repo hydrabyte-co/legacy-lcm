@@ -288,7 +288,7 @@ export const TransactionXlsxSchema = {
   contractCode: {
     prop: 'contractCode',
     type: String,
-    required: true,
+    required: false,
   },
   amount: {
     prop: 'amount',
