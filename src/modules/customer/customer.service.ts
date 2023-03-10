@@ -104,8 +104,18 @@ export class CustomerService extends BaseService<Customer> {
           filter.where['lastPTPActivity.ptpDate'] = { $ne: null };
           break;
         }
-        case 'not-report': {
-          filter.where['rcim'] = [];
+        case 'not-contact': {
+          const now = new Date();
+          const firstDayOfMonth = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            1,
+            0,
+            0,
+            0,
+          );
+          filter.where['lastActivity.performAt'] = { $lt: firstDayOfMonth };
+          filter.order = { ['lastActivity.performAt']: -1 };
           break;
         }
         case 'fullname-asc':
