@@ -384,7 +384,7 @@ export const InvestigationXlsxSchema = {
   staffCode: {
     prop: 'staffCode',
     type: String,
-    required: true,
+    required: false,
   },
   typeCode: {
     prop: 'typeCode',
