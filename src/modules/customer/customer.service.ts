@@ -114,7 +114,10 @@ export class CustomerService extends BaseService<Customer> {
             0,
             0,
           );
-          filter.where['lastActivity.performAt'] = { $lt: firstDayOfMonth };
+          filter.where['$or'] = [
+            { 'lastActivity.performAt': { $lt: firstDayOfMonth } },
+            { 'lastActivity.performAt': { $eq: null } },
+          ];
           filter.order = { ['lastActivity.performAt']: -1 };
           break;
         }
