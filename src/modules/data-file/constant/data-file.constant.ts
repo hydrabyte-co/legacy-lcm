@@ -214,7 +214,7 @@ export const ContractXlsxSchema = {
   },
   bucket: {
     prop: 'bucket',
-    type: Number,
+    type: String,
     required: false,
   },
   term: {
