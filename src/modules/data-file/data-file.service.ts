@@ -43,6 +43,10 @@ import {
   investigationTypes,
   relations,
 } from 'src/constants/service';
+import {
+  FindManyFilter,
+  FindAllResult,
+} from 'src/common/modules/base/dto/find-many.dto';
 
 @Injectable()
 export class DataFileService extends BaseService<DataFile> {
@@ -76,6 +80,27 @@ export class DataFileService extends BaseService<DataFile> {
     this._referencesRepo = referencesRepository;
     this._investigationsRepo = investigationsRepository;
     this._activitiesRepo = activitiesRepository;
+  }
+
+  async findManyWithPaging(
+    filter: FindManyFilter,
+    handler: DataHandler,
+  ): Promise<FindAllResult<DataFile>> {
+    filter.order = { createdAt: -1 };
+    filter.select = [
+      'id',
+      'fileName',
+      'partnerCode',
+      'settings',
+      'note',
+      'status',
+      'createdAt',
+      'changedAt',
+      'owner',
+      'createdBy',
+      'changedBy',
+    ];
+    return await super.findManyWithPaging(filter, handler);
   }
 
   async createOne(
