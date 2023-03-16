@@ -69,6 +69,10 @@ export class DataHandlerService {
             largestOVDDays = contract.ovdDays;
           }
         }
+        // Generate contractCodes array
+        if (newData.contractCodes.indexOf(contract.code) < 0) {
+          newData.contractCodes.push(contract.code);
+        }
       }
       newData.lovdd = largestOVDDays;
 

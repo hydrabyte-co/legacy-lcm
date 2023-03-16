@@ -145,6 +145,11 @@ export class Customer extends Base {
   @IsArray()
   rcim: string[] = [];
 
+  //contractCodes
+  @Column()
+  @IsArray()
+  contractCodes: string[] = [];
+
   //totalBalanceInMonth
   @Column()
   @IsNumber()
@@ -154,6 +159,11 @@ export class Customer extends Base {
   @Column()
   @IsNumber()
   lovdd = 0;
+
+  //nextOVDDate
+  @Column()
+  @IsDate()
+  nextOVDDate;
 
   @Column()
   @IsObject()

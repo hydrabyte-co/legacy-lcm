@@ -19,7 +19,7 @@ import {
   ServiceInfo,
   ControllerInfo,
 } from 'src/common/decorators/service-info';
-import { DataFileService } from './data-file.service';
+import { DataFileService } from './import-data.service';
 import { CreateDataFileData, CreateDataFileResult } from './dto/create.dto';
 import { UpdateDataFileData, UpdateDataFileResult } from './dto/update-one.dto';
 import { FindDataFileByIdResult } from './dto/find-one.dto';
@@ -27,13 +27,13 @@ import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
 import { Controllers } from 'src/common/enums/controllers';
-import { DataFile } from './entity/data-file.entity';
+import { DataFile } from './entity/import-data.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { EventPattern } from '@nestjs/microservices';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_DataFiles)
-@Controller(Controllers.LCM_DataFiles)
+@ControllerInfo(Controllers.LCM_ImportData)
+@Controller(Controllers.LCM_ImportData)
 export class DataFilesController extends BaseController {
   constructor(private readonly dataFilesService: DataFileService) {
     super(dataFilesService);

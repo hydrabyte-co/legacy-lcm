@@ -4,7 +4,7 @@ import { ObjectID } from 'mongodb';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { DataFile } from './entity/data-file.entity';
+import { DataFile } from './entity/import-data.entity';
 import { BaseService } from 'src/common/modules/base/base.service';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { CreateDataFileData } from './dto/create.dto';
@@ -12,7 +12,7 @@ import {
   DataFile_Status,
   DataFile_ImportRule,
   DataFile_ToTable,
-} from './enum/data-file.enum';
+} from './enum/import-data.enum';
 import { readSheetNames } from 'read-excel-file/node';
 import readXlsxFile from 'read-excel-file/node';
 import { getTypeOf } from 'src/common/utils/object-helper';
@@ -34,7 +34,7 @@ import {
   InvestigationXlsxSchema,
   ReferenceXlsxSchema,
   TransactionXlsxSchema,
-} from './constant/data-file.constant';
+} from './constant/import-data.constant';
 import { CustomerStatus } from '../customer/enum/customer.enum';
 import { ContractStatus } from '../contract/enum/contract.enum';
 import { ActivityTypeCode, RelationCode } from '../activity/enum/activity.enum';

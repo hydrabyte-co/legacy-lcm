@@ -10,7 +10,7 @@ import {
   UpdateOneData,
   UpdateOneResult,
 } from '../../../common/modules/base/dto/update-one.dto';
-import { DataFile_ImportRule, DataFile_ToTable } from '../enum/data-file.enum';
+import { DataFile_ImportRule, DataFile_ToTable } from '../enum/import-data.enum';
 
 export class UpdateDataFileData extends UpdateOneData {
   @IsOptional()

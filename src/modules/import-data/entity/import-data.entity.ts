@@ -12,9 +12,9 @@ import {
   DataFile_ImportRule,
   DataFile_Status,
   DataFile_ToTable,
-} from '../enum/data-file.enum';
+} from '../enum/import-data.enum';
 
-@Entity(Controllers.LCM_DataFiles)
+@Entity(Controllers.LCM_ImportData)
 export class DataFile extends Base {
   @Column()
   @IsString()

@@ -203,6 +203,12 @@ export class UpdateCustomerResult extends UpdateOneResult {
   @Expose()
   lastPTPActivity;
 
+  @Expose()
+  contractCodes;
+
+  @Expose()
+  nextOVDDate;
+
   //activitiesCountInMonth
   @Expose()
   acim = 0;

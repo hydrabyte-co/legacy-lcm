@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { DataFileService } from './data-file.service';
-import { DataFilesController } from './data-file.controller';
-import { DataFile } from './entity/data-file.entity';
+import { DataFileService } from './import-data.service';
+import { DataFilesController } from './import-data.controller';
+import { DataFile } from './entity/import-data.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Customer } from '../customer/entity/customer.entity';
 import { CustomerModule } from '../customer/customer.module';
