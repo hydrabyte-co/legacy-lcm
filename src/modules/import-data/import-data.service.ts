@@ -4,14 +4,14 @@ import { ObjectID } from 'mongodb';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { DataFile } from './entity/import-data.entity';
+import { ImportData } from './entity/import-data.entity';
 import { BaseService } from 'src/common/modules/base/base.service';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { CreateDataFileData } from './dto/create.dto';
+import { CreateImportDataData } from './dto/create.dto';
 import {
-  DataFile_Status,
-  DataFile_ImportRule,
-  DataFile_ToTable,
+  ImportData_Status,
+  ImportData_ImportRule,
+  ImportData_ToTable,
 } from './enum/import-data.enum';
 import { readSheetNames } from 'read-excel-file/node';
 import readXlsxFile from 'read-excel-file/node';
@@ -24,7 +24,7 @@ import { Reference } from '../reference/entity/reference.entity';
 import { Investigation } from '../investigation/entity/investigation.entity';
 import { Activity } from '../activity/entity/activity.entity';
 import { downloadFile } from 'src/common/utils/web-helper';
-import { UpdateDataFileData } from './dto/update-one.dto';
+import { UpdateImportDataData } from './dto/update-one.dto';
 import { Services } from 'src/common/enums/services';
 import { ClientProxy } from '@nestjs/microservices';
 import {
@@ -49,7 +49,7 @@ import {
 } from 'src/common/modules/base/dto/find-many.dto';
 
 @Injectable()
-export class DataFileService extends BaseService<DataFile> {
+export class ImportDataService extends BaseService<ImportData> {
   private _customersRepo: MongoRepository<Customer>;
   private _contractsRepo: MongoRepository<Contract>;
   private _transactionsRepo: MongoRepository<Transaction>;
@@ -57,8 +57,8 @@ export class DataFileService extends BaseService<DataFile> {
   private _investigationsRepo: MongoRepository<Investigation>;
   private _activitiesRepo: MongoRepository<Activity>;
   constructor(
-    @InjectRepository(DataFile)
-    private readonly dataFilesRepository: MongoRepository<DataFile>,
+    @InjectRepository(ImportData)
+    private readonly importDatasRepository: MongoRepository<ImportData>,
     @InjectRepository(Customer)
     private readonly customersRepository: MongoRepository<Customer>,
     @InjectRepository(Contract)
@@ -73,7 +73,7 @@ export class DataFileService extends BaseService<DataFile> {
     private readonly activitiesRepository: MongoRepository<Activity>,
     @Inject(Services.LCM) private client: ClientProxy,
   ) {
-    super(dataFilesRepository);
+    super(importDatasRepository);
     this._customersRepo = customersRepository;
     this._contractsRepo = contractsRepository;
     this._transactionsRepo = transactionsRepository;
@@ -85,7 +85,7 @@ export class DataFileService extends BaseService<DataFile> {
   async findManyWithPaging(
     filter: FindManyFilter,
     handler: DataHandler,
-  ): Promise<FindAllResult<DataFile>> {
+  ): Promise<FindAllResult<ImportData>> {
     filter.order = { createdAt: -1 };
     filter.select = [
       'id',
@@ -104,24 +104,24 @@ export class DataFileService extends BaseService<DataFile> {
   }
 
   async createOne(
-    data: CreateDataFileData,
+    data: CreateImportDataData,
     handler: DataHandler,
   ): Promise<any> {
     const urlRegex = new RegExp(
       /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/,
     );
-    const dataFile = new DataFile();
-    dataFile.fileName = data.fileName;
-    dataFile.note = data.note;
-    dataFile.partnerCode = data.partnerCode;
-    dataFile.status = DataFile_Status.New;
+    const importData = new ImportData();
+    importData.fileName = data.fileName;
+    importData.note = data.note;
+    importData.partnerCode = data.partnerCode;
+    importData.status = ImportData_Status.New;
     console.log(``);
     console.log(``);
-    console.log(`Create new Data File`, dataFile);
-    if (urlRegex.test(dataFile.fileName)) {
+    console.log(`Create new Data File`, importData);
+    if (urlRegex.test(importData.fileName)) {
       const now = new Date();
       const dataDirPath = './data';
-      const dataFilePath = `${dataDirPath}/${now.getTime()}.xlsx`;
+      const importDataPath = `${dataDirPath}/${now.getTime()}.xlsx`;
       if (!fs.existsSync(dataDirPath)) {
         console.log(
           `-- Directory '${dataDirPath} not existed, create new one...'`,
@@ -129,58 +129,58 @@ export class DataFileService extends BaseService<DataFile> {
         fs.mkdirSync(dataDirPath);
       }
       const downloadFileResult = await downloadFile(
-        dataFile.fileName,
-        dataFilePath,
+        importData.fileName,
+        importDataPath,
       );
       console.log(
-        `-- Download file '${dataFile.fileName} to '${dataFilePath}'`,
+        `-- Download file '${importData.fileName} to '${importDataPath}'`,
         downloadFileResult,
       );
       if (downloadFileResult === true) {
-        const sheetNames = await readSheetNames(dataFilePath)
+        const sheetNames = await readSheetNames(importDataPath)
           .then((names) => names)
           .catch((e) => {
             console.log(`-- Read Sheet name of file ${dataDirPath} error`, e);
             return [];
           });
         console.log(`-- Read Sheet name of file ${dataDirPath}`, sheetNames);
-        dataFile.info.sheets = sheetNames.map((name) => {
+        importData.info.sheets = sheetNames.map((name) => {
           return { name };
         });
-        return super.createOne(dataFile, handler);
+        return super.createOne(importData, handler);
       }
     } else {
       throw new BadRequestException({
-        message: `-- Can not download file '${dataFile.fileName}'!`,
+        message: `-- Can not download file '${importData.fileName}'!`,
       });
     }
   }
 
   async updateOne(
     id: ObjectID,
-    data: UpdateDataFileData,
+    data: UpdateImportDataData,
     handler: DataHandler,
   ): Promise<any> {
-    const currentDataFile: DataFile = await super.findOne(id, handler);
+    const currentImportData: ImportData = await super.findOne(id, handler);
     if (data.settings) {
       if (getTypeOf(data.settings.sheets) === 'array') {
         if (data.settings.sheets.length > 0) {
           for (let i = 0; i < data.settings.sheets.length; i++) {
             const sheet = data.settings.sheets[i];
-            const foundSheet = currentDataFile.info.sheets.find(
+            const foundSheet = currentImportData.info.sheets.find(
               (s) => s.name === sheet.name,
             );
             const isValidRule =
-              DataFile_ImportRule.CloseAll === sheet.rule ||
-              DataFile_ImportRule.ReplaceAll === sheet.rule ||
-              DataFile_ImportRule.DeleteAll === sheet.rule;
+              ImportData_ImportRule.CloseAll === sheet.rule ||
+              ImportData_ImportRule.ReplaceAll === sheet.rule ||
+              ImportData_ImportRule.DeleteAll === sheet.rule;
             const isValidToTable =
-              DataFile_ToTable.Activity === sheet.toTable ||
-              DataFile_ToTable.Contract === sheet.toTable ||
-              DataFile_ToTable.Customer === sheet.toTable ||
-              DataFile_ToTable.Investigation === sheet.toTable ||
-              DataFile_ToTable.Reference === sheet.toTable ||
-              DataFile_ToTable.Transaction === sheet.toTable;
+              ImportData_ToTable.Activity === sheet.toTable ||
+              ImportData_ToTable.Contract === sheet.toTable ||
+              ImportData_ToTable.Customer === sheet.toTable ||
+              ImportData_ToTable.Investigation === sheet.toTable ||
+              ImportData_ToTable.Reference === sheet.toTable ||
+              ImportData_ToTable.Transaction === sheet.toTable;
 
             if (foundSheet === undefined) {
               throw new BadRequestException({
@@ -205,10 +205,10 @@ export class DataFileService extends BaseService<DataFile> {
     }
     return super.updateOne(id, data, handler);
   }
-  async processDataFile(id: string, handler: DataHandler): Promise<any> {
+  async processImportData(id: string, handler: DataHandler): Promise<any> {
     const updateResult = await super.updateOne(
       id,
-      { status: DataFile_Status.Queued },
+      { status: ImportData_Status.Queued },
       handler,
     );
 
@@ -218,7 +218,7 @@ export class DataFileService extends BaseService<DataFile> {
     if (updateResult) {
       const emitResult = await this.client.emit(
         'process-data-file',
-        JSON.stringify({ dataFileId: id, handler }),
+        JSON.stringify({ importDataId: id, handler }),
       );
       console.log(`-- Emit result`, emitResult);
       const subscriberResult = await emitResult.subscribe();
@@ -229,29 +229,31 @@ export class DataFileService extends BaseService<DataFile> {
   }
 
   async handleProcessFile(data: {
-    dataFileId: ObjectID;
+    importDataId: ObjectID;
     handler: DataHandler;
   }): Promise<any> {
     console.log(``);
     console.log(``);
     console.log(`Process Data File`);
     console.log(`-- Received data from message queue`, data);
-    const dataFile = await this.dataFilesRepository.findOne(data.dataFileId);
-    console.log(`-- Data file`, dataFile);
-    if (dataFile) {
-      const updateDataFileResult = await this.dataFilesRepository.update(
-        dataFile.id,
-        { status: DataFile_Status.Processing },
+    const importData = await this.importDatasRepository.findOne(
+      data.importDataId,
+    );
+    console.log(`-- Data file`, importData);
+    if (importData) {
+      const updateImportDataResult = await this.importDatasRepository.update(
+        importData.id,
+        { status: ImportData_Status.Processing },
       );
       console.log(
         `-- Update data file status to 'processing'`,
-        updateDataFileResult.affected > 0,
+        updateImportDataResult.affected > 0,
       );
-      dataFile.status = DataFile_Status.Processing;
+      importData.status = ImportData_Status.Processing;
 
       const now = new Date();
       const dataDirPath = './data';
-      const dataFilePath = `${dataDirPath}/${now.getTime()}.xlsx`;
+      const importDataPath = `${dataDirPath}/${now.getTime()}.xlsx`;
       if (!fs.existsSync(dataDirPath)) {
         console.log(
           `-- Directory '${dataDirPath} not existed, create new one...'`,
@@ -259,17 +261,17 @@ export class DataFileService extends BaseService<DataFile> {
         fs.mkdirSync(dataDirPath);
       }
       const downloadFileResult = await downloadFile(
-        dataFile.fileName,
-        dataFilePath,
+        importData.fileName,
+        importDataPath,
       );
       console.log(
-        `-- Download file '${dataFile.fileName} to '${dataFilePath}'`,
+        `-- Download file '${importData.fileName} to '${importDataPath}'`,
         downloadFileResult,
       );
 
-      if (getTypeOf(dataFile.settings.sheets) === 'array') {
-        for (let i = 0; i < dataFile.settings.sheets.length; i++) {
-          const sheet = dataFile.settings.sheets[i];
+      if (getTypeOf(importData.settings.sheets) === 'array') {
+        for (let i = 0; i < importData.settings.sheets.length; i++) {
+          const sheet = importData.settings.sheets[i];
           const sheetProcessResult = {
             name: sheet.name,
             totalCount: 0,
@@ -283,34 +285,34 @@ export class DataFileService extends BaseService<DataFile> {
           let readSchema = undefined;
 
           switch (sheet.toTable) {
-            case DataFile_ToTable.Customer: {
+            case ImportData_ToTable.Customer: {
               readSchema = CustomerXlsxSchema;
               break;
             }
-            case DataFile_ToTable.Contract: {
+            case ImportData_ToTable.Contract: {
               readSchema = ContractXlsxSchema;
               break;
             }
-            case DataFile_ToTable.Reference: {
+            case ImportData_ToTable.Reference: {
               readSchema = ReferenceXlsxSchema;
               break;
             }
-            case DataFile_ToTable.Activity: {
+            case ImportData_ToTable.Activity: {
               readSchema = ActivityXlsxSchema;
               break;
             }
-            case DataFile_ToTable.Investigation: {
+            case ImportData_ToTable.Investigation: {
               readSchema = InvestigationXlsxSchema;
               break;
             }
-            case DataFile_ToTable.Transaction: {
+            case ImportData_ToTable.Transaction: {
               readSchema = TransactionXlsxSchema;
               break;
             }
             default:
               break;
           }
-          readResult = await readXlsxFile(dataFilePath, {
+          readResult = await readXlsxFile(importDataPath, {
             schema: readSchema,
             sheet: sheet.name,
           })
@@ -326,17 +328,17 @@ export class DataFileService extends BaseService<DataFile> {
             sheetProcessResult.errors = readResult.errors;
             console.log(`---- `);
             console.log(
-              `---- Process Data File '${dataFilePath}' Sheet(${i}/${dataFile.settings.sheets.length}) '${sheet.name}': ${readResult.rows.length} rows, ${readResult.errors.length} errors`,
+              `---- Process Data File '${importDataPath}' Sheet(${i}/${importData.settings.sheets.length}) '${sheet.name}': ${readResult.rows.length} rows, ${readResult.errors.length} errors`,
             );
             console.log(`---- Import Rule '${sheet.rule}'`);
             console.log(`---- To Table '${sheet.toTable}'`);
 
             switch (sheet.rule) {
-              case DataFile_ImportRule.CloseAll: {
-                if (sheet.toTable === DataFile_ToTable.Customer) {
+              case ImportData_ImportRule.CloseAll: {
+                if (sheet.toTable === ImportData_ToTable.Customer) {
                   const updateAllCustomerResult =
                     await this.customersRepository.update(
-                      { partnerCode: dataFile.partnerCode },
+                      { partnerCode: importData.partnerCode },
                       { status: CustomerStatus.Closed },
                     );
                   console.log(
@@ -344,10 +346,10 @@ export class DataFileService extends BaseService<DataFile> {
                     updateAllCustomerResult,
                   );
                 }
-                if (sheet.toTable === DataFile_ToTable.Contract) {
+                if (sheet.toTable === ImportData_ToTable.Contract) {
                   const updateAllContractResult =
                     await this.contractsRepository.update(
-                      { partnerCode: dataFile.partnerCode },
+                      { partnerCode: importData.partnerCode },
                       { status: ContractStatus.Closed },
                     );
                   console.log(
@@ -357,14 +359,14 @@ export class DataFileService extends BaseService<DataFile> {
                 }
                 break;
               }
-              case DataFile_ImportRule.DeleteAll: {
-                if (sheet.toTable === DataFile_ToTable.Investigation) {
+              case ImportData_ImportRule.DeleteAll: {
+                if (sheet.toTable === ImportData_ToTable.Investigation) {
                   const deleteAllImportedRecordsResults =
                     await this.investigationsRepository.deleteMany({
                       $and: [
                         { fromFile: { $ne: null } },
                         { fromFile: { $ne: '' } },
-                        { partnerCode: dataFile.partnerCode },
+                        { partnerCode: importData.partnerCode },
                       ],
                     });
                   console.log(
@@ -372,13 +374,13 @@ export class DataFileService extends BaseService<DataFile> {
                     deleteAllImportedRecordsResults,
                   );
                 }
-                if (sheet.toTable === DataFile_ToTable.Reference) {
+                if (sheet.toTable === ImportData_ToTable.Reference) {
                   const deleteAllImportedRecordsResults =
                     await this.referencesRepository.deleteMany({
                       $and: [
                         { fromFile: { $ne: null } },
                         { fromFile: { $ne: '' } },
-                        { partnerCode: dataFile.partnerCode },
+                        { partnerCode: importData.partnerCode },
                       ],
                     });
                   console.log(
@@ -386,13 +388,13 @@ export class DataFileService extends BaseService<DataFile> {
                     deleteAllImportedRecordsResults,
                   );
                 }
-                if (sheet.toTable === DataFile_ToTable.Transaction) {
+                if (sheet.toTable === ImportData_ToTable.Transaction) {
                   const deleteAllImportedRecordsResults =
                     await this.transactionsRepository.deleteMany({
                       $and: [
                         { fromFile: { $ne: null } },
                         { fromFile: { $ne: '' } },
-                        { partnerCode: dataFile.partnerCode },
+                        { partnerCode: importData.partnerCode },
                       ],
                     });
                   console.log(
@@ -413,7 +415,7 @@ export class DataFileService extends BaseService<DataFile> {
               );
 
               switch (sheet.toTable) {
-                case DataFile_ToTable.Customer: {
+                case ImportData_ToTable.Customer: {
                   row.identityNumber = replaceRegexPatternFromString(
                     row.identityNumber,
                     '[^0-9]+',
@@ -443,7 +445,7 @@ export class DataFileService extends BaseService<DataFile> {
                     row.status = 'active';
                   }
                   if (row.dob) row.dob = row.dob.toISOString().split('T')[0];
-                  row.fromFile = dataFile.fileName;
+                  row.fromFile = importData.fileName;
                   console.log(
                     `------ Row(${j}/${readResult.rows.length}) handled data`,
                     row,
@@ -485,11 +487,11 @@ export class DataFileService extends BaseService<DataFile> {
                   }
                   break;
                 }
-                case DataFile_ToTable.Contract: {
+                case ImportData_ToTable.Contract: {
                   if (row.status.toLowerCase().indexOf('a') === 0) {
                     row.status = 'active';
                   }
-                  row.fromFile = dataFile.fileName;
+                  row.fromFile = importData.fileName;
                   console.log(
                     `------ Row(${j}/${readResult.rows.length}) handled data`,
                     row,
@@ -531,8 +533,8 @@ export class DataFileService extends BaseService<DataFile> {
                   }
                   break;
                 }
-                case DataFile_ToTable.Transaction: {
-                  row.fromFile = dataFile.fileName;
+                case ImportData_ToTable.Transaction: {
+                  row.fromFile = importData.fileName;
                   console.log(
                     `------ Row(${j}/${readResult.rows.length}) handled data`,
                     row,
@@ -582,7 +584,7 @@ export class DataFileService extends BaseService<DataFile> {
                   }
                   break;
                 }
-                case DataFile_ToTable.Reference: {
+                case ImportData_ToTable.Reference: {
                   row.identityNumber = replaceRegexPatternFromString(
                     row.identityNumber,
                     '[^0-9]+',
@@ -609,7 +611,7 @@ export class DataFileService extends BaseService<DataFile> {
                     row.gender = 'male';
                   }
                   if (row.dob) row.dob = row.dob.toISOString().split('T')[0];
-                  row.fromFile = dataFile.fileName;
+                  row.fromFile = importData.fileName;
                   console.log(
                     `------ Row(${j}/${readResult.rows.length}) handled data`,
                     row,
@@ -662,8 +664,8 @@ export class DataFileService extends BaseService<DataFile> {
                   }
                   break;
                 }
-                case DataFile_ToTable.Investigation: {
-                  row.fromFile = dataFile.fileName;
+                case ImportData_ToTable.Investigation: {
+                  row.fromFile = importData.fileName;
                   console.log(
                     `------ Row(${j}/${readResult.rows.length}) handled data`,
                     row,
@@ -709,7 +711,7 @@ export class DataFileService extends BaseService<DataFile> {
                   }
                   break;
                 }
-                case DataFile_ToTable.Activity: {
+                case ImportData_ToTable.Activity: {
                   const activity = new Activity();
 
                   if (row.resultCode === 'DTT_Đã tất toán') {
@@ -720,13 +722,13 @@ export class DataFileService extends BaseService<DataFile> {
                   }
                   row.resultCode = row.resultCode.split('_')[0];
                   row.resultParentCode = row.resultParentCode.split('_')[0];
-                  row.fromFile = dataFile.fileName;
+                  row.fromFile = importData.fileName;
                   console.log(
                     `------ Row(${j}/${readResult.rows.length}) handled data`,
                     row,
                   );
 
-                  activity.fromFile = dataFile.fileName;
+                  activity.fromFile = importData.fileName;
                   activity.note = row.note;
                   activity.type = (row.type || '').toLowerCase().trim();
                   activity.staffCode = (row.staffCode || '').trim();
@@ -832,24 +834,24 @@ export class DataFileService extends BaseService<DataFile> {
             }
             // End loop of rows
             console.log(
-              `---- Process Data File '${dataFilePath}' Sheet(${i}/${dataFile.settings.sheets.length}) '${sheet.name}' result`,
+              `---- Process Data File '${importDataPath}' Sheet(${i}/${importData.settings.sheets.length}) '${sheet.name}' result`,
               sheetProcessResult,
             );
-            for (let j = 0; j < dataFile.info.sheets.length; j++) {
-              if (dataFile.info.sheets[j].name === sheet.name)
-                dataFile.info.sheets[j] = { ...sheetProcessResult };
+            for (let j = 0; j < importData.info.sheets.length; j++) {
+              if (importData.info.sheets[j].name === sheet.name)
+                importData.info.sheets[j] = { ...sheetProcessResult };
             }
           }
         }
         // End loop of sheets
       }
     }
-    const updateDataFileResult = await super.updateOne(
-      dataFile.id,
-      { status: DataFile_Status.Done, info: dataFile.info },
+    const updateImportDataResult = await super.updateOne(
+      importData.id,
+      { status: ImportData_Status.Done, info: importData.info },
       data.handler,
     );
 
-    return updateDataFileResult;
+    return updateImportDataResult;
   }
 }

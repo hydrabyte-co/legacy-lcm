@@ -5,7 +5,7 @@ import {
   CreateResult as BaseCreateResult,
 } from '../../../common/modules/base/dto/create.dto';
 
-export class CreateDataFileData extends BaseCreateData {
+export class CreateImportDataData extends BaseCreateData {
   @IsString()
   @IsNotEmpty()
   @MaxLength(12)
@@ -20,7 +20,7 @@ export class CreateDataFileData extends BaseCreateData {
   note = '';
 }
 @Exclude()
-export class CreateDataFileResult extends BaseCreateResult {
+export class CreateImportDataResult extends BaseCreateResult {
   @Expose()
   fileName = '';
 

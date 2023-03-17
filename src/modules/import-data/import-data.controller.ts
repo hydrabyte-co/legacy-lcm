@@ -19,33 +19,36 @@ import {
   ServiceInfo,
   ControllerInfo,
 } from 'src/common/decorators/service-info';
-import { DataFileService } from './import-data.service';
-import { CreateDataFileData, CreateDataFileResult } from './dto/create.dto';
-import { UpdateDataFileData, UpdateDataFileResult } from './dto/update-one.dto';
-import { FindDataFileByIdResult } from './dto/find-one.dto';
+import { ImportDataService } from './import-data.service';
+import { CreateImportDataData, CreateImportDataResult } from './dto/create.dto';
+import {
+  UpdateImportDataData,
+  UpdateImportDataResult,
+} from './dto/update-one.dto';
+import { FindImportDataByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
 import { Controllers } from 'src/common/enums/controllers';
-import { DataFile } from './entity/import-data.entity';
+import { ImportData } from './entity/import-data.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { EventPattern } from '@nestjs/microservices';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Controllers.LCM_ImportData)
 @Controller(Controllers.LCM_ImportData)
-export class DataFilesController extends BaseController {
-  constructor(private readonly dataFilesService: DataFileService) {
-    super(dataFilesService);
+export class ImportDatasController extends BaseController {
+  constructor(private readonly importDatasService: ImportDataService) {
+    super(importDatasService);
   }
 
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async createOne(
-    @Body() data: CreateDataFileData,
+    @Body() data: CreateImportDataData,
     @Req() req,
-  ): Promise<CreateDataFileResult> {
+  ): Promise<CreateImportDataResult> {
     return await super.createOne(data, req);
   }
 
@@ -54,7 +57,7 @@ export class DataFilesController extends BaseController {
   async findOne(
     @Param('id') id: string,
     @Req() req,
-  ): Promise<FindDataFileByIdResult> {
+  ): Promise<FindImportDataByIdResult> {
     return await super.findOne(id, req);
   }
 
@@ -63,7 +66,7 @@ export class DataFilesController extends BaseController {
   async findManyWithPaging(
     @Query() queries: string,
     @Req() req,
-  ): Promise<FindAllResult<DataFile>> {
+  ): Promise<FindAllResult<ImportData>> {
     return await super.findManyWithPaging(queries, req);
   }
 
@@ -72,9 +75,9 @@ export class DataFilesController extends BaseController {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async updateOne(
     @Param('id') id: string,
-    @Body() data: UpdateDataFileData,
+    @Body() data: UpdateImportDataData,
     @Req() req,
-  ): Promise<UpdateDataFileResult> {
+  ): Promise<UpdateImportDataResult> {
     return await super.updateOne(id, data, req);
   }
 
@@ -83,9 +86,9 @@ export class DataFilesController extends BaseController {
   async process(
     @Param('id') id: string,
     @Req() req,
-  ): Promise<UpdateDataFileResult> {
+  ): Promise<UpdateImportDataResult> {
     const handler = req.user || new DataHandler();
-    return await this.dataFilesService.processDataFile(id, handler);
+    return await this.importDatasService.processImportData(id, handler);
   }
 
   @Delete(':id')
@@ -94,10 +97,10 @@ export class DataFilesController extends BaseController {
     return await super.deleteOne(id, req);
   }
 
-  @EventPattern('process-data-file')
+  @EventPattern('process')
   async handleEvent(dataString: Record<string, unknown>) {
     const data = JSON.parse(dataString.toString());
-    await this.dataFilesService.handleProcessFile(data);
+    await this.importDatasService.handleProcessFile(data);
     return 'ack';
   }
 }

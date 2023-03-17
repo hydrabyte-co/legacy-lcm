@@ -10,9 +10,12 @@ import {
   UpdateOneData,
   UpdateOneResult,
 } from '../../../common/modules/base/dto/update-one.dto';
-import { DataFile_ImportRule, DataFile_ToTable } from '../enum/import-data.enum';
+import {
+  ImportData_ImportRule,
+  ImportData_ToTable,
+} from '../enum/import-data.enum';
 
-export class UpdateDataFileData extends UpdateOneData {
+export class UpdateImportDataData extends UpdateOneData {
   @IsOptional()
   @IsString()
   note;
@@ -22,13 +25,13 @@ export class UpdateDataFileData extends UpdateOneData {
   settings: {
     sheets: {
       name: string;
-      toTable: DataFile_ToTable;
-      rule: DataFile_ImportRule;
+      toTable: ImportData_ToTable;
+      rule: ImportData_ImportRule;
       [key: string]: any;
     }[];
   };
 }
-export class UpdateDataFileResult extends UpdateOneResult {
+export class UpdateImportDataResult extends UpdateOneResult {
   @Expose()
   fileName = '';
 

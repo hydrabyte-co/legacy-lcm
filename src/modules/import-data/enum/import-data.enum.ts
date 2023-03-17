@@ -1,4 +1,4 @@
-export enum DataFile_Status {
+export enum ImportData_Status {
   New = 'new',
   Read = 'read',
   Queued = 'queued',
@@ -8,13 +8,13 @@ export enum DataFile_Status {
   Done = 'done',
 }
 
-export enum DataFile_ImportRule {
+export enum ImportData_ImportRule {
   CloseAll = 'close-all',
   ReplaceAll = 'replace-all',
   DeleteAll = 'delete-all',
 }
 
-export enum DataFile_ToTable {
+export enum ImportData_ToTable {
   Customer = 'customer',
   Contract = 'contract',
   Investigation = 'investigation',

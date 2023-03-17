@@ -9,13 +9,13 @@ import {
 import { Base } from '../../../common/modules/base/entity/base.entity';
 import { Controllers } from 'src/common/enums/controllers';
 import {
-  DataFile_ImportRule,
-  DataFile_Status,
-  DataFile_ToTable,
+  ImportData_ImportRule,
+  ImportData_Status,
+  ImportData_ToTable,
 } from '../enum/import-data.enum';
 
 @Entity(Controllers.LCM_ImportData)
-export class DataFile extends Base {
+export class ImportData extends Base {
   @Column()
   @IsString()
   @IsNotEmpty()
@@ -40,8 +40,8 @@ export class DataFile extends Base {
   settings: {
     sheets: {
       name: string;
-      toTable: DataFile_ToTable;
-      rule: DataFile_ImportRule;
+      toTable: ImportData_ToTable;
+      rule: ImportData_ImportRule;
       [key: string]: any;
     }[];
   } = { sheets: [] };
@@ -52,6 +52,6 @@ export class DataFile extends Base {
   note = '';
 
   @Column()
-  @IsEnum(DataFile_Status)
-  status = DataFile_Status.New;
+  @IsEnum(ImportData_Status)
+  status = ImportData_Status.New;
 }

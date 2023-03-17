@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { DataFileService } from './import-data.service';
-import { DataFilesController } from './import-data.controller';
-import { DataFile } from './entity/import-data.entity';
+import { ImportDataService } from './import-data.service';
+import { ImportDatasController } from './import-data.controller';
+import { ImportData } from './entity/import-data.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Customer } from '../customer/entity/customer.entity';
 import { CustomerModule } from '../customer/customer.module';
@@ -21,7 +21,7 @@ import { Services } from 'src/common/enums/services';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      DataFile,
+      ImportData,
       Customer,
       Contract,
       Transaction,
@@ -49,7 +49,7 @@ import { Services } from 'src/common/enums/services';
     InvestigationModule,
     ActivityModule,
   ],
-  controllers: [DataFilesController],
-  providers: [DataFileService],
+  controllers: [ImportDatasController],
+  providers: [ImportDataService],
 })
-export class DataFileModule {}
+export class ImportDataModule {}

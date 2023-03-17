@@ -10,7 +10,7 @@ import { CustomerModule } from './modules/customer/customer.module';
 import { ContractModule } from './modules/contract/contract.module';
 import { ResultModule } from './modules/result/result.module';
 import { ActivityModule } from './modules/activity/activity.module';
-import { DataFileModule } from './modules/data-file/data-file.module';
+import { ImportDataModule } from './modules/import-data/import-data.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { ReferenceModule } from './modules/reference/reference.module';
 import { InvestigationModule } from './modules/investigation/investigation.module';
@@ -33,7 +33,7 @@ import { DataHandlerModule } from './modules/data-handler/data-handler.module';
     ContractModule,
     ResultModule,
     ActivityModule,
-    DataFileModule,
+    ImportDataModule,
     TransactionModule,
     ReferenceModule,
     InvestigationModule,
