@@ -46,6 +46,7 @@ export class DataHandlerService {
         rcim: [],
         tbim: 0,
         lovdd: 0,
+        contractCodes: [],
       };
       let largestOVDDays = 0;
       console.log(`-- Contracts: `, contracts.length);
