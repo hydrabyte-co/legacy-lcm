@@ -56,6 +56,7 @@ export class CustomerService extends BaseService<Customer> {
           { fullname: new RegExp(filter.where.query, 'gi') },
           { permanentAddress: new RegExp(filter.where.query, 'gi') },
           { temporaryAddress: new RegExp(filter.where.query, 'gi') },
+          { contractCodes: filter.where.query },
         ];
       }
     }
