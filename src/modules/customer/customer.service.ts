@@ -36,6 +36,7 @@ export class CustomerService extends BaseService<Customer> {
       const codeRegex = /^[a-zA-Z]+-[0-9]+$/;
       const emailRegex = /^[a-z0-9.-_]+\@[a-z0-9.-_]+$/;
 
+      console.log(filter.where.query);
       if (phoneRegex.test(filter.where.query)) {
         // filter.where.mobileNumber = filter.where.query;
         filter.where.$or = [
@@ -46,6 +47,7 @@ export class CustomerService extends BaseService<Customer> {
         filter.where.$or = [
           { identityNumber: filter.where.query },
           { code: new RegExp(filter.where.query, 'gi') },
+          { callStaffCode: filter.where.query },
         ];
       } else if (codeRegex.test(filter.where.query)) {
         filter.where.code = filter.where.query;
@@ -135,8 +137,13 @@ export class CustomerService extends BaseService<Customer> {
     }
     delete filter.where.query;
     delete filter.where.sortBy;
-    filter.where.callStaffCode = handler.staffCode;
-    console.log(filter);
+    if (
+      handler.roles.indexOf('org.owner') < 0 &&
+      handler.roles.indexOf('org.admin') < 0
+    ) {
+      filter.where.callStaffCode = handler.staffCode || '_';
+    }
+    console.log(JSON.stringify(filter,null,'\t'));
     return await super.findManyWithPaging(filter, handler);
   }
 
