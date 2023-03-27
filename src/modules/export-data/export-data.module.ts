@@ -35,7 +35,7 @@ import { Services } from 'src/common/enums/services';
         transport: Transport.RMQ,
         options: {
           urls: [process.env.RABBITMQ_URL],
-          queue: `${process.env.RABBITMQ_QUEUE}-export-data`,
+          queue: `${process.env.RABBITMQ_QUEUE}`,
           queueOptions: {
             durable: true,
           },
