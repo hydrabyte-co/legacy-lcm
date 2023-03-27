@@ -10,6 +10,9 @@ export class FindExportDataByIdResult extends BaseFindByIdResult {
   datasources;
 
   @Expose()
+  results;
+
+  @Expose()
   outputFileType;
 
   @Expose()

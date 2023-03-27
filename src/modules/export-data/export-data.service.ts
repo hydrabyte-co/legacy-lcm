@@ -1,5 +1,9 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const FormData = require('form-data');
+import writeXlsxFile from 'write-excel-file/node';
 import * as fs from 'fs';
 import * as path from 'path';
+import axios from 'axios';
 import { ObjectID } from 'mongodb';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,7 +12,11 @@ import { ExportData } from './entity/export-data.entity';
 import { BaseService } from 'src/common/modules/base/base.service';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { CreateExportDataData } from './dto/create.dto';
-import { ExportData_Status } from './enum/export-data.enum';
+import {
+  ExportData_FromDocuments,
+  ExportData_OutputFileType,
+  ExportData_Status,
+} from './enum/export-data.enum';
 import { readSheetNames } from 'read-excel-file/node';
 import readXlsxFile from 'read-excel-file/node';
 import { getTypeOf } from 'src/common/utils/object-helper';
@@ -22,14 +30,6 @@ import { Activity } from '../activity/entity/activity.entity';
 import { downloadFile } from 'src/common/utils/web-helper';
 import { Services } from 'src/common/enums/services';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  ActivityXlsxSchema,
-  ContractXlsxSchema,
-  CustomerXlsxSchema,
-  InvestigationXlsxSchema,
-  ReferenceXlsxSchema,
-  TransactionXlsxSchema,
-} from './constant/export-data.constant';
 import { CustomerStatus } from '../customer/enum/customer.enum';
 import { ContractStatus } from '../contract/enum/contract.enum';
 import { ActivityTypeCode, RelationCode } from '../activity/enum/activity.enum';
@@ -42,6 +42,7 @@ import {
   FindManyFilter,
   FindAllResult,
 } from 'src/common/modules/base/dto/find-many.dto';
+import { ActivityToExcelSchema } from './constant/export-data.constant';
 
 @Injectable()
 export class ExportDataService extends BaseService<ExportData> {
@@ -185,17 +186,130 @@ export class ExportDataService extends BaseService<ExportData> {
     const exportData = await this.exportDatasRepository.findOne(
       data.exportDataId,
     );
+    const schemas = [];
+    const sheets = [];
+    const dataArray = [];
     let processExportDataResult;
-    console.log(`-- Export Data Request`, exportData);
+    exportData.results = [];
+    console.log(
+      `-- Export Data Request`,
+      JSON.stringify(exportData, null, ' '),
+    );
     if (exportData) {
       const updateExportDataResult = await this.exportDatasRepository.update(
         exportData.id,
         { status: ExportData_Status.InProgress },
       );
 
+      for (let i = 0; i < exportData.datasources.length; i++) {
+        const datasource = exportData.datasources[i];
+        console.log(`---- Datasource`, JSON.stringify(datasource, null, ' '));
+        switch (datasource.name) {
+          case ExportData_FromDocuments.Activities: {
+            const fromDate = new Date(datasource.where.from);
+            const toDate = new Date(datasource.where.to);
+            const filter = {
+              where: {
+                $and: [
+                  { performAt: { $gte: fromDate } },
+                  { performAt: { $lte: toDate } },
+                ],
+              },
+            };
+            console.log(`------ Filter`, JSON.stringify(filter, null, ' '));
+            const activities = await this.activitiesRepository.find(filter);
+            console.log(`------ Activities`, activities.length);
+            exportData.results.push({
+              name: datasource.name,
+              count: activities.length,
+            });
+
+            dataArray.push(activities);
+            schemas.push(ActivityToExcelSchema);
+            sheets.push(datasource.name);
+            break;
+          }
+
+          default:
+            break;
+        }
+      }
+
+      let outFilePath = `./data/${exportData.id}`;
+      switch (exportData.outputFileType) {
+        case ExportData_OutputFileType.Excel: {
+          outFilePath += '.xlsx';
+          // console.log(`---- Excel Schemas`, JSON.stringify(schemas, null, ' '));
+          // console.log(`---- Excel sheets`, JSON.stringify(sheets, null, ' '));
+          const writeFileResult = await writeXlsxFile(dataArray, {
+            schema: schemas,
+            sheets: sheets,
+            filePath: outFilePath,
+          });
+          console.log(
+            `---- Write Excel file ${outFilePath}`,
+            JSON.stringify(writeFileResult, null, ' '),
+          );
+          break;
+        }
+        case ExportData_OutputFileType.CSV: {
+          break;
+        }
+        default:
+          break;
+      }
+
+      const formData = new FormData();
+      formData.append('file', fs.createReadStream(outFilePath));
+      formData.append('note', exportData.note);
+      formData.append('tags', '["export-data"]');
+
+      const config: any = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: `${process.env.STORAGE_URL}/files`,
+        headers: {
+          Authorization: data.handler.accessToken,
+        },
+        data: formData,
+      };
+
+      // console.log(`---- Axios config`, JSON.stringify(config, null, ' '));
+
+      const uploadFileResult = await axios(config)
+        .then(function (response) {
+          return {
+            error: undefined,
+            data: response.data,
+          };
+        })
+        .catch(function (error) {
+          console.log(error);
+          return {
+            error: {
+              code: '',
+              message: error.messaage,
+            },
+            data: undefined,
+          };
+        });
+
+      console.log(
+        `---- Upload file result`,
+        JSON.stringify(uploadFileResult, null, ' '),
+      );
+
+      if (uploadFileResult.data) {
+        exportData.fileId = uploadFileResult.data.id.toString();
+      }
+
       processExportDataResult = await this.exportDatasRepository.update(
         exportData.id,
-        { status: ExportData_Status.Done },
+        {
+          fileId: exportData.fileId,
+          status: ExportData_Status.Done,
+          results: exportData.results,
+        },
       );
     }
     return processExportDataResult;

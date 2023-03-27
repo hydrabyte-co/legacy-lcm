@@ -23,6 +23,11 @@ export type ExportData_Datasource = {
   };
 };
 
+export type ExportData_Result = {
+  name: ExportData_FromDocuments;
+  count: number;
+};
+
 @Entity(Controllers.LCM_ExportData)
 export class ExportData extends Base {
   @Column()
@@ -32,6 +37,10 @@ export class ExportData extends Base {
   @Column()
   @IsArray()
   datasources: ExportData_Datasource[];
+
+  @Column()
+  @IsArray()
+  results: ExportData_Result[];
 
   @Column()
   @IsString()
