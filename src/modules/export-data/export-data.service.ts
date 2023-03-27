@@ -3,7 +3,7 @@ const FormData = require('form-data');
 import writeXlsxFile from 'write-excel-file/node';
 import * as fs from 'fs';
 import * as path from 'path';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { ObjectID } from 'mongodb';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -42,7 +42,10 @@ import {
   FindManyFilter,
   FindAllResult,
 } from 'src/common/modules/base/dto/find-many.dto';
-import { ActivityToExcelSchema } from './constant/export-data.constant';
+import {
+  ActivitiesToExcelSchema,
+  OutboundCallsToExcelSchema,
+} from './constant/export-data.constant';
 
 @Injectable()
 export class ExportDataService extends BaseService<ExportData> {
@@ -225,11 +228,50 @@ export class ExportDataService extends BaseService<ExportData> {
             });
 
             dataArray.push(activities);
-            schemas.push(ActivityToExcelSchema);
+            schemas.push(ActivitiesToExcelSchema);
             sheets.push(datasource.name);
             break;
           }
+          case ExportData_FromDocuments.OutboundCalls: {
+            const apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${datasource.where.from}&to=${datasource.where.to}&pageSize=5000`;
+            const config: AxiosRequestConfig = {
+              method: 'get',
+              maxBodyLength: Infinity,
+              url: apiURL,
+              headers: {
+                Authorization: data.handler.accessToken,
+              },
+            };
+            console.log(`------ Call Axios config`, config);
+            const getCallsResult = await axios(config)
+              .then(function (response) {
+                return {
+                  error: undefined,
+                  data: response.data,
+                };
+              })
+              .catch(function (error) {
+                console.log(error);
+                return {
+                  error: {
+                    code: '',
+                    message: error.messaage,
+                  },
+                  data: undefined,
+                };
+              });
 
+            if (getCallsResult.data) {
+              if (getCallsResult.data.data) {
+                const calls = getCallsResult.data.data;
+                console.log(`------ Calls`, calls.length);
+                dataArray.push(calls);
+                schemas.push(OutboundCallsToExcelSchema);
+                sheets.push(datasource.name);
+              }
+            }
+            break;
+          }
           default:
             break;
         }
@@ -264,16 +306,16 @@ export class ExportDataService extends BaseService<ExportData> {
       formData.append('note', exportData.note);
       formData.append('tags', '["export-data"]');
 
-      const config: any = {
+      const config: AxiosRequestConfig = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: `${process.env.STORAGE_URL}/files`,
+        url: `${process.env.STORAGE_API_ROOT_URL}/files`,
         headers: {
           Authorization: data.handler.accessToken,
+          ...formData.getHeaders(),
         },
         data: formData,
       };
-
       // console.log(`---- Axios config`, JSON.stringify(config, null, ' '));
 
       const uploadFileResult = await axios(config)

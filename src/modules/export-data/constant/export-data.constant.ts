@@ -1,7 +1,7 @@
 import { getTypeOf } from 'src/common/utils/object-helper';
 import { replaceRegexPatternFromString } from 'src/common/utils/string-helper';
 
-export const ActivityToExcelSchema = [
+export const ActivitiesToExcelSchema = [
   {
     column: 'staffCode',
     type: String,
@@ -87,5 +87,85 @@ export const ActivityToExcelSchema = [
     column: 'type',
     type: String,
     value: (obj) => obj.type,
+  },
+];
+
+export const OutboundCallsToExcelSchema = [
+  {
+    column: 'staffCode',
+    type: String,
+    value: (obj) => {
+      if (obj.data) {
+        return obj.data.staffCode;
+      } else {
+        return '';
+      }
+    },
+  },
+  {
+    column: 'customerCode',
+    type: String,
+    value: (obj) => {
+      if (obj.data) {
+        return obj.data.customerCode;
+      } else {
+        return '';
+      }
+    },
+  },
+  {
+    column: 'fromSIPAccountId',
+    type: String,
+    value: (obj) => obj.fromSIPAccountId,
+  },
+  {
+    column: 'fromUserId',
+    type: String,
+    value: (obj) => obj.fromUserId,
+  },
+  {
+    column: 'fromNumber',
+    type: String,
+    value: (obj) => obj.fromNumber,
+  },
+  {
+    column: 'toNumber',
+    type: String,
+    value: (obj) => obj.toNumber,
+  },
+  {
+    column: 'startedAt',
+    type: Date,
+    format: 'mm/dd/yyyy',
+    value: (obj) => {
+      return new Date(obj.startedAt);
+    },
+  },
+  {
+    column: 'answeredAt',
+    type: Date,
+    format: 'mm/dd/yyyy',
+    value: (obj) => {
+      if (obj.answeredAt) {
+        return new Date(obj.answeredAt);
+      } else {
+        return undefined;
+      }
+    },
+  },
+  {
+    column: 'duration',
+    type: Number,
+    value: (obj) => obj.duration,
+  },
+  {
+    column: 'answeredDuration',
+    type: Number,
+    value: (obj) => obj.answeredDuration,
+  },
+  {
+    column: 'result',
+    type: String,
+    value: (obj) => obj.result,
   },
 ];
