@@ -5,17 +5,18 @@ import {
   MaxLength,
   IsOptional,
   IsObject,
+  IsArray,
 } from 'class-validator';
 import {
   CreateData as BaseCreateData,
   CreateResult as BaseCreateResult,
 } from '../../../common/modules/base/dto/create.dto';
 import { ExportData_OutputFileType } from '../enum/export-data.enum';
-import { ExportData_Datasources } from '../entity/export-data.entity';
+import { ExportData_Datasource } from '../entity/export-data.entity';
 
 export class CreateExportDataData extends BaseCreateData {
-  @IsObject()
-  datasources: ExportData_Datasources;
+  @IsArray()
+  datasources: ExportData_Datasource[];
 
   @IsString()
   @IsNotEmpty()

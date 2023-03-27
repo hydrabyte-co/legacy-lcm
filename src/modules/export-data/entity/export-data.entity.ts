@@ -5,6 +5,7 @@ import {
   MaxLength,
   IsObject,
   IsEnum,
+  IsArray,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
 import { Controllers } from 'src/common/enums/controllers';
@@ -14,12 +15,11 @@ import {
   ExportData_Status,
 } from '../enum/export-data.enum';
 
-export type ExportData_Datasources = {
-  [key in ExportData_FromDocuments]: {
-    where: {
-      from: string;
-      to: string;
-    };
+export type ExportData_Datasource = {
+  name: ExportData_FromDocuments;
+  where: {
+    from: string;
+    to: string;
   };
 };
 
@@ -30,8 +30,8 @@ export class ExportData extends Base {
   fileId = '';
 
   @Column()
-  @IsObject()
-  datasources: ExportData_Datasources;
+  @IsArray()
+  datasources: ExportData_Datasource[];
 
   @Column()
   @IsString()
