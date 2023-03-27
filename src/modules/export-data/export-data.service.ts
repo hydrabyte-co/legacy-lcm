@@ -233,7 +233,7 @@ export class ExportDataService extends BaseService<ExportData> {
             break;
           }
           case ExportData_FromDocuments.OutboundCalls: {
-            const apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${datasource.where.from}&to=${datasource.where.to}&pageSize=5000`;
+            const apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${datasource.where.from}&to=${datasource.where.to}&pageSize=20000`;
             const config: AxiosRequestConfig = {
               method: 'get',
               maxBodyLength: Infinity,
