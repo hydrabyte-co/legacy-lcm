@@ -4,20 +4,20 @@ import { FindOneResult as BaseFindByIdResult } from '../../../common/modules/bas
 @Exclude()
 export class FindExportDataByIdResult extends BaseFindByIdResult {
   @Expose()
-  fileName = '';
+  fileId;
 
   @Expose()
-  partnerCode = '';
+  datasources;
 
   @Expose()
-  info = {};
+  outputFileType;
 
   @Expose()
-  settings = {};
+  error;
 
   @Expose()
-  note = '';
+  note;
 
   @Expose()
-  status = '';
+  status;
 }

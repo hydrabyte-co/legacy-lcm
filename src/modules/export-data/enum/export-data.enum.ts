@@ -1,24 +1,22 @@
+export enum ExportData_FromDocuments {
+  Customers = 'customers',
+  Contracts = 'contracts',
+  Investigations = 'investigations',
+  Activities = 'activities',
+  References = 'references',
+  Transactions = 'transactions',
+}
+
+export enum ExportData_OutputFileType {
+  CSV = 'csv',
+  Excel = 'excel',
+}
+
 export enum ExportData_Status {
-  New = 'new',
-  Read = 'read',
+  Todo = 'todo',
   Queued = 'queued',
-  Processing = 'proccessing',
-  Failed = 'failed',
-  Cancelled = 'cancelled',
+  InProgress = 'in-progress',
   Done = 'done',
-}
-
-export enum ExportData_ExportRule {
-  CloseAll = 'close-all',
-  ReplaceAll = 'replace-all',
-  DeleteAll = 'delete-all',
-}
-
-export enum ExportData_ToTable {
-  Customer = 'customer',
-  Contract = 'contract',
-  Investigation = 'investigation',
-  Activity = 'activity',
-  Reference = 'reference',
-  Transaction = 'transaction',
+  Failed = 'failed',
+  Canceled = 'canceld',
 }

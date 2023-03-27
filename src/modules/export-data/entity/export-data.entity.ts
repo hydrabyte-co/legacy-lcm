@@ -9,42 +9,37 @@ import {
 import { Base } from '../../../common/modules/base/entity/base.entity';
 import { Controllers } from 'src/common/enums/controllers';
 import {
-  ExportData_ExportRule,
+  ExportData_FromDocuments,
+  ExportData_OutputFileType,
   ExportData_Status,
-  ExportData_ToTable,
 } from '../enum/export-data.enum';
+
+export type ExportData_Datasources = {
+  [key in ExportData_FromDocuments]: {
+    where: {
+      from: string;
+      to: string;
+    };
+  };
+};
 
 @Entity(Controllers.LCM_ExportData)
 export class ExportData extends Base {
   @Column()
   @IsString()
-  @IsNotEmpty()
-  fileName = '';
+  fileId = '';
+
+  @Column()
+  @IsObject()
+  datasources: ExportData_Datasources;
 
   @Column()
   @IsString()
-  @IsNotEmpty()
-  @MaxLength(12)
-  partnerCode = '';
+  outputFileType: ExportData_OutputFileType = ExportData_OutputFileType.Excel;
 
   @Column()
   @IsObject()
-  info: {
-    sheets?: { [key: string]: any }[];
-  } = {
-    sheets: [],
-  };
-
-  @Column()
-  @IsObject()
-  settings: {
-    sheets: {
-      name: string;
-      toTable: ExportData_ToTable;
-      rule: ExportData_ExportRule;
-      [key: string]: any;
-    }[];
-  } = { sheets: [] };
+  error: any = {};
 
   @Column()
   @IsString()
@@ -53,5 +48,5 @@ export class ExportData extends Base {
 
   @Column()
   @IsEnum(ExportData_Status)
-  status = ExportData_Status.New;
+  status = ExportData_Status.Todo;
 }

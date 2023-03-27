@@ -21,10 +21,6 @@ import {
 } from 'src/common/decorators/service-info';
 import { ExportDataService } from './export-data.service';
 import { CreateExportDataData, CreateExportDataResult } from './dto/create.dto';
-import {
-  UpdateExportDataData,
-  UpdateExportDataResult,
-} from './dto/update-one.dto';
 import { FindExportDataByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
@@ -70,37 +66,17 @@ export class ExportDatasController extends BaseController {
     return await super.findManyWithPaging(queries, req);
   }
 
-  @Patch(':id')
-  @UseGuards(AuthGuard, RolesGuard)
-  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async updateOne(
-    @Param('id') id: string,
-    @Body() data: UpdateExportDataData,
-    @Req() req,
-  ): Promise<UpdateExportDataResult> {
-    return await super.updateOne(id, data, req);
-  }
-
   @Put(':id/process')
   @UseGuards(AuthGuard, RolesGuard)
-  async process(
-    @Param('id') id: string,
-    @Req() req,
-  ): Promise<UpdateExportDataResult> {
+  async requestProcess(@Param('id') id: string, @Req() req): Promise<any> {
     const handler = req.user || new DataHandler();
-    return await this.exportDatasService.processExportData(id, handler);
+    return await this.exportDatasService.requestProcess(id, handler);
   }
 
-  @Delete(':id')
-  @UseGuards(AuthGuard, RolesGuard)
-  async deleteOne(@Param('id') id: string, @Req() req) {
-    return await super.deleteOne(id, req);
-  }
-
-  @EventPattern('process')
+  @EventPattern('process-export-data')
   async handleEvent(dataString: Record<string, unknown>) {
     const data = JSON.parse(dataString.toString());
-    await this.exportDatasService.handleProcessFile(data);
+    await this.exportDatasService.handleProcessExportData(data);
     return 'ack';
   }
 }

@@ -15,6 +15,7 @@ import { TransactionModule } from './modules/transaction/transaction.module';
 import { ReferenceModule } from './modules/reference/reference.module';
 import { InvestigationModule } from './modules/investigation/investigation.module';
 import { DataHandlerModule } from './modules/data-handler/data-handler.module';
+import { ExportDataModule } from './modules/export-data/export-data.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { DataHandlerModule } from './modules/data-handler/data-handler.module';
     ResultModule,
     ActivityModule,
     ImportDataModule,
+    ExportDataModule,
     TransactionModule,
     ReferenceModule,
     InvestigationModule,
