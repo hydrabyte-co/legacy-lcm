@@ -102,7 +102,15 @@ export class ExportDataService extends BaseService<ExportData> {
     console.log(``);
     console.log(`Create new Export Data request`, exportData);
 
-    return super.createOne(exportData, handler);
+    const createResult = await super.createOne(exportData, handler);
+    const emitResult = await this.client.emit(
+      'process-export-data',
+      JSON.stringify({ exportDataId: createResult.id, handler }),
+    );
+    console.log(`-- Emit result`, emitResult);
+    const subscriberResult = await emitResult.subscribe();
+    console.log(`-- Subcriber result`, subscriberResult);
+    return createResult;
   }
 
   /*   async updateOne(
