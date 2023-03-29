@@ -135,6 +135,17 @@ export const OutboundCallsToExcelSchema = [
     },
   },
   {
+    column: 'SIPAccountName',
+    type: String,
+    value: (obj) => {
+      if (obj.data) {
+        return obj.data.sipAccountName;
+      } else {
+        return '';
+      }
+    },
+  },
+  {
     column: 'fromSIPAccountId',
     type: String,
     value: (obj) => obj.fromSIPAccountId,
@@ -157,7 +168,7 @@ export const OutboundCallsToExcelSchema = [
   {
     column: 'startedAt',
     type: Date,
-    format: 'mm/dd/yyyy',
+    format: 'mm/dd/yyyy hh:mm:ss',
     value: (obj) => {
       return new Date(obj.startedAt);
     },
@@ -165,7 +176,7 @@ export const OutboundCallsToExcelSchema = [
   {
     column: 'answeredAt',
     type: Date,
-    format: 'mm/dd/yyyy',
+    format: 'mm/dd/yyyy hh:mm:ss',
     value: (obj) => {
       if (obj.answeredAt) {
         return new Date(obj.answeredAt);
