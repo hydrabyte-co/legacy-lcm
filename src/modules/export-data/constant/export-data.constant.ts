@@ -62,6 +62,17 @@ export const ActivitiesToExcelSchema = [
     },
   },
   {
+    column: 'contactNote',
+    type: String,
+    value: (obj) => {
+      if (obj.contactInfo) {
+        return obj.contactInfo.note;
+      } else {
+        return '';
+      }
+    },
+  },
+  {
     column: 'performAt',
     type: Date,
     format: 'mm/dd/yyyy',
