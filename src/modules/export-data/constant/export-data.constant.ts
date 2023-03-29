@@ -99,6 +99,16 @@ export const ActivitiesToExcelSchema = [
     type: String,
     value: (obj) => obj.type,
   },
+  {
+    column: 'resultCode',
+    type: String,
+    value: (obj) => obj.resultCode,
+  },
+  {
+    column: 'resultParentCode',
+    type: String,
+    value: (obj) => obj.resultParentCode,
+  },
 ];
 
 export const OutboundCallsToExcelSchema = [
