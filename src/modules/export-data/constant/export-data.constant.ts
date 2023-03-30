@@ -74,9 +74,10 @@ export const ActivitiesToExcelSchema = [
   },
   {
     column: 'performAt',
-    type: Date,
-    format: 'mm/dd/yyyy',
-    value: (obj) => obj.performAt,
+    //type: Date,
+    type: String,
+    //format: 'mm/dd/yyyy',
+    value: (obj) => obj.performAt.toISOString(),
   },
   {
     column: 'ptpAmount',
@@ -85,9 +86,9 @@ export const ActivitiesToExcelSchema = [
   },
   {
     column: 'ptpDate',
-    type: Date,
-    format: 'mm/dd/yyyy',
-    value: (obj) => obj.ptpDate,
+    type: String,
+    //format: 'mm/dd/yyyy',
+    value: (obj) => obj.ptpDate.toISOString(),
   },
   {
     column: 'note',
@@ -167,19 +168,22 @@ export const OutboundCallsToExcelSchema = [
   },
   {
     column: 'startedAt',
-    type: Date,
-    format: 'mm/dd/yyyy hh:mm:ss',
+    type: String,
+    //format: 'mm/dd/yyyy hh:mm:ss',
     value: (obj) => {
-      return new Date(obj.startedAt);
+      //return new Date(obj.startedAt);
+      return obj.startedAt;
     },
   },
   {
     column: 'answeredAt',
-    type: Date,
-    format: 'mm/dd/yyyy hh:mm:ss',
+    //type: Date,
+    type: String,
+    //format: 'mm/dd/yyyy hh:mm:ss',
     value: (obj) => {
       if (obj.answeredAt) {
-        return new Date(obj.answeredAt);
+        //return new Date(obj.answeredAt);
+        return obj.answeredAt;
       } else {
         return undefined;
       }
