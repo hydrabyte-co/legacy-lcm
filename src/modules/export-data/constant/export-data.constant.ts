@@ -77,7 +77,13 @@ export const ActivitiesToExcelSchema = [
     //type: Date,
     type: String,
     //format: 'mm/dd/yyyy',
-    value: (obj) => obj.performAt.toISOString(),
+    value: (obj) => {
+      if (obj.performAt) {
+        return obj.performAt.toISOString();
+      } else {
+        return '';
+      }
+    },
   },
   {
     column: 'ptpAmount',
@@ -88,7 +94,13 @@ export const ActivitiesToExcelSchema = [
     column: 'ptpDate',
     type: String,
     //format: 'mm/dd/yyyy',
-    value: (obj) => obj.ptpDate.toISOString(),
+    value: (obj) => {
+      if (obj.ptpDate) {
+        return obj.ptpDate.toISOString();
+      } else {
+        return '';
+      }
+    },
   },
   {
     column: 'note',
