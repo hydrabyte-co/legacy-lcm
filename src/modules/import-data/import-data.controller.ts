@@ -97,7 +97,7 @@ export class ImportDatasController extends BaseController {
     return await super.deleteOne(id, req);
   }
 
-  @EventPattern('process')
+  @EventPattern('process-import-data')
   async handleEvent(dataString: Record<string, unknown>) {
     const data = JSON.parse(dataString.toString());
     await this.importDatasService.handleProcessFile(data);

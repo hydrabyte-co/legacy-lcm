@@ -217,7 +217,7 @@ export class ImportDataService extends BaseService<ImportData> {
     console.log(`Request to process Data File '${id}'`);
     if (updateResult) {
       const emitResult = await this.client.emit(
-        'process-data-file',
+        'process-import-data',
         JSON.stringify({ importDataId: id, handler }),
       );
       console.log(`-- Emit result`, emitResult);
