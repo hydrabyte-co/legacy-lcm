@@ -62,7 +62,7 @@ export class DataHandlerService {
         if (contract.totalPaymentAmountFromPartner) {
           newData.tpafpim += contract.totalPaymentAmountFromPartner;
         }
-        if (contract.totalPaymentAmountFromPartner) {
+        if (contract.totalBalance) {
           newData.tbim += contract.totalBalance;
         }
         if (contract.ovdDays) {
