@@ -66,7 +66,7 @@ export class CustomerService extends BaseService<Customer> {
     if (filter.where.searchBy) {
       switch (filter.where.searchBy) {
         case 'fullname-asc': {
-          filter.order = { fullname: -1 };
+          filter.order = { fullname: 1 };
           break;
         }
         case 'fullname-desc': {
@@ -81,6 +81,46 @@ export class CustomerService extends BaseService<Customer> {
         case 'priority-desc': {
           filter.order = { priority: -1 };
           filter.where.priority = { $gte: 1 };
+          break;
+        }
+        case 'customerCode-asc': {
+          filter.order = { customerCode: 1 };
+          break;
+        }
+        case 'customerCode-desc': {
+          filter.order = { customerCode: -1 };
+          break;
+        }
+        case 'acim-asc': {
+          filter.order = { acim: 1 };
+          break;
+        }
+        case 'acim-desc': {
+          filter.order = { acim: -1 };
+          break;
+        }
+        case 'tpaim-asc': {
+          filter.order = { tpaim: 1 };
+          break;
+        }
+        case 'tpaim-desc': {
+          filter.order = { tpaim: -1 };
+          break;
+        }
+        case 'tbim-asc': {
+          filter.order = { tbim: 1 };
+          break;
+        }
+        case 'tbim-desc': {
+          filter.order = { tbim: -1 };
+          break;
+        }
+        case 'lovdd-asc': {
+          filter.order = { lovdd: 1 };
+          break;
+        }
+        case 'lovdd-desc': {
+          filter.order = { lovdd: -1 };
           break;
         }
         case 'update-desc': {
