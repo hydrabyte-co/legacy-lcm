@@ -63,8 +63,26 @@ export class CustomerService extends BaseService<Customer> {
       }
     }
     filter.order.fullname = 1;
-    if (filter.where.sortBy) {
-      switch (filter.where.sortBy) {
+    if (filter.where.searchBy) {
+      switch (filter.where.searchBy) {
+        case 'fullname-asc': {
+          filter.order = { fullname: -1 };
+          break;
+        }
+        case 'fullname-desc': {
+          filter.order = { fullname: -1 };
+          break;
+        }
+        case 'priority-asc': {
+          filter.order = { priority: 1 };
+          filter.where.priority = { $gte: 1 };
+          break;
+        }
+        case 'priority-desc': {
+          filter.order = { priority: -1 };
+          filter.where.priority = { $gte: 1 };
+          break;
+        }
         case 'update-desc': {
           filter.order = { changedAt: -1 };
           break;
@@ -73,30 +91,38 @@ export class CustomerService extends BaseService<Customer> {
           filter.order = { changedAt: 1 };
           break;
         }
-        case 'activity-asc': {
+        case 'lastActivity.performAt-asc': {
           filter.order = { 'lastActivity.performAt': 1 };
           filter.where['lastActivity.performAt'] = { $ne: null };
           break;
         }
-        case 'activity-desc': {
+        case 'lastActivity.performAt-desc': {
           filter.order = { 'lastActivity.performAt': -1 };
           filter.where['lastActivity.performAt'] = { $ne: null };
           break;
         }
-        case 'priority-asc': {
-          filter.order = { priority: 1 };
-          filter.where.priority = { $gte: 1 };
+        case 'lastPTPActivity.ptpAmount-asc': {
+          filter.order = { ['lastPTPActivity.ptpAmount']: 1 };
+          filter.where['lastPTPActivity.ptpAmount'] = { $ne: null };
           break;
         }
-        case 'fullname-desc': {
-          filter.order = { fullname: -1 };
-          break;
-        }
-        case 'ptp-amount-desc': {
+        case 'lastPTPActivity.ptpAmount-desc': {
           filter.order = { ['lastPTPActivity.ptpAmount']: -1 };
           filter.where['lastPTPActivity.ptpAmount'] = { $ne: null };
           break;
         }
+
+        case 'lastPTPActivity.ptpDate-asc': {
+          filter.order = { ['lastPTPActivity.ptpAmount']: 1 };
+          filter.where['lastPTPActivity.ptpAmount'] = { $ne: null };
+          break;
+        }
+        case 'lastPTPActivity.ptpDate-desc': {
+          filter.order = { ['lastPTPActivity.ptpAmount']: -1 };
+          filter.where['lastPTPActivity.ptpAmount'] = { $ne: null };
+          break;
+        }
+
         case 'ptp-date-desc': {
           filter.order = { ['lastPTPActivity.ptpDate']: -1 };
           filter.where['lastPTPActivity.ptpDate'] = { $ne: null };
@@ -143,7 +169,7 @@ export class CustomerService extends BaseService<Customer> {
     ) {
       filter.where.callStaffCode = handler.staffCode || '_';
     }
-    console.log(JSON.stringify(filter,null,'\t'));
+    console.log(JSON.stringify(filter, null, '\t'));
     return await super.findManyWithPaging(filter, handler);
   }
 
