@@ -163,6 +163,7 @@ export class CustomerService extends BaseService<Customer> {
     }
     delete filter.where.query;
     delete filter.where.sortBy;
+    delete filter.where.searchBy;
     if (
       handler.roles.indexOf('org.owner') < 0 &&
       handler.roles.indexOf('org.admin') < 0
