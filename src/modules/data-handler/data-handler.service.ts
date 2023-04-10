@@ -111,7 +111,7 @@ export class DataHandlerService {
 
       if (tracsactions) {
         if (tracsactions.length > 0) {
-          customer.lastPaidDate = tracsactions[0].date;
+          newData.lastPaidDate = tracsactions[0].date;
         }
       }
 
