@@ -241,6 +241,7 @@ export class ExportDataService extends BaseService<ExportData> {
             ) {
               filter.where = {};
             }
+            filter.where = {};
             console.log(`------ Filter`, JSON.stringify(filter, null, ' '));
             const customers = await this.customersRepository.find(filter);
             console.log(`------ Customers`, customers.length);
