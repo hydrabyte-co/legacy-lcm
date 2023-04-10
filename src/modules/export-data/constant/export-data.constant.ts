@@ -241,7 +241,7 @@ export const CustomersToExcelSchema = [
   },
   {
     column: 'priority',
-    type: String,
+    type: Number,
     value: (obj) => obj.priority,
   },
   {

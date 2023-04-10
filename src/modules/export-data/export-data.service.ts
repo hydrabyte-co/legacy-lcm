@@ -235,11 +235,18 @@ export class ExportDataService extends BaseService<ExportData> {
                 'status',
               ],
             };
+            console.log(
+              `---- Condition`,
+              data.handler.roles,
+              data.handler.roles.indexOf[Roles.OrganizationOwner] >= 0 ||
+                data.handler.roles.indexOf[Roles.OrganizationAdmin] >= 0,
+            );
             if (
               data.handler.roles.indexOf[Roles.OrganizationOwner] >= 0 ||
               data.handler.roles.indexOf[Roles.OrganizationAdmin] >= 0
             ) {
               filter.where = {};
+              console.log(`---- Condition ok`);
             }
             filter.where = {};
             console.log(`------ Filter`, JSON.stringify(filter, null, ' '));
