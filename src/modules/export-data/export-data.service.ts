@@ -223,7 +223,7 @@ export class ExportDataService extends BaseService<ExportData> {
             const toDate = new Date(datasource.where.to);
             const filter: any = {
               where: {
-                callStaffCode: data.handler.staffCode || '_',
+                callStaffCode: '_',
                 status: 'active',
               },
               select: [
@@ -255,6 +255,12 @@ export class ExportDataService extends BaseService<ExportData> {
             ) {
               filter.where = {};
             }
+            if (data.handler.roles.indexOf(Roles.OrganizationAgent) >= 0) {
+              filter.where = {
+                callStaffCode: data.handler.staffCode || '_',
+                status: 'active',
+              };
+            }
             console.log(`------ Filter`, JSON.stringify(filter, null, ' '));
             const customers = await this.customersRepository.find(filter);
             console.log(`------ Customers`, customers.length);
@@ -273,7 +279,7 @@ export class ExportDataService extends BaseService<ExportData> {
             const toDate = new Date(datasource.where.to);
             const filter: any = {
               where: {
-                staffCode: data.handler.staffCode || '_',
+                staffCode: '_',
               },
             };
             if (
@@ -285,6 +291,11 @@ export class ExportDataService extends BaseService<ExportData> {
                   { performAt: { $gte: fromDate } },
                   { performAt: { $lte: toDate } },
                 ],
+              };
+            }
+            if (data.handler.roles.indexOf(Roles.OrganizationAgent) >= 0) {
+              filter.where = {
+                staffCode: data.handler.staffCode || '_',
               };
             }
             console.log(`------ Filter`, JSON.stringify(filter, null, ' '));
