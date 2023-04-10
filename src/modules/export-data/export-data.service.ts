@@ -236,10 +236,13 @@ export class ExportDataService extends BaseService<ExportData> {
               ],
             };
             console.log(
-              `---- Condition is Admin or Owner`,
+              `---- Condition is ${Roles.OrganizationOwner} or ${Roles.OrganizationAdmin}`,
               data.handler.roles,
-              Roles.OrganizationOwner,
-              Roles.OrganizationAdmin,
+              `index of ${Roles.OrganizationOwner} is ${
+                data.handler.roles.indexOf[Roles.OrganizationOwner]
+              }, index of ${Roles.OrganizationAdmin} is ${
+                data.handler.roles.indexOf[Roles.OrganizationAdmin]
+              }`,
               data.handler.roles.indexOf[Roles.OrganizationOwner] >= 0 ||
                 data.handler.roles.indexOf[Roles.OrganizationAdmin] >= 0,
             );
