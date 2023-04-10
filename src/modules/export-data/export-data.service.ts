@@ -238,20 +238,21 @@ export class ExportDataService extends BaseService<ExportData> {
             console.log(
               `---- Condition is ${Roles.OrganizationOwner} or ${Roles.OrganizationAdmin}`,
               data.handler.roles,
-              `index of ${Roles.OrganizationOwner} is ${
-                data.handler.roles.indexOf[Roles.OrganizationOwner]
-              }, index of ${Roles.OrganizationAdmin} is ${
-                data.handler.roles.indexOf[Roles.OrganizationAdmin]
-              }`,
-              data.handler.roles.indexOf[Roles.OrganizationOwner] >= 0 ||
-                data.handler.roles.indexOf[Roles.OrganizationAdmin] >= 0,
+              `index of ${
+                Roles.OrganizationOwner
+              } is ${data.handler.roles.indexOf(
+                Roles.OrganizationOwner,
+              )}, index of ${
+                Roles.OrganizationAdmin
+              } is ${data.handler.roles.indexOf(Roles.OrganizationAdmin)}`,
+              data.handler.roles.indexOf(Roles.OrganizationOwner) >= 0 ||
+                data.handler.roles.indexOf(Roles.OrganizationAdmin) >= 0,
             );
             if (
-              data.handler.roles.indexOf[Roles.OrganizationOwner] >= 0 ||
-              data.handler.roles.indexOf[Roles.OrganizationAdmin] >= 0
+              data.handler.roles.indexOf(Roles.OrganizationOwner) >= 0 ||
+              data.handler.roles.indexOf(Roles.OrganizationAdmin) >= 0
             ) {
               filter.where = {};
-              console.log(`---- Condition ok`);
             }
             filter.where = {};
             console.log(`------ Filter`, JSON.stringify(filter, null, ' '));
