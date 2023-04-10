@@ -233,6 +233,7 @@ export class ExportDataService extends BaseService<ExportData> {
                 'fieldStaffCode',
                 'priority',
                 'status',
+                'contractCodes',
               ],
             };
             console.log(
@@ -270,14 +271,22 @@ export class ExportDataService extends BaseService<ExportData> {
           case ExportData_FromDocuments.Activities: {
             const fromDate = new Date(datasource.where.from);
             const toDate = new Date(datasource.where.to);
-            const filter = {
+            const filter: any = {
               where: {
+                staffCode: data.handler.staffCode || '_',
+              },
+            };
+            if (
+              data.handler.roles.indexOf(Roles.OrganizationOwner) >= 0 ||
+              data.handler.roles.indexOf(Roles.OrganizationAdmin) >= 0
+            ) {
+              filter.where = {
                 $and: [
                   { performAt: { $gte: fromDate } },
                   { performAt: { $lte: toDate } },
                 ],
-              },
-            };
+              };
+            }
             console.log(`------ Filter`, JSON.stringify(filter, null, ' '));
             const activities = await this.activitiesRepository.find(filter);
             console.log(`------ Activities`, activities.length);

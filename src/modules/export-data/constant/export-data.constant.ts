@@ -249,4 +249,15 @@ export const CustomersToExcelSchema = [
     type: String,
     value: (obj) => obj.status,
   },
+  {
+    column: 'contractCodes',
+    type: String,
+    value: (obj) => {
+      if (obj.contractCodes) {
+        return obj.contractCodes.join(',');
+      } else {
+        return '';
+      }
+    },
+  },
 ];
