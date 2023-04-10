@@ -12,6 +12,7 @@ import {
   FindManyFilter,
   FindAllResult,
 } from 'src/common/modules/base/dto/find-many.dto';
+import { Transaction } from '../transaction/entity/transaction.entity';
 
 @Injectable()
 export class DataHandlerService {
@@ -22,6 +23,8 @@ export class DataHandlerService {
     private readonly contractsRepository: MongoRepository<Contract>,
     @InjectRepository(Activity)
     private readonly activitiesRepository: MongoRepository<Activity>,
+    @InjectRepository(Transaction)
+    private readonly transactionsRepository: MongoRepository<Transaction>,
   ) {}
 
   async processCustomerData(handler: DataHandler): Promise<any> {
@@ -38,6 +41,12 @@ export class DataHandlerService {
       });
       const activities = await this.activitiesRepository.find({
         where: { customerCode: customer.code, performAt: { $gt: fdom } },
+      });
+      const tracsactions = await this.transactionsRepository.find({
+        where: { customerCode: customer.code, date: { $gt: fdom } },
+        order: { date: -1 },
+        take: 1,
+        skip: 0,
       });
       const newData: any = {
         acim: 0,
@@ -99,6 +108,13 @@ export class DataHandlerService {
           };
         }
       }
+
+      if (tracsactions) {
+        if (tracsactions.length > 0) {
+          customer.lastPaidDate = tracsactions[0].date;
+        }
+      }
+
       console.log(`-- newData: `, newData);
       const updateCustomerResult = await this.customersRepository.update(
         customer.id,

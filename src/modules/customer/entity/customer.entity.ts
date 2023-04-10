@@ -170,4 +170,14 @@ export class Customer extends Base {
   lastPTPActivity: {
     [key: string]: any;
   };
+
+  //lastPaidDate
+  @Column()
+  @IsDate()
+  lastPaidDate;
+
+  //lastPaidDate
+  @Column()
+  @IsNumber()
+  lastPaidAmount;
 }

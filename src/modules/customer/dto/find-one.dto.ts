@@ -101,4 +101,12 @@ export class FindCustomerByIdResult extends BaseFindByIdResult {
   //largestOVDDays
   @Expose()
   lovdd = 0;
+
+  //lastPaidDate
+  @Expose()
+  lastPaidDate;
+
+  //lastPaidAmount
+  @Expose()
+  lastPaidAmount;
 }
