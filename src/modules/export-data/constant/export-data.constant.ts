@@ -217,3 +217,36 @@ export const OutboundCallsToExcelSchema = [
     value: (obj) => obj.result,
   },
 ];
+
+export const CustomersToExcelSchema = [
+  {
+    column: 'code',
+    type: String,
+    value: (obj) => obj.code,
+  },
+  {
+    column: 'partnerCode',
+    type: String,
+    value: (obj) => obj.partnerCode,
+  },
+  {
+    column: 'callStaffCode',
+    type: String,
+    value: (obj) => obj.callStaffCode,
+  },
+  {
+    column: 'fieldStaffCode',
+    type: String,
+    value: (obj) => obj.fieldStaffCode,
+  },
+  {
+    column: 'priority',
+    type: String,
+    value: (obj) => obj.priority,
+  },
+  {
+    column: 'status',
+    type: String,
+    value: (obj) => obj.status,
+  },
+];

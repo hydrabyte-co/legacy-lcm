@@ -44,8 +44,10 @@ import {
 } from 'src/common/modules/base/dto/find-many.dto';
 import {
   ActivitiesToExcelSchema,
+  CustomersToExcelSchema,
   OutboundCallsToExcelSchema,
 } from './constant/export-data.constant';
+import { Roles } from 'src/common/enums/roles';
 
 @Injectable()
 export class ExportDataService extends BaseService<ExportData> {
@@ -216,6 +218,42 @@ export class ExportDataService extends BaseService<ExportData> {
         const datasource = exportData.datasources[i];
         console.log(`---- Datasource`, JSON.stringify(datasource, null, ' '));
         switch (datasource.name) {
+          case ExportData_FromDocuments.Customers: {
+            const fromDate = new Date(datasource.where.from);
+            const toDate = new Date(datasource.where.to);
+            const filter: any = {
+              where: {
+                callStaffCode: data.handler.staffCode || '_',
+                status: 'active',
+              },
+              select: [
+                'code',
+                'partnerCode',
+                'callStaffCode',
+                'fieldStaffCode',
+                'priority',
+                'status',
+              ],
+            };
+            if (
+              data.handler.roles.indexOf[Roles.OrganizationOwner] >= 0 ||
+              data.handler.roles.indexOf[Roles.OrganizationAgent] >= 0
+            ) {
+              filter.where = {};
+            }
+            console.log(`------ Filter`, JSON.stringify(filter, null, ' '));
+            const customers = await this.customersRepository.find(filter);
+            console.log(`------ Customers`, customers.length);
+            exportData.results.push({
+              name: datasource.name,
+              count: customers.length,
+            });
+
+            dataArray.push(customers);
+            schemas.push(CustomersToExcelSchema);
+            sheets.push(datasource.name);
+            break;
+          }
           case ExportData_FromDocuments.Activities: {
             const fromDate = new Date(datasource.where.from);
             const toDate = new Date(datasource.where.to);
