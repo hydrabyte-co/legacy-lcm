@@ -43,7 +43,7 @@ export class DataHandlerService {
         where: { customerCode: customer.code, performAt: { $gt: fdom } },
       });
       const tracsactions = await this.transactionsRepository.find({
-        where: { customerCode: customer.code, date: { $gt: fdom } },
+        where: { customerCode: customer.code /*  date: { $gt: fdom } */ },
         order: { date: -1 },
         take: 1,
         skip: 0,

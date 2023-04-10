@@ -131,6 +131,14 @@ export class CustomerService extends BaseService<Customer> {
           filter.order = { changedAt: 1 };
           break;
         }
+        case 'lastPaidDate-desc': {
+          filter.order = { lastPaidDate: 1 };
+          break;
+        }
+        case 'lastPaidDate-desc': {
+          filter.order = { lastPaidDate: -1 };
+          break;
+        }
         case 'lastActivity.performAt-asc': {
           filter.order = { 'lastActivity.performAt': 1 };
           filter.where['lastActivity.performAt'] = { $ne: null };
