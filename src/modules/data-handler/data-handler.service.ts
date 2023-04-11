@@ -67,15 +67,15 @@ export class DataHandlerService {
         const contract = contracts[j];
         if (contract.lastPaymentDate) {
           if (i === 0 || customer.lastPaidDate === undefined) {
-            customer.lastPaidDate = contract.lastPaymentDate;
-            customer.lastPaidAmount = contract.lastPaymentAmount;
+            newData.lastPaidDate = contract.lastPaymentDate;
+            newData.lastPaidAmount = contract.lastPaymentAmount;
           } else {
             if (
               customer.lastPaidDate.getTime() <
               contract.lastPaymentDate.getTime()
             ) {
-              customer.lastPaidDate = contract.lastPaymentDate;
-              customer.lastPaidAmount = contract.lastPaymentAmount;
+              newData.lastPaidDate = contract.lastPaymentDate;
+              newData.lastPaidAmount = contract.lastPaymentAmount;
             }
           }
         }
