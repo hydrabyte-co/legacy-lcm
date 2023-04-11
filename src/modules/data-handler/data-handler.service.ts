@@ -32,22 +32,22 @@ export class DataHandlerService {
       where: { status: 'active' },
     });
     for (let i = 0; i < customers.length; i++) {
-      const customer = customers[i];
+      const customer: Customer = customers[i];
       const now = new Date();
       const fdom = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
       console.log(`${i}/${customers.length} ${customer.code}`);
-      const contracts = await this.contractsRepository.find({
+      const contracts: Contract[] = await this.contractsRepository.find({
         where: { customerCode: customer.code },
       });
-      const activities = await this.activitiesRepository.find({
+      const activities: Activity[] = await this.activitiesRepository.find({
         where: { customerCode: customer.code, performAt: { $gt: fdom } },
       });
-      const tracsactions = await this.transactionsRepository.find({
-        where: { customerCode: customer.code /*  date: { $gt: fdom } */ },
+      /* const tracsactions = await this.transactionsRepository.find({
+        where: { customerCode: customer.code  },
         order: { date: -1 },
         take: 1,
         skip: 0,
-      });
+      }); */
       const newData: any = {
         acim: 0,
         tpaim: 0,
@@ -62,8 +62,23 @@ export class DataHandlerService {
       console.log(`-- Activities: `, activities.length);
       newData.acim = activities.length;
 
+      // set lastPaidDate
       for (let j = 0; j < contracts.length; j++) {
         const contract = contracts[j];
+        if (contract.lastPaymentDate) {
+          if (i === 0 || customer.lastPaidDate === undefined) {
+            customer.lastPaidDate = contract.lastPaymentDate;
+            customer.lastPaidAmount = contract.lastPaymentAmount;
+          } else {
+            if (
+              customer.lastPaidDate.getTime() <
+              contract.lastPaymentDate.getTime()
+            ) {
+              customer.lastPaidDate = contract.lastPaymentDate;
+              customer.lastPaidAmount = contract.lastPaymentAmount;
+            }
+          }
+        }
 
         if (contract.totalPaymentAmount) {
           newData.tpaim += contract.totalPaymentAmount;
@@ -109,11 +124,12 @@ export class DataHandlerService {
         }
       }
 
-      if (tracsactions) {
+      // set lastPaidDate by transactions
+      /*  if (tracsactions) {
         if (tracsactions.length > 0) {
           newData.lastPaidDate = tracsactions[0].date;
         }
-      }
+      } */
 
       console.log(`-- newData: `, newData);
       const updateCustomerResult = await this.customersRepository.update(
