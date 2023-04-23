@@ -88,6 +88,14 @@ export class ExportDataService extends BaseService<ExportData> {
     handler: DataHandler,
   ): Promise<FindAllResult<ExportData>> {
     filter.order = { createdAt: -1 };
+    if (
+      handler.roles.indexOf(Roles.OrganizationOwner) >= 0 ||
+      handler.roles.indexOf(Roles.OrganizationAdmin) >= 0
+    ) {
+      filter.where = {};
+    } else {
+      filter.where['createdBy.userId'] = handler.userId;
+    }
     return await super.findManyWithPaging(filter, handler);
   }
 
