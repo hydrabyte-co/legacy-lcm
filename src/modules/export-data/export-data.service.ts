@@ -227,8 +227,6 @@ export class ExportDataService extends BaseService<ExportData> {
         console.log(`---- Datasource`, JSON.stringify(datasource, null, ' '));
         switch (datasource.name) {
           case ExportData_FromDocuments.Customers: {
-            const fromDate = new Date(datasource.where.from);
-            const toDate = new Date(datasource.where.to);
             const filter: any = {
               where: {
                 callStaffCode: '_',
@@ -283,8 +281,6 @@ export class ExportDataService extends BaseService<ExportData> {
             break;
           }
           case ExportData_FromDocuments.Activities: {
-            const fromDate = new Date(datasource.where.from);
-            const toDate = new Date(datasource.where.to);
             const filter: any = {
               where: {
                 staffCode: '_',
@@ -294,12 +290,16 @@ export class ExportDataService extends BaseService<ExportData> {
               data.handler.roles.indexOf(Roles.OrganizationOwner) >= 0 ||
               data.handler.roles.indexOf(Roles.OrganizationAdmin) >= 0
             ) {
-              filter.where = {
-                $and: [
-                  { performAt: { $gte: fromDate } },
-                  { performAt: { $lte: toDate } },
-                ],
-              };
+              if (datasource.where.from && datasource.where.to) {
+                const fromDate = new Date(datasource.where.from);
+                const toDate = new Date(datasource.where.to);
+                filter.where = {
+                  $and: [
+                    { performAt: { $gte: fromDate } },
+                    { performAt: { $lte: toDate } },
+                  ],
+                };
+              }
             }
             if (data.handler.roles.indexOf(Roles.OrganizationAgent) >= 0) {
               filter.where = {
@@ -320,7 +320,9 @@ export class ExportDataService extends BaseService<ExportData> {
             break;
           }
           case ExportData_FromDocuments.OutboundCalls: {
-            const apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${datasource.where.from}&to=${datasource.where.to}&pageSize=20000`;
+            const from = datasource.where?.from || '';
+            const to = datasource.where?.to || '';
+            const apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${from}&to=${to}&pageSize=20000`;
             const config: AxiosRequestConfig = {
               method: 'get',
               maxBodyLength: Infinity,
