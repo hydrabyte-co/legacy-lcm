@@ -240,6 +240,16 @@ export const CustomersToExcelSchema = [
     value: (obj) => obj.fieldStaffCode,
   },
   {
+    column: 'fullname',
+    type: String,
+    value: (obj) => obj.fullname,
+  },
+  {
+    column: 'temporaryAddress',
+    type: String,
+    value: (obj) => obj.temporaryAddress,
+  },
+  {
     column: 'priority',
     type: Number,
     value: (obj) => obj.priority,
@@ -248,6 +258,16 @@ export const CustomersToExcelSchema = [
     column: 'status',
     type: String,
     value: (obj) => obj.status,
+  },
+  {
+    column: 'lastPTPActivity.ptpAmount',
+    type: String,
+    value: (obj) => obj.ptpAmount,
+  },
+  {
+    column: 'lastPTPActivity.ptpDate',
+    type: String,
+    value: (obj) => obj.ptpDate,
   },
   {
     column: 'contractCodes',
