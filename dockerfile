@@ -1,12 +1,12 @@
-FROM node:16.14.2-slim AS BASEIMAGE
+FROM node:18-alpine AS BASEIMAGE
 
 WORKDIR /src
 COPY package*.json ./
-RUN npm i --legacy-peer-deps
+RUN npm i
 COPY . .
 RUN npm run prebuild && npm run build && npm prune --production
 
-FROM node:16.14.2-slim
+FROM node:18-alpine
 
 WORKDIR /src
 ENV TZ=Asia/Ho_Chi_Minh
