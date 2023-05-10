@@ -445,6 +445,7 @@ export class ImportDataService extends BaseService<ImportData> {
                     row.status = 'active';
                   }
                   if (row.dob) row.dob = row.dob.toISOString().split('T')[0];
+                  if (row.callStaffCode === '') row.callStaffCode = '_';
                   row.fromFile = importData.fileName;
                   console.log(
                     `------ Row(${j}/${readResult.rows.length}) handled data`,
