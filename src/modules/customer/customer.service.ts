@@ -200,6 +200,16 @@ export class CustomerService extends BaseService<Customer> {
           filter.order = { ['lastActivity.performAt']: -1 };
           break;
         }
+        case 'sol-wo': {
+          filter.where['statusOfLoan'] = 'WO';
+          filter.order = { ['lastActivity.performAt']: -1 };
+          break;
+        }
+        case 'sol-non-wo': {
+          filter.where['statusOfLoan'] = 'NON_WO';
+          filter.order = { ['lastActivity.performAt']: -1 };
+          break;
+        }
         case 'fullname-asc':
         default: {
           filter.order = { fullname: 1 };
