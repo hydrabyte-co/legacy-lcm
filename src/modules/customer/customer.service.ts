@@ -201,12 +201,12 @@ export class CustomerService extends BaseService<Customer> {
           break;
         }
         case 'sol-wo': {
-          filter.where['statusOfLoan'] = 'WO';
+          filter.where['sols'] = 'WO';
           filter.order = { ['lastActivity.performAt']: -1 };
           break;
         }
         case 'sol-non-wo': {
-          filter.where['statusOfLoan'] = 'NON_WO';
+          filter.where['sols'] = 'NON_WO';
           filter.order = { ['lastActivity.performAt']: -1 };
           break;
         }

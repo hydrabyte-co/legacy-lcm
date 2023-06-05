@@ -37,7 +37,7 @@ export class DataHandlerService {
       const fdom = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
       console.log(`${i}/${customers.length} ${customer.code}`);
       const contracts: Contract[] = await this.contractsRepository.find({
-        where: { customerCode: customer.code },
+        where: { customerCode: customer.code, status: 'active' },
       });
       const activities: Activity[] = await this.activitiesRepository.find({
         where: { customerCode: customer.code, performAt: { $gt: fdom } },
@@ -56,6 +56,7 @@ export class DataHandlerService {
         tbim: 0,
         lovdd: 0,
         contractCodes: [],
+        sols: [],
       };
       let largestOVDDays = 0;
       console.log(`-- Contracts: `, contracts.length);
@@ -97,6 +98,9 @@ export class DataHandlerService {
         // Generate contractCodes array
         if (newData.contractCodes.indexOf(contract.code) < 0) {
           newData.contractCodes.push(contract.code);
+        }
+        if (newData.sols.indexOf(contract.statusOfLoan) < 0) {
+          newData.sols.push(contract.statusOfLoan);
         }
       }
       newData.lovdd = largestOVDDays;

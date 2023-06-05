@@ -145,6 +145,10 @@ export class Customer extends Base {
   @IsArray()
   rcim: string[] = [];
 
+  @Column()
+  @IsArray()
+  sols: string[] = [];
+
   //contractCodes
   @Column()
   @IsArray()

@@ -94,6 +94,9 @@ export class FindCustomerByIdResult extends BaseFindByIdResult {
   @Expose()
   rcim: string[] = [];
 
+  @Expose()
+  sols: string[] = [];
+
   //totalBalanceInMonth
   @Expose()
   tbim = 0;

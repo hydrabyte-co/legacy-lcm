@@ -225,6 +225,9 @@ export class UpdateCustomerResult extends UpdateOneResult {
   @Expose()
   rcim: string[] = [];
 
+  @Expose()
+  sols: string[] = [];
+
   //totalBalanceInMonth
   @Expose()
   tbim = 0;
