@@ -209,7 +209,7 @@ export const ContractXlsxSchema = {
   },
   dueDayOfMonth: {
     prop: 'dueDayOfMonth',
-    type: Number,
+    type: Date,
     required: false,
   },
   bucket: {
