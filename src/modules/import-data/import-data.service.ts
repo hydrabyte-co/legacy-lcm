@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
@@ -157,7 +157,7 @@ export class ImportDataService extends BaseService<ImportData> {
   }
 
   async updateOne(
-    id: ObjectID,
+    id: string,
     data: UpdateImportDataData,
     handler: DataHandler,
   ): Promise<any> {
@@ -229,15 +229,18 @@ export class ImportDataService extends BaseService<ImportData> {
   }
 
   async handleProcessFile(data: {
-    importDataId: ObjectID;
+    importDataId: string;
     handler: DataHandler;
   }): Promise<any> {
     console.log(``);
     console.log(``);
     console.log(`Process Data File`);
     console.log(`-- Received data from message queue`, data);
-    const importData = await this.importDatasRepository.findOne(
-      data.importDataId,
+    const importData = await this.importDatasRepository.findOneBy(
+      {
+        _id: ObjectId.createFromHexString(data.importDataId),
+      },
+      //data.importDataId,
     );
     console.log(`-- Data file`, importData);
     if (importData) {
@@ -848,7 +851,7 @@ export class ImportDataService extends BaseService<ImportData> {
       }
     }
     const updateImportDataResult = await super.updateOne(
-      importData.id,
+      importData.id.toString(),
       { status: ImportData_Status.Done, info: importData.info },
       data.handler,
     );

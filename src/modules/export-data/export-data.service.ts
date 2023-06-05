@@ -4,7 +4,7 @@ import writeXlsxFile from 'write-excel-file/node';
 import * as fs from 'fs';
 import * as path from 'path';
 import axios, { AxiosRequestConfig } from 'axios';
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
@@ -124,7 +124,7 @@ export class ExportDataService extends BaseService<ExportData> {
   }
 
   /*   async updateOne(
-    id: ObjectID,
+    id: ObjectId,
     data: UpdateExportDataData,
     handler: DataHandler,
   ): Promise<any> {
@@ -197,15 +197,16 @@ export class ExportDataService extends BaseService<ExportData> {
   }
 
   async handleProcessExportData(data: {
-    exportDataId: ObjectID;
+    exportDataId: string;
     handler: DataHandler;
   }): Promise<any> {
     console.log(``);
     console.log(``);
     console.log(`Process Export Data request`);
     console.log(`-- Received data from message queue`, data);
-    const exportData = await this.exportDatasRepository.findOne(
-      data.exportDataId,
+    const exportData = await this.exportDatasRepository.findOneBy(
+      //data.exportDataId,
+      { _id: ObjectId.createFromHexString(data.exportDataId) },
     );
     const schemas = [];
     const sheets = [];

@@ -1,4 +1,4 @@
-import { ObjectID } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
@@ -189,7 +189,7 @@ export class ActivityService extends BaseService<Activity> {
     }
   }
   async updateOne(
-    id: ObjectID,
+    id: string,
     data: any,
     handler: DataHandler,
   ): Promise<Activity> {
