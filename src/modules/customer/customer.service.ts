@@ -30,13 +30,14 @@ export class CustomerService extends BaseService<Customer> {
     filter: FindManyFilter,
     handler: DataHandler,
   ): Promise<FindAllResult<Customer>> {
+    console.log('filter', filter);
     if (filter.where.query) {
       const phoneRegex = /^0[1-9][0-9]+$/;
       const numberRegex = /^([1-9]|00)[0-9]+$/;
       const codeRegex = /^[a-zA-Z]+-[0-9]+$/;
       const emailRegex = /^[a-z0-9.-_]+\@[a-z0-9.-_]+$/;
+      const codesRegex = /^([a-zA-Z]+-[0-9]+)(([ \t])[a-zA-Z]+-[0-9]+)*$/;
 
-      console.log(filter.where.query);
       if (phoneRegex.test(filter.where.query)) {
         // filter.where.mobileNumber = filter.where.query;
         filter.where.$or = [
@@ -51,6 +52,10 @@ export class CustomerService extends BaseService<Customer> {
         ];
       } else if (codeRegex.test(filter.where.query)) {
         filter.where.code = filter.where.query;
+      } else if (codesRegex.test(filter.where.query)) {
+        filter.where.code = {
+          $in: filter.where.query.replace(/\n/g, ' ').split(' '),
+        };
       } else if (emailRegex.test(filter.where.query)) {
         filter.where.email = filter.where.query;
       } else {
@@ -62,7 +67,129 @@ export class CustomerService extends BaseService<Customer> {
         ];
       }
     }
-    filter.order.fullname = 1;
+    // filter.order.fullname = 1;
+    if (filter.where.sortBy) {
+      switch (filter.where.sortBy) {
+        case 'fullname-asc': {
+          filter.order = { fullname: 1 };
+          break;
+        }
+        case 'fullname-desc': {
+          filter.order = { fullname: -1 };
+          break;
+        }
+        case 'priority-asc': {
+          filter.order = { priority: 1 };
+          filter.where.priority = { $gte: 1 };
+          break;
+        }
+        case 'priority-desc': {
+          filter.order = { priority: -1 };
+          filter.where.priority = { $gte: 1 };
+          break;
+        }
+        case 'customerCode-asc': {
+          filter.order = { customerCode: 1 };
+          break;
+        }
+        case 'customerCode-desc': {
+          filter.order = { customerCode: -1 };
+          break;
+        }
+        case 'acim-asc': {
+          filter.order = { acim: 1 };
+          break;
+        }
+        case 'acim-desc': {
+          filter.order = { acim: -1 };
+          break;
+        }
+        case 'tpaim-asc': {
+          filter.order = { tpaim: 1 };
+          break;
+        }
+        case 'tpaim-desc': {
+          filter.order = { tpaim: -1 };
+          break;
+        }
+        case 'tbim-asc': {
+          filter.order = { tbim: 1 };
+          break;
+        }
+        case 'tbim-desc': {
+          filter.order = { tbim: -1 };
+          break;
+        }
+        case 'lovdd-asc': {
+          filter.order = { lovdd: 1 };
+          break;
+        }
+        case 'lovdd-desc': {
+          filter.order = { lovdd: -1 };
+          break;
+        }
+        case 'update-desc': {
+          filter.order = { changedAt: -1 };
+          break;
+        }
+        case 'update-asc': {
+          filter.order = { changedAt: 1 };
+          break;
+        }
+        case 'lastPaidDate-asc': {
+          filter.order = { lastPaidDate: 1 };
+          filter.where['lastPaidDate'] = { $ne: null };
+          break;
+        }
+        case 'lastPaidDate-desc': {
+          filter.order = { lastPaidDate: -1 };
+          filter.where['lastPaidDate'] = { $ne: null };
+          break;
+        }
+        case 'lastActivity.performAt-asc': {
+          filter.order = { 'lastActivity.performAt': 1 };
+          filter.where['lastActivity.performAt'] = { $ne: null };
+          break;
+        }
+        case 'lastActivity.performAt-desc': {
+          filter.order = { 'lastActivity.performAt': -1 };
+          filter.where['lastActivity.performAt'] = { $ne: null };
+          break;
+        }
+        case 'lastPTPActivity.ptpAmount-asc': {
+          filter.order = { ['lastPTPActivity.ptpAmount']: 1 };
+          filter.where['lastPTPActivity.ptpAmount'] = { $ne: null };
+          break;
+        }
+        case 'lastPTPActivity.ptpAmount-desc': {
+          filter.order = { ['lastPTPActivity.ptpAmount']: -1 };
+          filter.where['lastPTPActivity.ptpAmount'] = { $ne: null };
+          break;
+        }
+
+        case 'lastPTPActivity.ptpDate-asc': {
+          filter.order = { ['lastPTPActivity.ptpDate']: 1 };
+          filter.where['lastPTPActivity.ptpDate'] = { $ne: null };
+          break;
+        }
+        case 'lastPTPActivity.ptpDate-desc': {
+          filter.order = { ['lastPTPActivity.ptpDate']: -1 };
+          filter.where['lastPTPActivity.ptpDate'] = { $ne: null };
+          break;
+        }
+
+        case 'ptp-date-desc': {
+          filter.order = { ['lastPTPActivity.ptpDate']: -1 };
+          filter.where['lastPTPActivity.ptpDate'] = { $ne: null };
+          break;
+        }
+        case 'ptp-date-asc': {
+          filter.order = { ['lastPTPActivity.ptpDate']: 1 };
+          filter.where['lastPTPActivity.ptpDate'] = { $ne: null };
+          break;
+        }
+      }
+    }
     if (filter.where.searchBy) {
       switch (filter.where.searchBy) {
         case 'fullname-asc': {
@@ -202,16 +329,20 @@ export class CustomerService extends BaseService<Customer> {
         }
         case 'sol-wo': {
           filter.where['sols'] = 'WO';
-          filter.order = { ['lastActivity.performAt']: -1 };
+          console.log(filter.order);
+          if (JSON.stringify(filter.order) === '{}') {
+            filter.order = { ['lastActivity.performAt']: -1 };
+          }
           break;
         }
         case 'sol-non-wo': {
           filter.where['sols'] = 'NON_WO';
-          filter.order = { ['lastActivity.performAt']: -1 };
+          if (JSON.stringify(filter.order) === '{}') {
+            filter.order = { ['lastActivity.performAt']: -1 };
+          }
           break;
         }
-        case 'fullname-asc':
-        default: {
+        case 'fullname-asc': {
           filter.order = { fullname: 1 };
           break;
         }
