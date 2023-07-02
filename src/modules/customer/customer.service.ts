@@ -12,6 +12,8 @@ import {
 } from 'src/common/modules/base/dto/find-many.dto';
 import { Contract } from '../contract/entity/contract.entity';
 import { Activity } from '../activity/entity/activity.entity';
+import { Reference } from '../reference/entity/reference.entity';
+import { Investigation } from '../investigation/entity/investigation.entity';
 
 @Injectable()
 export class CustomerService extends BaseService<Customer> {

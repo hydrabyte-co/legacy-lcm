@@ -10,14 +10,27 @@ import { ActivityModule } from '../activity/activity.module';
 import { DataHandlerService } from './data-handler.service';
 import { TransactionModule } from '../transaction/transaction.module';
 import { Transaction } from '../transaction/entity/transaction.entity';
+import { Reference } from '../reference/entity/reference.entity';
+import { Investigation } from '../investigation/entity/investigation.entity';
+import { ReferenceModule } from '../reference/reference.module';
+import { InvestigationModule } from '../investigation/investigation.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Customer, Contract, Activity, Transaction]),
+    TypeOrmModule.forFeature([
+      Customer,
+      Contract,
+      Activity,
+      Transaction,
+      Reference,
+      Investigation,
+    ]),
     CustomerModule,
     ContractModule,
     ActivityModule,
     TransactionModule,
+    ReferenceModule,
+    InvestigationModule,
   ],
   controllers: [DataHandlerController],
   providers: [DataHandlerService],

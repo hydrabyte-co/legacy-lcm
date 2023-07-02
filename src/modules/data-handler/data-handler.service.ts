@@ -13,6 +13,8 @@ import {
   FindAllResult,
 } from 'src/common/modules/base/dto/find-many.dto';
 import { Transaction } from '../transaction/entity/transaction.entity';
+import { Reference } from '../reference/entity/reference.entity';
+import { Investigation } from '../investigation/entity/investigation.entity';
 
 @Injectable()
 export class DataHandlerService {
@@ -25,6 +27,10 @@ export class DataHandlerService {
     private readonly activitiesRepository: MongoRepository<Activity>,
     @InjectRepository(Transaction)
     private readonly transactionsRepository: MongoRepository<Transaction>,
+    @InjectRepository(Reference)
+    private readonly referencesRepository: MongoRepository<Reference>,
+    @InjectRepository(Investigation)
+    private readonly investigationsRepository: MongoRepository<Investigation>,
   ) {}
 
   async processCustomerData(handler: DataHandler): Promise<any> {
@@ -143,5 +149,100 @@ export class DataHandlerService {
       console.log(`-- update result: `, updateCustomerResult.affected);
     }
     return {};
+  }
+
+  async queryContacts(query: any, handler: DataHandler): Promise<any[]> {
+    const contacts: {
+      customer: {
+        id: string;
+        code: string;
+        fullname: string;
+        phonenumber: string;
+      };
+      type: string;
+      fullname: string;
+      phonenumber: string;
+    }[] = [];
+    if (query.phone) {
+      const phoneRegex = /^0[1-9][0-9]+$/;
+      if (phoneRegex.test(query.phone)) {
+        const customers = await this.customersRepository.find({
+          where: {
+            $or: [{ mobileNumber: query.phone }, { officeNumber: query.phone }],
+          },
+        });
+        if (customers && customers.length > 0) {
+          for (let i = 0; i < customers.length; i++) {
+            const customer = customers[i];
+            contacts.push({
+              customer: {
+                id: customer.id.toString(),
+                code: customer.code,
+                fullname: customer.fullname,
+                phonenumber: customer.mobileNumber,
+              },
+              type: 'customer',
+              fullname: customer.fullname,
+              phonenumber: query.phone,
+            });
+          }
+        }
+        const references = await this.referencesRepository.find({
+          where: {
+            mobileNumber: query.phone,
+          },
+        });
+        if (references && references.length > 0) {
+          for (let i = 0; i < references.length; i++) {
+            const reference = references[i];
+            const customer = await this.customersRepository.findOneBy({
+              code: reference.customerCode,
+            });
+            if (customer) {
+              contacts.push({
+                customer: {
+                  id: customer.id.toString(),
+                  code: customer.code,
+                  fullname: customer.fullname,
+                  phonenumber: customer.mobileNumber,
+                },
+                type: reference.relationCode,
+                fullname: reference.fullname,
+                phonenumber: query.phone,
+              });
+            }
+          }
+        }
+        const investigations = await this.investigationsRepository.find({
+          where: {
+            typeCode: 'phone-number',
+            value: '0912205468',
+          },
+        });
+        if (investigations && investigations.length > 0) {
+          for (let i = 0; i < investigations.length; i++) {
+            const investigation = investigations[i];
+            const customer = await this.customersRepository.findOneBy({
+              code: investigation.customerCode,
+            });
+            if (customer) {
+              contacts.push({
+                customer: {
+                  id: customer.id.toString(),
+                  code: customer.code,
+                  fullname: customer.fullname,
+                  phonenumber: customer.mobileNumber,
+                },
+                type: 'investigation',
+                fullname: investigation.note,
+                phonenumber: query.phone,
+              });
+            }
+          }
+        }
+      }
+    }
+
+    return contacts;
   }
 }
