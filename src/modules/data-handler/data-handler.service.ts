@@ -34,13 +34,30 @@ export class DataHandlerService {
   ) {}
 
   async processCustomerData(handler: DataHandler): Promise<any> {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
     const customers = await this.customersRepository.find({
       where: { status: 'active' },
     });
+    const staffCodes = [...new Set(customers.map((c) => c.callStaffCode))];
+    const performances = [];
+    for (let i = 0; i < staffCodes.length; i++) {
+      const staffCode = staffCodes[i];
+      performances.push({
+        year: year,
+        month: month + 1,
+        staffCode: staffCode,
+        targets: [],
+        results: [],
+      });
+    }
     for (let i = 0; i < customers.length; i++) {
       const customer: Customer = customers[i];
-      const now = new Date();
-      const fdom = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+      const performance = performances.find(
+        (p) => p.staffCode === customer.callStaffCode,
+      );
+      const fdom = new Date(year, month, 1, 0, 0, 0);
       console.log(`${i}/${customers.length} ${customer.code}`);
       const contracts: Contract[] = await this.contractsRepository.find({
         where: { customerCode: customer.code, status: 'active' },
@@ -216,7 +233,7 @@ export class DataHandlerService {
         const investigations = await this.investigationsRepository.find({
           where: {
             typeCode: 'phone-number',
-            value: '0912205468',
+            value: query.phone,
           },
         });
         if (investigations && investigations.length > 0) {
