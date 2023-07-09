@@ -69,12 +69,12 @@ export const CustomerXlsxSchema = {
     type: String,
     required: false,
   },
-  officeAddress: {
+  businessAddress: {
     prop: 'officeAddress',
     type: String,
     required: false,
   },
-  officeName: {
+  companyName: {
     prop: 'officeName',
     type: String,
     required: false,
@@ -182,12 +182,12 @@ export const ContractXlsxSchema = {
     type: Number,
     required: false,
   },
-  totalPaymentAmountFromPartner: {
+  totalPaymentPartner: {
     prop: 'totalPaymentAmountFromPartner',
     type: Number,
     required: false,
   },
-  totalPaymentAmount: {
+  totalPayment: {
     prop: 'totalPaymentAmount',
     type: Number,
     required: false,
