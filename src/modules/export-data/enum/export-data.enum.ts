@@ -6,6 +6,7 @@ export enum ExportData_FromDocuments {
   References = 'references',
   Transactions = 'transactions',
   OutboundCalls = 'outbound-calls',
+  InboundCalls = 'inbound-calls',
 }
 
 export enum ExportData_OutputFileType {

@@ -327,7 +327,50 @@ export class ExportDataService extends BaseService<ExportData> {
           case ExportData_FromDocuments.OutboundCalls: {
             const from = datasource.where?.from || '';
             const to = datasource.where?.to || '';
-            const apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${from}&to=${to}&pageSize=20000`;
+            const apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${from}&to=${to}&pageSize=90000`;
+            const config: AxiosRequestConfig = {
+              method: 'get',
+              maxBodyLength: Infinity,
+              url: apiURL,
+              headers: {
+                Authorization: data.handler.accessToken,
+              },
+            };
+            console.log(`------ Call Axios config`, config);
+            const getCallsResult = await axios(config)
+              .then(function (response) {
+                return {
+                  error: undefined,
+                  data: response.data,
+                };
+              })
+              .catch(function (error) {
+                console.log(error);
+                return {
+                  error: {
+                    code: '',
+                    message: error.messaage,
+                  },
+                  data: undefined,
+                };
+              });
+
+            if (getCallsResult.data) {
+              if (getCallsResult.data.data) {
+                const calls = getCallsResult.data.data;
+                console.log(`------ Calls`, calls.length);
+                dataArray.push(calls);
+                schemas.push(OutboundCallsToExcelSchema);
+                sheets.push(datasource.name);
+              }
+            }
+            break;
+          }
+
+          case ExportData_FromDocuments.InboundCalls: {
+            const from = datasource.where?.from || '';
+            const to = datasource.where?.to || '';
+            const apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=inbound&from=${from}&to=${to}&pageSize=90000`;
             const config: AxiosRequestConfig = {
               method: 'get',
               maxBodyLength: Infinity,
