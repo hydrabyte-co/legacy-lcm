@@ -16,6 +16,7 @@ import { ReferenceModule } from './modules/reference/reference.module';
 import { InvestigationModule } from './modules/investigation/investigation.module';
 import { DataHandlerModule } from './modules/data-handler/data-handler.module';
 import { ExportDataModule } from './modules/export-data/export-data.module';
+import { PerformanceModule } from './modules/performance/performance.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ExportDataModule } from './modules/export-data/export-data.module';
     TransactionModule,
     ReferenceModule,
     InvestigationModule,
+    PerformanceModule,
     DataHandlerModule,
   ],
   controllers: [AppController],
