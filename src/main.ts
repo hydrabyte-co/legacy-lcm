@@ -6,6 +6,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const appType = process.env.APP_TYPE || 'api';
+  const apiPort = process.env.API_PORT || 3000;
 
   console.log(`App is starting in type '${appType}'`);
   switch (appType) {
@@ -42,7 +43,7 @@ async function bootstrap() {
       });
       app.useGlobalPipes(new ValidationPipe());
 
-      await app.listen(3000);
+      await app.listen(apiPort);
       break;
     }
   }
