@@ -13,5 +13,17 @@ module.exports = {
         API_PORT: 3005,
       },
     },
+    {
+      name: 'lcm-ms',
+      script: 'dist/main.js',
+      args: ' ',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '1G',
+      env: {
+        NODE_ENV: 'production',
+      },
+    },
   ],
 };
