@@ -34,8 +34,11 @@ import { Services } from 'src/common/enums/services';
         name: Services.LCM,
         transport: Transport.RMQ,
         options: {
-          urls: [process.env.RABBITMQ_URL],
-          queue: `${process.env.RABBITMQ_QUEUE}`,
+          urls: [
+            process.env.RABBITMQ_URL ||
+              'amqp://admin:SecurePassword@10.0.2.30?heartbeat=30',
+          ],
+          queue: `${process.env.RABBITMQ_QUEUE || 'lcm'}`,
           queueOptions: {
             durable: true,
           },
