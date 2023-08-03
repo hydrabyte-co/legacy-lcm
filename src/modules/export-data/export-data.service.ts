@@ -264,7 +264,9 @@ export class ExportDataService extends BaseService<ExportData> {
               data.handler.roles.indexOf(Roles.OrganizationOwner) >= 0 ||
               data.handler.roles.indexOf(Roles.OrganizationAdmin) >= 0
             ) {
-              filter.where = {};
+              filter.where = {
+                status: 'active',
+              };
             }
             if (data.handler.roles.indexOf(Roles.OrganizationAgent) >= 0) {
               filter.where = {
