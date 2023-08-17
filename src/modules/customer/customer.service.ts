@@ -363,6 +363,39 @@ export class CustomerService extends BaseService<Customer> {
     ) {
       filter.where.callStaffCode = handler.staffCode || '_';
     }
+    if (handler.staffCode === '263') {
+      filter.where.callStaffCode = {
+        $in: [
+          '263',
+          '330',
+          '313',
+          '269',
+          '332',
+          '267',
+          '335',
+          '261',
+          '275',
+          '268',
+        ],
+      };
+    }
+    if (handler.staffCode === '272') {
+      filter.where.callStaffCode = {
+        $in: [
+          '272',
+          '265',
+          '125',
+          '346',
+          '350',
+          '352',
+          '358',
+          '361',
+          '363',
+          '364',
+          '365',
+        ],
+      };
+    }
     console.log(JSON.stringify(filter, null, '\t'));
     return await super.findManyWithPaging(filter, handler);
   }
