@@ -326,10 +326,16 @@ export class ExportDataService extends BaseService<ExportData> {
             sheets.push(datasource.name);
             break;
           }
+          case ExportData_FromDocuments.AnsweredOutboundCalls:
           case ExportData_FromDocuments.OutboundCalls: {
             const from = datasource.where?.from || '';
             const to = datasource.where?.to || '';
-            const apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${from}&to=${to}&pageSize=90000`;
+            let apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${from}&to=${to}&pageSize=90000`;
+            if (
+              datasource.name === ExportData_FromDocuments.AnsweredOutboundCalls
+            ) {
+              apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${from}&to=${to}&result=answered&pageSize=90000`;
+            }
             const config: AxiosRequestConfig = {
               method: 'get',
               maxBodyLength: Infinity,

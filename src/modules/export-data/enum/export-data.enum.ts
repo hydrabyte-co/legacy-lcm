@@ -5,6 +5,7 @@ export enum ExportData_FromDocuments {
   Activities = 'activities',
   References = 'references',
   Transactions = 'transactions',
+  AnsweredOutboundCalls = 'answered-outbound-calls',
   OutboundCalls = 'outbound-calls',
   InboundCalls = 'inbound-calls',
 }
