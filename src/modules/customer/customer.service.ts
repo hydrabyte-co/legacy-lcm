@@ -32,7 +32,6 @@ export class CustomerService extends BaseService<Customer> {
     filter: FindManyFilter,
     handler: DataHandler,
   ): Promise<FindAllResult<Customer>> {
-    console.log('filter', filter);
     if (filter.where.query) {
       const phoneRegex = /^0[1-9][0-9]+$/;
       const numberRegex = /^([1-9]|00)[0-9]+$/;
@@ -331,7 +330,6 @@ export class CustomerService extends BaseService<Customer> {
         }
         case 'sol-wo': {
           filter.where['sols'] = 'WO';
-          console.log(filter.order);
           if (JSON.stringify(filter.order) === '{}') {
             filter.order = { ['lastActivity.performAt']: -1 };
           }
@@ -359,10 +357,12 @@ export class CustomerService extends BaseService<Customer> {
     delete filter.where.searchBy;
     if (
       handler.roles.indexOf('org.owner') < 0 &&
-      handler.roles.indexOf('org.admin') < 0
+      handler.roles.indexOf('org.admin') < 0 &&
+      ['263', '272'].indexOf(handler.staffCode) < 0
     ) {
       filter.where.callStaffCode = handler.staffCode || '_';
     }
+    console.log(filter.where);
     if (handler.staffCode === '263') {
       const members = [
         '263',
@@ -376,11 +376,13 @@ export class CustomerService extends BaseService<Customer> {
         '275',
         '268',
       ];
-      filter.where.callStaffCode = {
-        $in: members,
-      };
-      if (members.indexOf(filter.where.staffCode) >= 0) {
-        filter.where.callStaffCode = filter.where.staffCode;
+
+      if (members.indexOf(filter.where.callStaffCode) >= 0) {
+        filter.where.callStaffCode = filter.where.callStaffCode;
+      } else {
+        filter.where.callStaffCode = {
+          $in: members,
+        };
       }
     }
     if (handler.staffCode === '272') {
@@ -397,14 +399,15 @@ export class CustomerService extends BaseService<Customer> {
         '364',
         '365',
       ];
-      filter.where.callStaffCode = {
-        $in: members,
-      };
-      if (members.indexOf(filter.where.staffCode) >= 0) {
-        filter.where.callStaffCode = filter.where.staffCode;
+      if (members.indexOf(filter.where.callStaffCode) >= 0) {
+        filter.where.callStaffCode = filter.where.callStaffCode;
+      } else {
+        filter.where.callStaffCode = {
+          $in: members,
+        };
       }
     }
-    console.log(JSON.stringify(filter, null, '\t'));
+    console.log('filter', JSON.stringify(filter, null, '\t'));
     return await super.findManyWithPaging(filter, handler);
   }
 
