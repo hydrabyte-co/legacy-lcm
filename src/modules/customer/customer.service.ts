@@ -364,37 +364,45 @@ export class CustomerService extends BaseService<Customer> {
       filter.where.callStaffCode = handler.staffCode || '_';
     }
     if (handler.staffCode === '263') {
+      const members = [
+        '263',
+        '330',
+        '313',
+        '269',
+        '332',
+        '267',
+        '335',
+        '261',
+        '275',
+        '268',
+      ];
       filter.where.callStaffCode = {
-        $in: [
-          '263',
-          '330',
-          '313',
-          '269',
-          '332',
-          '267',
-          '335',
-          '261',
-          '275',
-          '268',
-        ],
+        $in: members,
       };
+      if (members.indexOf(filter.where.staffCode) >= 0) {
+        filter.where.callStaffCode = filter.where.staffCode;
+      }
     }
     if (handler.staffCode === '272') {
+      const members = [
+        '272',
+        '265',
+        '125',
+        '346',
+        '350',
+        '352',
+        '358',
+        '361',
+        '363',
+        '364',
+        '365',
+      ];
       filter.where.callStaffCode = {
-        $in: [
-          '272',
-          '265',
-          '125',
-          '346',
-          '350',
-          '352',
-          '358',
-          '361',
-          '363',
-          '364',
-          '365',
-        ],
+        $in: members,
       };
+      if (members.indexOf(filter.where.staffCode) >= 0) {
+        filter.where.callStaffCode = filter.where.staffCode;
+      }
     }
     console.log(JSON.stringify(filter, null, '\t'));
     return await super.findManyWithPaging(filter, handler);
