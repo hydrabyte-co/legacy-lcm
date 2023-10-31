@@ -169,13 +169,17 @@ export class CustomerService extends BaseService<Customer> {
         }
 
         case 'lastPTPActivity.ptpDate-asc': {
+          const today = new Date();
+          const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
           filter.order = { ['lastPTPActivity.ptpDate']: 1 };
-          filter.where['lastPTPActivity.ptpDate'] = { $ne: null };
+          filter.where['lastPTPActivity.ptpDate'] = { $gte: firstDay };
           break;
         }
         case 'lastPTPActivity.ptpDate-desc': {
+          const today = new Date();
+          const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
           filter.order = { ['lastPTPActivity.ptpDate']: -1 };
-          filter.where['lastPTPActivity.ptpDate'] = { $ne: null };
+          filter.where['lastPTPActivity.ptpDate'] = { $gte: firstDay };
           break;
         }
 
