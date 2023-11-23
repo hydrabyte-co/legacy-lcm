@@ -426,6 +426,10 @@ export class ExportDataService extends BaseService<ExportData> {
       switch (exportData.outputFileType) {
         case ExportData_OutputFileType.Excel: {
           outFilePath += '.xlsx';
+          console.log(
+            `---- outFilePath`,
+            JSON.stringify(outFilePath, null, ' '),
+          );
           // console.log(`---- Excel Schemas`, JSON.stringify(schemas, null, ' '));
           // console.log(`---- Excel sheets`, JSON.stringify(sheets, null, ' '));
           const writeFileResult = await writeXlsxFile(dataArray, {
