@@ -23,6 +23,7 @@ module.exports = {
       max_memory_restart: '4G',
       env: {
         NODE_ENV: 'production',
+        APP_TYPE: 'microservice',
       },
     },
   ],
