@@ -17,6 +17,8 @@ import { InvestigationModule } from './modules/investigation/investigation.modul
 import { DataHandlerModule } from './modules/data-handler/data-handler.module';
 import { ExportDataModule } from './modules/export-data/export-data.module';
 import { PerformanceModule } from './modules/performance/performance.module';
+import { DataMigrationModule } from './modules/data-migration/data-migration.module';
+import { EventModule } from './modules/event/event.module';
 
 @Module({
   imports: [
@@ -42,6 +44,8 @@ import { PerformanceModule } from './modules/performance/performance.module';
     InvestigationModule,
     PerformanceModule,
     DataHandlerModule,
+    DataMigrationModule,
+    EventModule,
   ],
   controllers: [AppController],
   providers: [AppService, JWTAuthStrategy, BasicAuthStrategy],
