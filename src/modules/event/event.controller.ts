@@ -24,12 +24,12 @@ export class EventController {
   }
 
   @EventPattern(EventPatterns.MSSQLTableImport)
-  async handleMSSQLTableImport(data: any, @Ctx() context: NatsContext) {
+  async handleMSSQLTableImport(data: any) {
     const start = new Date();
     await this.eventService.handleSQLTableImport(data);
     logInfo(
       '*',
-      `EventController.handleDataMigartion -> ack after ${
+      `EventController.handleMSSQLTableImport -> ack after ${
         (new Date().getTime() - start.getTime()) / 1000
       } seconds`,
     );
