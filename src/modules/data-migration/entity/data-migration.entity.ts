@@ -23,9 +23,10 @@ export type DataMigration_Datasource = {
 };
 
 export type DataMigration_Result = {
-  totalRecords: number;
-  successRecords: number;
-  failedRecords: number;
+  totalCount: number;
+  processedCount: number;
+  successCount: number;
+  failedCount: number;
 };
 
 @Entity(Controllers.LCM_DataMigration)
@@ -34,14 +35,15 @@ export class DataMigration extends Base {
   collectionName = '';
 
   @Column()
-  condition = {};
+  filter = {};
 
   @Column()
   @IsArray()
   results: DataMigration_Result = {
-    totalRecords: 0,
-    successRecords: 0,
-    failedRecords: 0,
+    totalCount: 0,
+    processedCount: 0,
+    successCount: 0,
+    failedCount: 0,
   };
 
   @Column()

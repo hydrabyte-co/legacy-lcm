@@ -2,13 +2,14 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
+import { logInfo } from './common/utils/log-helper';
 // import { SampleWorker } from './workers/sample.worker';
 
 async function bootstrap() {
   const appType = process.env.APP_TYPE || 'api';
   const apiPort = process.env.API_PORT || 3000;
 
-  console.log(`App is starting in type '${appType}'`);
+  logInfo('*', `App is starting in type '${appType}'`);
   switch (appType) {
     case 'microservice': {
       const app = await NestFactory.createMicroservice<MicroserviceOptions>(

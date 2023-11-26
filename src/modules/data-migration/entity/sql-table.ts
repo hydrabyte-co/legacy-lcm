@@ -1,0 +1,102 @@
+import { SetMetadata } from '@nestjs/common';
+import { ControllerInfo } from 'src/common/decorators/service-info';
+
+export class MSSQLActivity {
+  refId = '';
+  contractCode = '';
+  customerCode = '';
+  staffCode = '';
+  class = '';
+  resultCode = '';
+  relationCode = '';
+  relationName = '';
+  phoneNumber = '';
+  fullname = '';
+  contactNote = '';
+  ptpDate: Date | null | undefined;
+  resultParentCode = '';
+  note = '';
+  type = '';
+  ptpAmount: number | null | undefined;
+  createdAt: Date | null | undefined;
+}
+export class MSSQLCustomer {
+  id: number | null | undefined;
+  code = '';
+  partnerCode = '';
+  callStaffCode = '';
+  fullname = '';
+  gender = '';
+  dob = '';
+  mobileNumber = '';
+  officeNumber = '';
+  temporaryAddress = '';
+  permanentAddress = '';
+  createdAt: Date | null | undefined;
+  identityNumber = '';
+  priority: number | null | undefined;
+  status = '';
+  fromFile = '';
+  officeName = '';
+  acim: number | null | undefined;
+  lovdd: number | null | undefined;
+  tbim: number | null | undefined;
+  tpafpim: number | null | undefined;
+  tpaim: number | null | undefined;
+  active = '';
+  officeAddress = '';
+  lastPaidAmount: number | null | undefined;
+}
+export class MSSQLContract {
+  id: string;
+  code = '';
+  partnerCode = '';
+  customerCode = '';
+  customerCIF = '';
+  productGroup = '';
+  originalBalance: number | null | undefined;
+  totalBalance: number | null | undefined;
+  ovdBalance: number | null | undefined;
+  performingBalance: number | null | undefined;
+  periodicalPaymentAmount: number | null | undefined;
+  prAmount: number | null | undefined;
+  inAmount: number | null | undefined;
+  psAmount: number | null | undefined;
+  ovdDays: number | null | undefined;
+  totalPaymentAmount: number | null | undefined;
+  term = '';
+  status = '';
+  isDeleted: boolean;
+  createdAt: Date | null | undefined;
+  accountNo = '';
+  statusOfLoan = '';
+  totalPayment: number | null | undefined;
+  guid = '';
+  fromFile = '';
+  totalPaymentAmountFromPartner: number | null | undefined;
+  bucket = '';
+  active = '';
+}
+export class MSSQLReference {
+  id: string;
+  customerCode = '';
+  callStaffCode = '';
+  relationCode = '';
+  mobileNumber = '';
+  isDeleted: boolean;
+  createdAt: Date | null | undefined;
+  fullname = '';
+  gender = '';
+  identityNumber = '';
+  officeNumber = '';
+  fromFile = '';
+}
+export class MSSQLInvestigation {
+  id: number | null | undefined;
+  customerCode = '';
+  staffCode = '';
+  typeCode = '';
+  value = '';
+  note = '';
+  createdAt: Date | null | undefined;
+}

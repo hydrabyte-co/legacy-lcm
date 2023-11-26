@@ -7,7 +7,7 @@ export class FindDataMigrationByIdResult extends BaseFindByIdResult {
   collectionName;
 
   @Expose()
-  condition;
+  filter;
 
   @Expose()
   results;

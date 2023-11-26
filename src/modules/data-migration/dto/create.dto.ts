@@ -24,7 +24,7 @@ export class CreateDataMigrationData extends BaseCreateData {
 
   @IsObject()
   @IsNotEmpty()
-  condition: MixedObject;
+  filter: MixedObject;
 
   @IsString()
   @MaxLength(64)
@@ -36,7 +36,7 @@ export class CreateDataMigrationResult extends BaseCreateResult {
   collectionName;
 
   @Expose()
-  condition;
+  filter;
 
   @Expose()
   results;

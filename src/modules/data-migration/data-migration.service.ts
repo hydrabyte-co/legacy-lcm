@@ -43,16 +43,16 @@ import { MessagePattern } from '../event/enum/event.enum';
 
 @Injectable()
 export class DataMigrationService extends BaseService<DataMigration> {
-  private _customersRepo: MongoRepository<Customer>;
+  /* private _customersRepo: MongoRepository<Customer>;
   private _contractsRepo: MongoRepository<Contract>;
   private _transactionsRepo: MongoRepository<Transaction>;
   private _referencesRepo: MongoRepository<Reference>;
   private _investigationsRepo: MongoRepository<Investigation>;
-  private _activitiesRepo: MongoRepository<Activity>;
+  private _activitiesRepo: MongoRepository<Activity>; */
   constructor(
     @InjectRepository(DataMigration)
     private readonly dataMigrationsRepository: MongoRepository<DataMigration>,
-    @InjectRepository(Customer)
+    /* @InjectRepository(Customer)
     private readonly customersRepository: MongoRepository<Customer>,
     @InjectRepository(Contract)
     private readonly contractsRepository: MongoRepository<Contract>,
@@ -63,16 +63,16 @@ export class DataMigrationService extends BaseService<DataMigration> {
     @InjectRepository(Investigation)
     private readonly investigationsRepository: MongoRepository<Investigation>,
     @InjectRepository(Activity)
-    private readonly activitiesRepository: MongoRepository<Activity>,
+    private readonly activitiesRepository: MongoRepository<Activity>, */
     @Inject(Services.LCM) private client: ClientProxy,
   ) {
     super(dataMigrationsRepository);
-    this._customersRepo = customersRepository;
+    /* this._customersRepo = customersRepository;
     this._contractsRepo = contractsRepository;
     this._transactionsRepo = transactionsRepository;
     this._referencesRepo = referencesRepository;
     this._investigationsRepo = investigationsRepository;
-    this._activitiesRepo = activitiesRepository;
+    this._activitiesRepo = activitiesRepository; */
   }
 
   async findManyWithPaging(
@@ -97,7 +97,7 @@ export class DataMigrationService extends BaseService<DataMigration> {
   ): Promise<any> {
     const dataMigration = new DataMigration();
     dataMigration.note = data.note;
-    dataMigration.condition = data.condition;
+    dataMigration.filter = data.filter;
     dataMigration.collectionName = data.collectionName;
     dataMigration.status = DataMigration_Status.Todo;
 
@@ -108,10 +108,12 @@ export class DataMigrationService extends BaseService<DataMigration> {
     );
 
     const createResult = await super.createOne(dataMigration, handler);
-    const emitResult = await this.client.emit(
-      MessagePattern.DataMigration,
-      JSON.stringify({ dataMigrationId: createResult.id, handler }),
-    );
+    const emitResult = await this.client.emit(MessagePattern.DataMigration, {
+      id: createResult.id,
+      collectionName: createResult.collectionName,
+      filter: createResult.filter,
+      handler,
+    });
     logInfo(`*`, `DataMigration.Service.createOne -> emitResult`, emitResult);
     const subscriberResult = await emitResult.subscribe();
     logInfo(

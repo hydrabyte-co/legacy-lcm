@@ -22,12 +22,12 @@ import { Services } from 'src/common/enums/services';
   imports: [
     TypeOrmModule.forFeature([
       DataMigration,
-      Customer,
+      /*  Customer,
       Contract,
       Transaction,
       Reference,
       Investigation,
-      Activity,
+      Activity, */
     ]),
     ClientsModule.register([
       {
@@ -45,12 +45,12 @@ import { Services } from 'src/common/enums/services';
         },
       },
     ]),
-    CustomerModule,
+    /*   CustomerModule,
     ContractModule,
     TransactionModule,
     ReferenceModule,
     InvestigationModule,
-    ActivityModule,
+    ActivityModule, */
   ],
   controllers: [DataMigrationsController],
   providers: [DataMigrationService],
