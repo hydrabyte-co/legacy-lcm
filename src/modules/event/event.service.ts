@@ -48,6 +48,7 @@ export class EventService {
     const batchSize = 1000;
     let itemsCount = 0;
     let batchCount = 0;
+    let updateStatusResult;
 
     switch (data.collectionName) {
       case DataMigration_Collections.Activities: {
@@ -73,31 +74,38 @@ export class EventService {
       default:
         break;
     }
+    if (data.filter.recordsCount > 0) {
+      if (itemsCount > data.filter.recordsCount) {
+        itemsCount = data.filter.recordsCount;
+      }
+    }
     logInfo(`*`, `EventService.handleDataMigartion -> itemsCount`, itemsCount);
     batchCount = Math.round(itemsCount / batchSize);
     //batchCount = 1;
 
-    let updateStatusResult = await this.dataMigrationRepo.updateOne(
-      {
-        _id: ObjectId.createFromHexString(data.id),
-      },
-      {
-        $set: {
-          status: DataMigration_Status.InProgress,
-          results: {
-            totalCount: itemsCount,
-            processedCount: 0,
-            successCount: 0,
-            failedCount: 0,
+    if (data.id && data.id?.length > 0) {
+      updateStatusResult = await this.dataMigrationRepo.updateOne(
+        {
+          _id: ObjectId.createFromHexString(data.id),
+        },
+        {
+          $set: {
+            status: DataMigration_Status.InProgress,
+            results: {
+              totalCount: itemsCount,
+              processedCount: 0,
+              successCount: 0,
+              failedCount: 0,
+            },
           },
         },
-      },
-    );
-    logInfo(
-      `*`,
-      `EventService.handleDataMigartion -> updateStatusResult 'in-progress'`,
-      updateStatusResult,
-    );
+      );
+      logInfo(
+        `*`,
+        `EventService.handleDataMigartion -> updateStatusResult 'in-progress'`,
+        updateStatusResult,
+      );
+    }
 
     for (let i = 0; i < batchCount; i++) {
       let documents = [];
@@ -176,18 +184,20 @@ export class EventService {
         ); */
       }
     }
+    if (data.id && data.id?.length > 0) {
+      updateStatusResult = await this.dataMigrationRepo.updateOne(
+        {
+          _id: ObjectId.createFromHexString(data.id),
+        },
+        { $set: { status: DataMigration_Status.Done } },
+      );
+      logInfo(
+        `*`,
+        `EventService.handleDataMigartion -> updateStatusResult 'done'`,
+        updateStatusResult,
+      );
+    }
 
-    updateStatusResult = await this.dataMigrationRepo.updateOne(
-      {
-        _id: ObjectId.createFromHexString(data.id),
-      },
-      { $set: { status: DataMigration_Status.Done } },
-    );
-    logInfo(
-      `*`,
-      `EventService.handleDataMigartion -> updateStatusResult 'done'`,
-      updateStatusResult,
-    );
     return {};
   }
 
@@ -357,36 +367,46 @@ export class EventService {
               default:
                 break;
             }
-            updateDataMigrationResult = await this.dataMigrationRepo.updateOne(
-              {
-                _id: ObjectId.createFromHexString(data.dataMigrationId),
-              },
-              {
-                $inc: {
-                  'results.processedCount': 1,
-                  'results.successCount': 1,
-                },
-              },
-            );
+            if (data.dataMigrationId && data.dataMigrationId?.length > 0) {
+              updateDataMigrationResult =
+                await this.dataMigrationRepo.updateOne(
+                  {
+                    _id: ObjectId.createFromHexString(data.dataMigrationId),
+                  },
+                  {
+                    $inc: {
+                      'results.processedCount': 1,
+                      'results.successCount': 1,
+                    },
+                  },
+                );
+              logInfo(
+                `*`,
+                `EventService.handleSQLTableImport -> updateDataMigrationResult`,
+                updateDataMigrationResult,
+              );
+            }
           }
-          logInfo(
-            `*`,
-            `EventService.handleSQLTableImport -> updateDataMigrationResult`,
-            updateDataMigrationResult,
-          );
         }
       }
     }
 
     if (isImportSuccess === false) {
-      const updateDataMigrationResult = await this.activityRepo.updateOne(
-        {
-          _id: ObjectId.createFromHexString(data.dataMigrationId),
-        },
-        {
-          $inc: { 'results.processedCount': 1, 'results.failedCount': 1 },
-        },
-      );
+      if (data.dataMigrationId && data.dataMigrationId?.length > 0) {
+        const updateDataMigrationResult = await this.activityRepo.updateOne(
+          {
+            _id: ObjectId.createFromHexString(data.dataMigrationId),
+          },
+          {
+            $inc: { 'results.processedCount': 1, 'results.failedCount': 1 },
+          },
+        );
+        logInfo(
+          `*`,
+          `EventService.handleSQLTableImport -> updateDataMigrationResult`,
+          updateDataMigrationResult,
+        );
+      }
     }
     return {};
   }

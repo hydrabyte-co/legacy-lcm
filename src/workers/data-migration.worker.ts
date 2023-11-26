@@ -1,0 +1,69 @@
+// import axios from 'axios';
+// import * as _ from 'lodash';
+
+import { DataHandler } from 'src/common/modules/base/entity/data.class';
+import { logInfo } from 'src/common/utils/log-helper';
+import { DataMigrationService } from 'src/modules/data-migration/data-migration.service';
+import { CreateDataMigrationData } from 'src/modules/data-migration/dto/create.dto';
+import { DataMigration } from 'src/modules/data-migration/entity/data-migration.entity';
+import { DataMigration_Collections } from 'src/modules/data-migration/enum/data-migration.enum';
+
+export class DataMigrationWorker {
+  private intervalDuration = parseInt(process.env.WORKER_INTERVAL || '10000');
+  private isTerminated: boolean;
+  private isJobProcessing: boolean;
+  private intervalJob;
+
+  // constructor() {}
+  constructor(private readonly dataMigrationService: DataMigrationService) {
+    this.isTerminated = false;
+    this.isJobProcessing = false;
+  }
+
+  async start(): Promise<void> {
+    logInfo(`*`, `Data Migration Worker is started!`);
+    if (this.intervalJob === undefined) {
+      this.intervalJob = setInterval(async () => {
+        if (!this.isJobProcessing) {
+          logInfo(`*`, `Doing job...`);
+          this.isJobProcessing = true;
+          const now = new Date();
+          const dataMigration: CreateDataMigrationData = {
+            collectionName: DataMigration_Collections.Activities,
+            note: '',
+            filter: {
+              where: {
+                $or: [
+                  {
+                    syncedAt: {
+                      $lte: now.getTime() - 1000 * 60 * 60 * 24,
+                    },
+                  },
+                  {
+                    syncedAt: null,
+                  },
+                ],
+              },
+            },
+            recordsCount: 1,
+            createdBy: new DataHandler(),
+            createdAt: undefined,
+          };
+          const createDMResult = await this.dataMigrationService.createNoData(
+            dataMigration,
+          );
+          logInfo(`*`, `DataMigrationWorker -> `, createDMResult);
+
+          this.isJobProcessing = false;
+        }
+      }, this.intervalDuration);
+    }
+  }
+
+  async terminate() {
+    logInfo(`*`, `Worker is terminating...`);
+    if (this.intervalJob) {
+      clearInterval(this.intervalJob);
+    }
+  }
+}

@@ -1,9 +1,33 @@
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import {
+  INestApplicationContext,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { MongoRepository } from 'typeorm';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
-import { logInfo } from './common/utils/log-helper';
+import { logInfo, logWarning } from './common/utils/log-helper';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { DataMigration } from './modules/data-migration/entity/data-migration.entity';
+import { Activity } from './modules/activity/entity/activity.entity';
+import { DataMigrationService } from './modules/data-migration/data-migration.service';
+import { DataMigrationWorker } from './workers/data-migration.worker';
 // import { SampleWorker } from './workers/sample.worker';
+
+let worker = undefined;
+let standAloneApp: INestApplicationContext;
+
+const handleProcessKilled = async function (code) {
+  logWarning(`*`, `Process is killing by ${code}...`);
+  if (worker) {
+    await worker.terminate();
+  }
+  if (standAloneApp) {
+    standAloneApp.close();
+  }
+  process.exit(0);
+};
 
 async function bootstrap() {
   const appType = process.env.APP_TYPE || 'api';
@@ -31,11 +55,35 @@ async function bootstrap() {
       break;
     }
     case 'worker': {
-      // const app = await NestFactory.createApplicationContext(AppModule);
-      // const productsService = app.get(ProductsService);
-      // const worker = new SampleWorker(productsService);
+      standAloneApp = await NestFactory.createApplicationContext(AppModule);
+      /*   const dataMigrationRepo = standAloneApp.get<
+        MongoRepository<DataMigration>
+      >(getRepositoryToken(DataMigration));
+      const activityRepo = standAloneApp.get<MongoRepository<Activity>>(
+        getRepositoryToken(Activity),
+      ); */
+      const dataMigrationService =
+        standAloneApp.get<DataMigrationService>(DataMigrationService);
 
-      // await worker.start();
+      worker = new DataMigrationWorker(dataMigrationService);
+
+      process.once('SIGINT', async function (code) {
+        await handleProcessKilled(code);
+      });
+
+      process.once('SIGTERM', async function (code) {
+        await handleProcessKilled(code);
+      });
+
+      process.once('SIGABRT', async function (code) {
+        await handleProcessKilled(code);
+      });
+
+      process.on('uncaughtException', async (err) => {
+        await handleProcessKilled(err.message);
+      });
+
+      worker.start();
       break;
     }
     case 'api':

@@ -127,4 +127,25 @@ export class DataMigrationService extends BaseService<DataMigration> {
     logInfo(`*`, `DataMigration.Service.createOne -> saveResult`, saveResult);
     return createResult;
   }
+
+  async createNoData(data: CreateDataMigrationData) {
+    const emitResult = await this.client.emit(MessagePattern.DataMigration, {
+      id: '',
+      collectionName: data.collectionName,
+      filter: data.filter,
+      handler: {},
+    });
+    logInfo(
+      `*`,
+      `DataMigration.Service.createNoData -> emitResult`,
+      emitResult,
+    );
+    const subscriberResult = await emitResult.subscribe();
+    logInfo(
+      `*`,
+      `DataMigration.Service.createNoData -> subscriberResult`,
+      subscriberResult,
+    );
+    return data;
+  }
 }

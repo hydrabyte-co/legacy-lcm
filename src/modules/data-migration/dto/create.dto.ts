@@ -7,6 +7,7 @@ import {
   IsObject,
   IsArray,
   IsEnum,
+  IsNumber,
 } from 'class-validator';
 import {
   CreateData as BaseCreateData,
@@ -29,6 +30,10 @@ export class CreateDataMigrationData extends BaseCreateData {
   @IsString()
   @MaxLength(64)
   note = '';
+
+  @IsOptional()
+  @IsNumber()
+  recordsCount? = 0;
 }
 @Exclude()
 export class CreateDataMigrationResult extends BaseCreateResult {
