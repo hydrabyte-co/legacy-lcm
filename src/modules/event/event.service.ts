@@ -45,7 +45,7 @@ export class EventService {
   ) {}
   async handleDataMigartion(data: any): Promise<any> {
     logInfo(`*`, `EventService.handleDataMigartion -> data`, data);
-    const batchSize = 1000;
+    let batchSize = 1000;
     let itemsCount = 0;
     let batchCount = 0;
     let updateStatusResult;
@@ -78,8 +78,12 @@ export class EventService {
       if (itemsCount > data.recordsCount) {
         itemsCount = data.recordsCount;
       }
+      if (data.recordsCount < batchSize) {
+        batchSize = data.recordsCount;
+      }
     }
     logInfo(`*`, `EventService.handleDataMigartion -> itemsCount`, itemsCount);
+
     if (itemsCount < batchSize) {
       batchCount = 1;
     } else {
