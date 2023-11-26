@@ -134,6 +134,7 @@ export class DataMigrationService extends BaseService<DataMigration> {
       collectionName: data.collectionName,
       filter: data.filter,
       handler: {},
+      recordsCount: data.recordsCount,
     });
     logInfo(
       `*`,
