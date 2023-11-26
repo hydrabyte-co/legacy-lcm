@@ -45,7 +45,7 @@ export class EventService {
   ) {}
   async handleDataMigartion(data: any): Promise<any> {
     logInfo(`*`, `EventService.handleDataMigartion -> data`, data);
-    const batchSize = 100;
+    const batchSize = 1000;
     let itemsCount = 0;
     let batchCount = 0;
 
@@ -75,7 +75,7 @@ export class EventService {
     }
     logInfo(`*`, `EventService.handleDataMigartion -> itemsCount`, itemsCount);
     batchCount = Math.round(itemsCount / batchSize);
-    batchCount = 1;
+    //batchCount = 1;
 
     let updateStatusResult = await this.dataMigrationRepo.updateOne(
       {
