@@ -80,7 +80,12 @@ export class EventService {
       }
     }
     logInfo(`*`, `EventService.handleDataMigartion -> itemsCount`, itemsCount);
-    batchCount = Math.round(itemsCount / batchSize);
+    if (itemsCount < batchSize) {
+      batchCount = 1;
+    } else {
+      batchCount = Math.round(itemsCount / batchSize);
+    }
+
     //batchCount = 1;
 
     if (data.id && data.id?.length > 0) {
