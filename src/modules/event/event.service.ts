@@ -74,9 +74,9 @@ export class EventService {
       default:
         break;
     }
-    if (data.filter.recordsCount > 0) {
-      if (itemsCount > data.filter.recordsCount) {
-        itemsCount = data.filter.recordsCount;
+    if (data.recordsCount > 0) {
+      if (itemsCount > data.recordsCount) {
+        itemsCount = data.recordsCount;
       }
     }
     logInfo(`*`, `EventService.handleDataMigartion -> itemsCount`, itemsCount);
