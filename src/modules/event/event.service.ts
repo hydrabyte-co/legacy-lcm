@@ -196,7 +196,7 @@ export class EventService {
     const connectResult = await mssql.connect(process.env.MSSQLDB_URL || '');
     const findQuery = `SELECT * FROM LCM.dbo.${data.tableName} WHERE refId='${data.data.id}'`;
     let insertQuery = ``;
-    let updateQuery = ``;
+    // let updateQuery = ``;
     switch (data.collectionName) {
       case DataMigration_Collections.Activities: {
         const importData = new MSSQLActivity();

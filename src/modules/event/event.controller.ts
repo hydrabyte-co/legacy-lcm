@@ -1,6 +1,6 @@
 import { Controller, Param, Post, Req } from '@nestjs/common';
 import { EventService } from './event.service';
-import { EventPattern } from '@nestjs/microservices';
+import { Ctx, EventPattern, NatsContext } from '@nestjs/microservices';
 import { MessagePattern as EventPatterns } from './enum/event.enum';
 import { Controllers } from 'src/common/enums/controllers';
 import { logInfo } from 'src/common/utils/log-helper';
@@ -24,7 +24,7 @@ export class EventController {
   }
 
   @EventPattern(EventPatterns.MSSQLTableImport)
-  async handleMSSQLTableImport(data: any) {
+  async handleMSSQLTableImport(data: any, @Ctx() context: NatsContext) {
     const start = new Date();
     await this.eventService.handleSQLTableImport(data);
     logInfo(
