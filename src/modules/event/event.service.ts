@@ -192,38 +192,45 @@ export class EventService {
   }
 
   async handleSQLTableImport(data: any): Promise<any> {
+    let isImportSuccess = false;
     logInfo(`*`, `EventService.handleSQLTableImport -> data`, data);
     if (data) {
-      const connectResult = await mssql.connect(process.env.MSSQLDB_URL || '');
-      const findQuery = `SELECT * FROM LCM.dbo.${data.tableName} WHERE refId='${data.data.id}'`;
-      let insertQuery = ``;
-      // let updateQuery = ``;
-      switch (data.collectionName) {
-        case DataMigration_Collections.Activities: {
-          const importData = new MSSQLActivity();
-          importData.refId = data.data?.id;
-          importData.contactNote = data.data?.contactInfo?.note;
-          importData.contractCode = data.data?.contractCode;
-          importData.createdAt = data.data?.createdAt;
-          importData.customerCode = data.data?.customerCode;
-          importData.note = data.data?.note;
-          importData.phoneNumber = data.data?.contactInfo?.phoneNumber;
-          importData.ptpAmount = data.data?.ptpAmount;
-          importData.relationCode = data.data?.contactInfo?.relation?.code;
-          importData.relationName = data.data?.contactInfo?.relation?.name;
-          importData.resultCode = data.data?.resultCode;
-          importData.resultParentCode = data.data?.resultParentCode;
-          importData.staffCode = data.data?.staffCode;
-          importData.fullname = data.data?.contactInfo?.fullname;
-          importData.type = data.data?.type;
+      let connectResult;
+      try {
+        connectResult = await mssql.connect(process.env.MSSQLDB_URL || '');
+      } catch (error) {
+        // MSSQL Connection error!
+      }
+      if (connectResult) {
+        const findQuery = `SELECT * FROM LCM.dbo.${data.tableName} WHERE refId='${data.data.id}'`;
+        let insertQuery = ``;
+        // let updateQuery = ``;
+        switch (data.collectionName) {
+          case DataMigration_Collections.Activities: {
+            const importData = new MSSQLActivity();
+            importData.refId = data.data?.id;
+            importData.contactNote = data.data?.contactInfo?.note;
+            importData.contractCode = data.data?.contractCode;
+            importData.createdAt = data.data?.createdAt;
+            importData.customerCode = data.data?.customerCode;
+            importData.note = data.data?.note;
+            importData.phoneNumber = data.data?.contactInfo?.phoneNumber;
+            importData.ptpAmount = data.data?.ptpAmount;
+            importData.relationCode = data.data?.contactInfo?.relation?.code;
+            importData.relationName = data.data?.contactInfo?.relation?.name;
+            importData.resultCode = data.data?.resultCode;
+            importData.resultParentCode = data.data?.resultParentCode;
+            importData.staffCode = data.data?.staffCode;
+            importData.fullname = data.data?.contactInfo?.fullname;
+            importData.type = data.data?.type;
 
-          for (const key in importData) {
-            if (typeof importData[key] === 'string') {
-              importData[key] = importData[key].toString().replace(/'/g, '');
+            for (const key in importData) {
+              if (typeof importData[key] === 'string') {
+                importData[key] = importData[key].toString().replace(/'/g, '');
+              }
             }
-          }
 
-          insertQuery = `INSERT INTO [dbo].[activities]
+            insertQuery = `INSERT INTO [dbo].[activities]
         ([refId]
         ,[contractCode]
         ,[customerCode]
@@ -258,65 +265,6 @@ export class EventService {
         ,N'${importData.contactNote || ''}'
         ,'${importData.ptpDate || ''}'
         ,N'${importData.fullname}')`;
-          break;
-        }
-        case DataMigration_Collections.Contracts: {
-          break;
-        }
-        case DataMigration_Collections.Customers: {
-          break;
-        }
-        case DataMigration_Collections.Investigations: {
-          break;
-        }
-        case DataMigration_Collections.References: {
-          break;
-        }
-        default:
-          break;
-      }
-
-      const findResult = await mssql.query(findQuery);
-      logInfo(
-        `*`,
-        `EventService.handleSQLTableImport -> findResult`,
-        findResult,
-      );
-      logInfo(
-        `*`,
-        `EventService.handleSQLTableImport -> importQuery`,
-        insertQuery,
-      );
-      let importResult;
-      if (findResult?.recordset?.length > 0) {
-      } else {
-        importResult = await mssql.query(insertQuery);
-      }
-      logInfo(
-        `*`,
-        `EventService.handleSQLTableImport -> importResult`,
-        importResult,
-      );
-
-      let updateDataMigrationResult;
-      if (true) {
-        switch (data.collectionName) {
-          case DataMigration_Collections.Activities: {
-            const updateDocumentResult = await this.activityRepo.updateMany(
-              {
-                _id: ObjectId.createFromHexString(data.data.id),
-              },
-              {
-                $set: {
-                  syncedAt: new Date().getTime(),
-                },
-              },
-            );
-            logInfo(
-              `*`,
-              `EventService.handleSQLTableImport -> updateDocumentResult`,
-              updateDocumentResult,
-            );
             break;
           }
           case DataMigration_Collections.Contracts: {
@@ -334,31 +282,110 @@ export class EventService {
           default:
             break;
         }
-        updateDataMigrationResult = await this.dataMigrationRepo.updateOne(
-          {
-            _id: ObjectId.createFromHexString(data.dataMigrationId),
-          },
-          {
-            $inc: {
-              'results.processedCount': 1,
-              'results.successCount': 1,
-            },
-          },
-        );
-      } else {
-        updateDataMigrationResult = await this.activityRepo.updateOne(
-          {
-            _id: ObjectId.createFromHexString(data.dataMigrationId),
-          },
-          {
-            $inc: { 'results.processedCount': 1, 'results.failedCount': 1 },
-          },
-        );
+
+        let findResult;
+        try {
+          findResult = await mssql.query(findQuery);
+        } catch (error) {
+          // MSSQL Connection error!
+        }
+        if (findResult) {
+          logInfo(
+            `*`,
+            `EventService.handleSQLTableImport -> findResult`,
+            findResult,
+          );
+          logInfo(
+            `*`,
+            `EventService.handleSQLTableImport -> importQuery`,
+            insertQuery,
+          );
+          let importResult;
+          if (findResult?.recordset?.length > 0) {
+            try {
+              importResult = await mssql.query(insertQuery);
+            } catch (error) {
+              // MSSQL Connection error!
+            }
+          } else {
+            try {
+              importResult = await mssql.query(insertQuery);
+            } catch (error) {
+              // MSSQL Connection error!
+            }
+          }
+          logInfo(
+            `*`,
+            `EventService.handleSQLTableImport -> importResult`,
+            importResult,
+          );
+
+          let updateDataMigrationResult;
+          if (importResult) {
+            isImportSuccess = true;
+            switch (data.collectionName) {
+              case DataMigration_Collections.Activities: {
+                const updateDocumentResult = await this.activityRepo.updateMany(
+                  {
+                    _id: ObjectId.createFromHexString(data.data.id),
+                  },
+                  {
+                    $set: {
+                      syncedAt: new Date().getTime(),
+                    },
+                  },
+                );
+                logInfo(
+                  `*`,
+                  `EventService.handleSQLTableImport -> updateDocumentResult`,
+                  updateDocumentResult,
+                );
+                break;
+              }
+              case DataMigration_Collections.Contracts: {
+                break;
+              }
+              case DataMigration_Collections.Customers: {
+                break;
+              }
+              case DataMigration_Collections.Investigations: {
+                break;
+              }
+              case DataMigration_Collections.References: {
+                break;
+              }
+              default:
+                break;
+            }
+            updateDataMigrationResult = await this.dataMigrationRepo.updateOne(
+              {
+                _id: ObjectId.createFromHexString(data.dataMigrationId),
+              },
+              {
+                $inc: {
+                  'results.processedCount': 1,
+                  'results.successCount': 1,
+                },
+              },
+            );
+          }
+          logInfo(
+            `*`,
+            `EventService.handleSQLTableImport -> updateDataMigrationResult`,
+            updateDataMigrationResult,
+          );
+        }
       }
-      logInfo(
-        `*`,
-        `EventService.handleSQLTableImport -> updateDataMigrationResult`,
-        updateDataMigrationResult,
+    }
+
+    if (isImportSuccess === false) {
+      const updateDataMigrationResult = await this.activityRepo.updateOne(
+        {
+          _id: ObjectId.createFromHexString(data.dataMigrationId),
+        },
+        {
+          $inc: { 'results.processedCount': 1, 'results.failedCount': 1 },
+        },
       );
     }
     return {};
