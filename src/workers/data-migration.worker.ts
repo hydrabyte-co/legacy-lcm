@@ -10,6 +10,9 @@ import { DataMigration_Collections } from 'src/modules/data-migration/enum/data-
 
 export class DataMigrationWorker {
   private intervalDuration = parseInt(process.env.WORKER_INTERVAL || '10000');
+  private migrationRecordsCount = parseInt(
+    process.env.MIGRATION_RECORDS_COUNT || '100',
+  );
   private isTerminated: boolean;
   private isJobProcessing: boolean;
   private intervalJob;
@@ -45,7 +48,7 @@ export class DataMigrationWorker {
                 ],
               },
             },
-            recordsCount: 1,
+            recordsCount: this.migrationRecordsCount,
             createdBy: new DataHandler(),
             createdAt: undefined,
           };
