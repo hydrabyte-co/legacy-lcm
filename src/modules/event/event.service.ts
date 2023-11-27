@@ -24,7 +24,11 @@ import { Investigation } from '../investigation/entity/investigation.entity';
 import { ClientProxy } from '@nestjs/microservices';
 import { Services } from 'src/common/enums/services';
 import { MessagePattern } from './enum/event.enum';
-import { MSSQLActivity } from '../data-migration/entity/sql-table';
+import {
+  MSSQLActivity,
+  MSSQLContract,
+  MSSQLCustomer,
+} from '../data-migration/entity/sql-table';
 
 @Injectable()
 export class EventService {
@@ -132,6 +136,7 @@ export class EventService {
         `*`,
         `EventService.handleDataMigartion -> documentFilter`,
         documentFilter,
+        documentFilter.where?.$or,
       );
       switch (data.collectionName) {
         case DataMigration_Collections.Activities: {
@@ -287,9 +292,64 @@ export class EventService {
             break;
           }
           case DataMigration_Collections.Contracts: {
+            const importData = new MSSQLContract();
+            const sourceData = data.data as Contract;
+            importData.accountNo = sourceData.accountNo;
+            importData.bucket = sourceData.bucket.toString();
+            importData.code = sourceData.code;
+            importData.customerCIF = sourceData.customerCIF;
+            importData.customerCode = sourceData.customerCode;
+            importData.guid = sourceData.guid;
+            importData.inAmount = sourceData.inAmount;
+            importData.originalBalance = sourceData.originalBalance;
+            importData.ovdBalance = sourceData.ovdBalance;
+            importData.ovdDays = sourceData.ovdDays;
+            importData.partnerCode = sourceData.partnerCode;
+            importData.performingBalance = sourceData.performingBalance;
+            importData.periodicalPaymentAmount =
+              sourceData.periodicalPaymentAmount;
+            importData.prAmount = sourceData.prAmount;
+            importData.productGroup = sourceData.productGroup;
+            importData.psAmount = sourceData.psAmount;
+            importData.productGroup = sourceData.productGroup;
+            importData.psAmount = sourceData.psAmount;
+            importData.refId = sourceData.id.toString();
+            importData.status = sourceData.status;
+            importData.statusOfLoan = sourceData.statusOfLoan;
+            importData.term = sourceData.term;
+            importData.totalBalance = sourceData.totalBalance;
+            importData.totalPaymentAmount = sourceData.totalPaymentAmount;
+            importData.totalPaymentAmountFromPartner =
+              sourceData.totalPaymentAmountFromPartner;
+
             break;
           }
           case DataMigration_Collections.Customers: {
+            const importData = new MSSQLCustomer();
+            const sourceData = data.data as Customer;
+            importData.acim = sourceData.acim;
+            importData.callStaffCode = sourceData.callStaffCode;
+            importData.code = sourceData.code;
+            importData.dob = sourceData.dob;
+            importData.fullname = sourceData.fullname;
+            importData.gender = sourceData.gender;
+            importData.identityNumber = sourceData.identityNumber;
+            importData.lastPaidAmount = sourceData.lastPaidAmount;
+            importData.lovdd = sourceData.lovdd;
+            importData.mobileNumber = sourceData.mobileNumber;
+            importData.officeAddress = sourceData.officeAddress;
+            importData.officeName = sourceData.officeName;
+            importData.officeNumber = sourceData.officeNumber;
+            importData.partnerCode = sourceData.partnerCode;
+            importData.permanentAddress = sourceData.permanentAddress;
+            importData.priority = sourceData.priority;
+            importData.refId = sourceData.id.toString();
+            importData.status = sourceData.status;
+            importData.tbim = sourceData.tbim;
+            importData.temporaryAddress = sourceData.temporaryAddress;
+            importData.tpafpim = sourceData.tpafpim;
+            importData.tpaim = sourceData.tpaim;
+
             break;
           }
           case DataMigration_Collections.Investigations: {
@@ -305,15 +365,15 @@ export class EventService {
         let findResult;
         try {
           findResult = await mssql.query(findQuery);
-        } catch (error) {
-          // MSSQL Connection error!
-        }
-        if (findResult) {
           logInfo(
             `*`,
             `EventService.handleSQLTableImport -> findResult`,
             findResult,
           );
+        } catch (error) {
+          // MSSQL Connection error!
+        }
+        if (findResult) {
           logInfo(
             `*`,
             `EventService.handleSQLTableImport -> importQuery`,
@@ -322,7 +382,7 @@ export class EventService {
           let importResult;
           if (findResult?.recordset?.length > 0) {
             try {
-              importResult = await mssql.query(insertQuery);
+              // importResult = await mssql.query(updateQuery);
             } catch (error) {
               // MSSQL Connection error!
             }

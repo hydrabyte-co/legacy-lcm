@@ -21,7 +21,7 @@ export class MSSQLActivity {
   createdAt: Date | null | undefined;
 }
 export class MSSQLCustomer {
-  id: number | null | undefined;
+  refId = '';
   code = '';
   partnerCode = '';
   callStaffCode = '';
@@ -48,7 +48,7 @@ export class MSSQLCustomer {
   lastPaidAmount: number | null | undefined;
 }
 export class MSSQLContract {
-  id: string;
+  refId: string;
   code = '';
   partnerCode = '';
   customerCode = '';
@@ -70,7 +70,6 @@ export class MSSQLContract {
   createdAt: Date | null | undefined;
   accountNo = '';
   statusOfLoan = '';
-  totalPayment: number | null | undefined;
   guid = '';
   fromFile = '';
   totalPaymentAmountFromPartner: number | null | undefined;
@@ -78,7 +77,7 @@ export class MSSQLContract {
   active = '';
 }
 export class MSSQLReference {
-  id: string;
+  refId: string;
   customerCode = '';
   callStaffCode = '';
   relationCode = '';
