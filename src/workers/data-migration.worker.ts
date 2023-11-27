@@ -30,20 +30,36 @@ export class DataMigrationWorker {
         if (!this.isJobProcessing) {
           logInfo(`*`, `Doing job...`);
           this.isJobProcessing = true;
-          const now = new Date();
+          const currentTimestamp = new Date().getTime();
           const dataMigration: CreateDataMigrationData = {
             collectionName: DataMigration_Collections.Activities,
             note: '',
             filter: {
               where: {
-                $or: [
+                $and: [
                   {
-                    syncedAt: {
-                      $lte: now.getTime() - 1000 * 60 * 60 * 24,
-                    },
+                    $or: [
+                      {
+                        syncedAt: {
+                          $lte: currentTimestamp - 1000 * 60 * 60 * 24,
+                        },
+                      },
+                      {
+                        syncedAt: null,
+                      },
+                    ],
                   },
                   {
-                    syncedAt: null,
+                    $or: [
+                      {
+                        queuedAt: {
+                          $lte: currentTimestamp - 1000 * 60 * 10,
+                        },
+                      },
+                      {
+                        queuedAt: null,
+                      },
+                    ],
                   },
                 ],
               },
