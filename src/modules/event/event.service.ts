@@ -360,7 +360,6 @@ export class EventService {
            ,[accountNo]
            ,[statusOfLoan]
            ,[guid]
-           ,[fromFile]
            ,[totalPaymentAmountFromPartner]
            ,[bucket])
      VALUES
@@ -370,24 +369,23 @@ export class EventService {
            ,'${importData.customerCode}'
            ,'${importData.customerCIF}'
            ,'${importData.productGroup}'
-           ,'${importData.originalBalance}'
-           ,'${importData.totalBalance}'
-           ,'${importData.ovdBalance}'
-           ,'${importData.performingBalance}'
-           ,'${importData.periodicalPaymentAmount}'
-           ,'${importData.prAmount}'
-           ,'${importData.inAmount}'
-           ,'${importData.psAmount}'
-           ,'${importData.ovdDays}'
-           ,'${importData.totalPaymentAmount}'
+           ,${importData.originalBalance || 0}
+           ,${importData.totalBalance || 0}
+           ,${importData.ovdBalance || 0}
+           ,${importData.performingBalance || 0}
+           ,${importData.periodicalPaymentAmount || 0}
+           ,${importData.prAmount || 0}
+           ,${importData.inAmount || 0}
+           ,${importData.psAmount || 0}
+           ,${importData.ovdDays || 0}
+           ,${importData.totalPaymentAmount || 0}
            ,'${importData.term}'
            ,'${importData.status}'
            ,'${importData.createdAt || ''}'
            ,'${importData.accountNo}'
            ,'${importData.statusOfLoan}'
            ,'${importData.guid}'
-           ,'${importData.fromFile}'
-           ,'${importData.totalPaymentAmountFromPartner}'
+           ,${importData.totalPaymentAmountFromPartner || 0}
            ,'${importData.bucket}')
             `;
 
@@ -475,13 +473,13 @@ export class EventService {
            }
            ,'${importData.status}'
            ,N'${importData.officeName}'
-           ,'${importData.acim || 0}'
-           ,'${importData.lovdd || 0}'
-           ,'${importData.tbim || 0}'
-           ,'${importData.tpafpim || 0}'
-           ,'${importData.tpaim || 0}'
+           ,${importData.acim || 0}
+           ,${importData.lovdd || 0}
+           ,${importData.tbim || 0}
+           ,${importData.tpafpim || 0}
+           ,${importData.tpaim || 0}
            ,N'${importData.officeAddress}'
-           ,'${importData.lastPaidAmount || 0}')
+           ,${importData.lastPaidAmount || 0})
             `;
 
             break;
