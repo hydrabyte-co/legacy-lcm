@@ -13,7 +13,7 @@ export class EventController {
   async handleDataMigartion(data: any) {
     const start = new Date();
     // logInfo('*', `EventController.handleDataMigartion -> dataString:`, data);
-    await this.eventService.handleDataMigartion(data);
+    await this.eventService.handleDataMigration(data);
     logInfo(
       '*',
       `EventController.handleDataMigartion -> ack after ${

@@ -11,7 +11,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 import { DataMigration } from '../data-migration/entity/data-migration.entity';
-import { logInfo } from 'src/common/utils/log-helper';
+import { logInfo, logWarning } from 'src/common/utils/log-helper';
 import {
   DataMigration_Collections,
   DataMigration_Status,
@@ -29,6 +29,7 @@ import {
   MSSQLContract,
   MSSQLCustomer,
   MSSQLInvestigation,
+  MSSQLReference,
 } from '../data-migration/entity/sql-table';
 
 @Injectable()
@@ -48,7 +49,7 @@ export class EventService {
     private readonly investigationRepo: MongoRepository<Investigation>,
     @Inject(Services.LCM) private client: ClientProxy,
   ) {}
-  async handleDataMigartion(data: any): Promise<any> {
+  async handleDataMigration(data: any): Promise<any> {
     logInfo(`*`, `EventService.handleDataMigartion -> data`, data);
     let batchSize = 1000;
     let updateStatusResult;
@@ -238,9 +239,14 @@ export class EventService {
         connectResult = await mssql.connect(process.env.MSSQLDB_URL || '');
       } catch (error) {
         // MSSQL Connection error!
+        logWarning(
+          `*`,
+          `EventService.handleSQLTableImport -> connectResult`,
+          connectResult,
+        );
       }
       if (connectResult) {
-        let findQuery = `SELECT * FROM LCM.dbo.${data.tableName} WHERE refId='${data.data.id}'`;
+        let findQuery = `SELECT * FROM LCM.dbo.[${data.tableName}] WHERE refId='${data.data.id}'`;
         let insertQuery = ``;
         // let updateQuery = ``;
         switch (data.collectionName) {
@@ -335,7 +341,7 @@ export class EventService {
             importData.totalBalance = sourceData.totalBalance;
             importData.totalPaymentAmount = sourceData.totalPaymentAmount;
             importData.totalPaymentAmountFromPartner =
-            sourceData.totalPaymentAmountFromPartner;
+              sourceData.totalPaymentAmountFromPartner;
 
             for (const key in importData) {
               if (typeof importData[key] === 'string') {
@@ -501,6 +507,12 @@ export class EventService {
             importData.staffCode = sourceData.staffCode;
             importData.typeCode = sourceData.typeCode;
             importData.value = sourceData.value;
+
+            for (const key in importData) {
+              if (typeof importData[key] === 'string') {
+                importData[key] = importData[key].toString().replace(/'/g, '');
+              }
+            }
             insertQuery = `
             INSERT INTO [dbo].[investigations]
      ([refId]
@@ -524,6 +536,47 @@ VALUES
             break;
           }
           case DataMigration_Collections.References: {
+            const importData = new MSSQLReference();
+            const sourceData = data.data as Reference;
+            importData.refId = sourceData.id.toString();
+            importData.customerCode = sourceData.customerCode;
+            importData.createdAt = sourceData.createdAt;
+            importData.fullname = sourceData.fullname;
+            importData.gender = sourceData.gender;
+            importData.identityNumber = sourceData.identityNumber;
+            importData.mobileNumber = sourceData.mobileNumber;
+            importData.officeNumber = sourceData.officeNumber;
+            importData.relationCode = sourceData.relationCode;
+
+            for (const key in importData) {
+              if (typeof importData[key] === 'string') {
+                importData[key] = importData[key].toString().replace(/'/g, '');
+              }
+            }
+            insertQuery = `
+            INSERT INTO [dbo].[references]
+           ([refId]
+           ,[customerCode]
+           ,[callStaffCode]
+           ,[relationCode]
+           ,[mobileNumber]
+           ,[createdAt]
+           ,[fullname]
+           ,[gender]
+           ,[identityNumber]
+           ,[officeNumber])
+     VALUES
+           ('${importData.refId}'
+           ,'${importData.customerCode}'
+           ,'${importData.callStaffCode}'
+           ,'${importData.relationCode}'
+           ,'${importData.mobileNumber}'
+           ,'${importData.createdAt || ''}'
+           ,N'${importData.fullname}'
+           ,N'${importData.gender}'
+           ,'${importData.identityNumber}'
+           ,'${importData.officeNumber}')
+            `;
             break;
           }
           default:
@@ -540,6 +593,7 @@ VALUES
           );
         } catch (error) {
           // MSSQL Connection error!
+          logWarning(`*`, `EventService.handleSQLTableImport -> findError`, error);
         }
         if (findResult) {
           logInfo(
@@ -553,7 +607,7 @@ VALUES
               // importResult = await mssql.query(updateQuery);
             } catch (error) {
               // MSSQL Connection error!
-              logInfo(
+              logWarning(
                 `*`,
                 `EventService.handleSQLTableImport -> updateError`,
                 error,

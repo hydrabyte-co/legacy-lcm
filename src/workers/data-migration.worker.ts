@@ -32,7 +32,7 @@ export class DataMigrationWorker {
           this.isJobProcessing = true;
           const currentTimestamp = new Date().getTime();
           const dataMigration: CreateDataMigrationData = {
-            collectionName: DataMigration_Collections.Investigations,
+            collectionName: DataMigration_Collections.References,
             note: '',
             filter: {
               where: {
