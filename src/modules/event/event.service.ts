@@ -239,7 +239,7 @@ export class EventService {
         // MSSQL Connection error!
       }
       if (connectResult) {
-        const findQuery = `SELECT * FROM LCM.dbo.${data.tableName} WHERE refId='${data.data.id}'`;
+        let findQuery = `SELECT * FROM LCM.dbo.${data.tableName} WHERE refId='${data.data.id}'`;
         let insertQuery = ``;
         // let updateQuery = ``;
         switch (data.collectionName) {
@@ -424,7 +424,7 @@ export class EventService {
                 importData[key] = importData[key].toString().replace(/'/g, '');
               }
             }
-
+            findQuery = `SELECT * FROM LCM.dbo.${data.tableName} WHERE code='${data.data.code}'`;
             insertQuery = `
             INSERT INTO [dbo].[customers]
            (
@@ -466,7 +466,11 @@ export class EventService {
            ,N'${importData.permanentAddress}'
            ,'${importData.createdAt || ''}'
            ,'${importData.identityNumber}'
-           ,${importData.priority !== undefined && importData.priority !== null ? importData.priority : ''}
+           ,${
+             importData.priority !== undefined && importData.priority !== null
+               ? importData.priority
+               : ''
+           }
            ,'${importData.status}'
            ,N'${importData.officeName}'
            ,'${importData.acim || 0}'
