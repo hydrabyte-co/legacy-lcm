@@ -426,7 +426,7 @@ export class EventService {
             }
 
             insertQuery = `
-            INSERT INTO [dbo].[_customers]
+            INSERT INTO [dbo].[customers]
            (
             [refId]
            ,[code]
@@ -449,7 +449,6 @@ export class EventService {
            ,[tbim]
            ,[tpafpim]
            ,[tpaim]
-           ,[active]
            ,[officeAddress]
            ,[lastPaidAmount])
      VALUES
@@ -467,7 +466,7 @@ export class EventService {
            ,N'${importData.permanentAddress}'
            ,'${importData.createdAt || ''}'
            ,'${importData.identityNumber}'
-           ,'${importData.priority}'
+           ,${importData.priority ? `'${importData.priority}'` : ''}
            ,'${importData.status}'
            ,N'${importData.officeName}'
            ,'${importData.acim || 0}'
@@ -475,9 +474,8 @@ export class EventService {
            ,'${importData.tbim || 0}'
            ,'${importData.tpafpim || 0}'
            ,'${importData.tpaim || 0}'
-           ,'${importData.active}'
            ,N'${importData.officeAddress}'
-           ,'${importData.lastPaidAmount}')
+           ,'${importData.lastPaidAmount || 0}')
             `;
 
             break;
@@ -515,12 +513,22 @@ export class EventService {
               // importResult = await mssql.query(updateQuery);
             } catch (error) {
               // MSSQL Connection error!
+              logInfo(
+                `*`,
+                `EventService.handleSQLTableImport -> updateError`,
+                error,
+              );
             }
           } else {
             try {
               importResult = await mssql.query(insertQuery);
             } catch (error) {
               // MSSQL Connection error!
+              logInfo(
+                `*`,
+                `EventService.handleSQLTableImport -> insertError`,
+                error,
+              );
             }
           }
           logInfo(
