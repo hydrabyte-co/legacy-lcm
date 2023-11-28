@@ -467,7 +467,9 @@ export class EventService {
            ,'${importData.createdAt || ''}'
            ,'${importData.identityNumber}'
            ,${
-             importData.priority !== undefined && importData.priority !== null
+             importData.priority !== undefined &&
+             importData.priority !== null &&
+             importData.priority.toString() !== ''
                ? importData.priority
                : ''
            }
