@@ -336,6 +336,7 @@ export class EventService {
             importData.totalPaymentAmountFromPartner =
               sourceData.totalPaymentAmountFromPartner;
 
+            findQuery = `SELECT * FROM LCM.dbo.${data.tableName} WHERE code='${data.data.code}'`;
             insertQuery = `
             INSERT INTO [dbo].[contracts]
            ([refId]
