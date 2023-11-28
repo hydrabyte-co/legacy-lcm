@@ -28,6 +28,7 @@ import {
   MSSQLActivity,
   MSSQLContract,
   MSSQLCustomer,
+  MSSQLInvestigation,
 } from '../data-migration/entity/sql-table';
 
 @Injectable()
@@ -334,7 +335,13 @@ export class EventService {
             importData.totalBalance = sourceData.totalBalance;
             importData.totalPaymentAmount = sourceData.totalPaymentAmount;
             importData.totalPaymentAmountFromPartner =
-              sourceData.totalPaymentAmountFromPartner;
+            sourceData.totalPaymentAmountFromPartner;
+
+            for (const key in importData) {
+              if (typeof importData[key] === 'string') {
+                importData[key] = importData[key].toString().replace(/'/g, '');
+              }
+            }
 
             findQuery = `SELECT * FROM LCM.dbo.${data.tableName} WHERE code='${data.data.code}'`;
             insertQuery = `
@@ -486,6 +493,34 @@ export class EventService {
             break;
           }
           case DataMigration_Collections.Investigations: {
+            const importData = new MSSQLInvestigation();
+            const sourceData = data.data as Investigation;
+            importData.refId = sourceData.id.toString();
+            importData.customerCode = sourceData.customerCode;
+            importData.note = sourceData.note;
+            importData.staffCode = sourceData.staffCode;
+            importData.typeCode = sourceData.typeCode;
+            importData.value = sourceData.value;
+            insertQuery = `
+            INSERT INTO [dbo].[investigations]
+     ([refId]
+     ,[customerCode]
+     ,[staffCode]
+     ,[typeCode]
+     ,[value]
+     ,[note]
+     ,[createdAt])
+VALUES
+     (
+     '${importData.refId}'
+     ,'${importData.customerCode}'
+     ,'${importData.staffCode}'
+     ,'${importData.typeCode}'
+     ,N'${importData.value}'
+     ,N'${importData.note}'
+     ,'${importData.createdAt || ''}'
+     )
+            `;
             break;
           }
           case DataMigration_Collections.References: {

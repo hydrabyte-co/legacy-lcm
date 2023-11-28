@@ -91,7 +91,7 @@ export class MSSQLReference {
   fromFile = '';
 }
 export class MSSQLInvestigation {
-  id: number | null | undefined;
+  refId: string;
   customerCode = '';
   staffCode = '';
   typeCode = '';
