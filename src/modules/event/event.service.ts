@@ -471,7 +471,7 @@ export class EventService {
              importData.priority !== null &&
              importData.priority.toString() !== ''
                ? importData.priority
-               : ''
+               : 'NULL'
            }
            ,'${importData.status}'
            ,N'${importData.officeName}'
