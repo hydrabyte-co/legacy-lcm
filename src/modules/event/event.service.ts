@@ -467,7 +467,7 @@ export class EventService {
            ,'${importData.createdAt || ''}'
            ,'${importData.identityNumber}'
            ,${
-             importData.priority !== undefined || importData.priority !== null
+             importData.priority !== undefined && importData.priority !== null
                ? importData.priority
                : ''
            }
@@ -543,41 +543,60 @@ export class EventService {
 
           let updateDataMigrationResult;
           if (importResult) {
+            const updateDocumentQuery = {
+              _id: ObjectId.createFromHexString(data.data.id),
+            };
+            const updateDocumentFilter = {
+              $set: {
+                syncedAt: new Date().getTime(),
+              },
+            };
+            let updateDocumentResult;
             isImportSuccess = true;
             switch (data.collectionName) {
               case DataMigration_Collections.Activities: {
-                const updateDocumentResult = await this.activityRepo.updateMany(
-                  {
-                    _id: ObjectId.createFromHexString(data.data.id),
-                  },
-                  {
-                    $set: {
-                      syncedAt: new Date().getTime(),
-                    },
-                  },
-                );
-                logInfo(
-                  `*`,
-                  `EventService.handleSQLTableImport -> updateDocumentResult`,
-                  updateDocumentResult,
+                updateDocumentResult = await this.activityRepo.updateMany(
+                  updateDocumentQuery,
+                  updateDocumentFilter,
                 );
                 break;
               }
               case DataMigration_Collections.Contracts: {
+                updateDocumentResult = await this.contractRepo.updateMany(
+                  updateDocumentQuery,
+                  updateDocumentFilter,
+                );
                 break;
               }
               case DataMigration_Collections.Customers: {
+                updateDocumentResult = await this.customerRepo.updateMany(
+                  updateDocumentQuery,
+                  updateDocumentFilter,
+                );
                 break;
               }
               case DataMigration_Collections.Investigations: {
+                updateDocumentResult = await this.investigationRepo.updateMany(
+                  updateDocumentQuery,
+                  updateDocumentFilter,
+                );
                 break;
               }
               case DataMigration_Collections.References: {
+                updateDocumentResult = await this.referenceRepo.updateMany(
+                  updateDocumentQuery,
+                  updateDocumentFilter,
+                );
                 break;
               }
               default:
                 break;
             }
+            logInfo(
+              `*`,
+              `EventService.handleSQLTableImport -> updateDocumentResult`,
+              updateDocumentResult,
+            );
             if (data.dataMigrationId && data.dataMigrationId?.length > 0) {
               updateDataMigrationResult =
                 await this.dataMigrationRepo.updateOne(
