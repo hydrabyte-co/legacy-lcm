@@ -466,7 +466,7 @@ export class EventService {
            ,N'${importData.permanentAddress}'
            ,'${importData.createdAt || ''}'
            ,'${importData.identityNumber}'
-           ,${importData.priority ? `'${importData.priority}'` : ''}
+           ,${importData.priority !== undefined ? importData.priority : ''}
            ,'${importData.status}'
            ,N'${importData.officeName}'
            ,'${importData.acim || 0}'
