@@ -13,6 +13,7 @@ export class DataMigrationWorker {
   private migrationRecordsCount = parseInt(
     process.env.MIGRATION_RECORDS_COUNT || '100',
   );
+  private collectionName = process.env.MIGRATION_COLLECTION_NAME || '';
   private isTerminated: boolean;
   private isJobProcessing: boolean;
   private intervalJob;
@@ -25,55 +26,66 @@ export class DataMigrationWorker {
 
   async start(): Promise<void> {
     logInfo(`*`, `Data Migration Worker is started!`);
+    logInfo(`*`, `Migration from Collection '${this.collectionName}'`);
     if (this.intervalJob === undefined) {
       this.intervalJob = setInterval(async () => {
         if (!this.isJobProcessing) {
-          logInfo(`*`, `Doing job...`);
-          this.isJobProcessing = true;
-          const currentTimestamp = new Date().getTime();
-          const dataMigration: CreateDataMigrationData = {
-            collectionName: DataMigration_Collections.References,
-            note: '',
-            filter: {
-              where: {
-                $and: [
-                  {
-                    $or: [
-                      {
-                        syncedAt: {
-                          $lte: currentTimestamp - 1000 * 60 * 60 * 24,
-                        },
-                      },
-                      {
-                        syncedAt: null,
-                      },
-                    ],
-                  },
-                  {
-                    $or: [
-                      {
-                        queuedAt: {
-                          $lte: currentTimestamp - 1000 * 60 * 10,
-                        },
-                      },
-                      {
-                        queuedAt: null,
-                      },
-                    ],
-                  },
-                ],
-              },
-            },
-            recordsCount: this.migrationRecordsCount,
-            createdBy: new DataHandler(),
-            createdAt: undefined,
-          };
-          const createDMResult = await this.dataMigrationService.createNoData(
-            dataMigration,
-          );
-          logInfo(`*`, `DataMigrationWorker -> `, createDMResult);
+          let isCorrectCollectionName = false;
 
-          this.isJobProcessing = false;
+          for (const key in DataMigration_Collections) {
+            const name = DataMigration_Collections[key];
+            if (name === this.collectionName) {
+              isCorrectCollectionName = true;
+              break;
+            }
+          }
+          if (isCorrectCollectionName) {
+            logInfo(`*`, `Doing job...`);
+            this.isJobProcessing = true;
+            const currentTimestamp = new Date().getTime();
+            const dataMigration: CreateDataMigrationData = {
+              collectionName: DataMigration_Collections.References,
+              note: '',
+              filter: {
+                where: {
+                  $and: [
+                    {
+                      $or: [
+                        {
+                          syncedAt: {
+                            $lte: currentTimestamp - 1000 * 60 * 60 * 24,
+                          },
+                        },
+                        {
+                          syncedAt: null,
+                        },
+                      ],
+                    },
+                    {
+                      $or: [
+                        {
+                          queuedAt: {
+                            $lte: currentTimestamp - 1000 * 60 * 10,
+                          },
+                        },
+                        {
+                          queuedAt: null,
+                        },
+                      ],
+                    },
+                  ],
+                },
+              },
+              recordsCount: this.migrationRecordsCount,
+              createdBy: new DataHandler(),
+              createdAt: undefined,
+            };
+            const createDMResult = await this.dataMigrationService.createNoData(
+              dataMigration,
+            );
+            logInfo(`*`, `DataMigrationWorker -> `, createDMResult);
+            this.isJobProcessing = false;
+          }
         }
       }, this.intervalDuration);
     }
