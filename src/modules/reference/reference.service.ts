@@ -55,4 +55,10 @@ export class ReferenceService extends BaseService<Reference> {
       );
     }
   }
+
+  async updateOne(id: string, data: any, handler: DataHandler): Promise<any> {
+    data.syncedAt = 0;
+    data.queuedAt = 0;
+    return super.updateOne(id, data, handler);
+  }
 }

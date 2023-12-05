@@ -450,6 +450,8 @@ export class ImportDataService extends BaseService<ImportData> {
                   if (row.dob) row.dob = row.dob.toISOString().split('T')[0];
                   if (!row.callStaffCode) row.callStaffCode = '_';
                   row.fromFile = importData.fileName;
+                  row.queuedAt = 0;
+                  row.syncedAt = 0;
                   console.log(
                     `------ Row(${j}/${readResult.rows.length}) handled data`,
                     row,
@@ -496,6 +498,8 @@ export class ImportDataService extends BaseService<ImportData> {
                     row.status = 'active';
                   }
                   row.fromFile = importData.fileName;
+                  row.queuedAt = 0;
+                  row.syncedAt = 0;
                   console.log(
                     `------ Row(${j}/${readResult.rows.length}) handled data`,
                     row,
@@ -539,6 +543,8 @@ export class ImportDataService extends BaseService<ImportData> {
                 }
                 case ImportData_ToTable.Transaction: {
                   row.fromFile = importData.fileName;
+                  row.queuedAt = 0;
+                  row.syncedAt = 0;
                   console.log(
                     `------ Row(${j}/${readResult.rows.length}) handled data`,
                     row,
@@ -616,6 +622,8 @@ export class ImportDataService extends BaseService<ImportData> {
                   }
                   if (row.dob) row.dob = row.dob.toISOString().split('T')[0];
                   row.fromFile = importData.fileName;
+                  row.queuedAt = 0;
+                  row.syncedAt = 0;
                   console.log(
                     `------ Row(${j}/${readResult.rows.length}) handled data`,
                     row,
@@ -670,6 +678,8 @@ export class ImportDataService extends BaseService<ImportData> {
                 }
                 case ImportData_ToTable.Investigation: {
                   row.fromFile = importData.fileName;
+                  row.queuedAt = 0;
+                  row.syncedAt = 0;
                   console.log(
                     `------ Row(${j}/${readResult.rows.length}) handled data`,
                     row,
@@ -727,6 +737,8 @@ export class ImportDataService extends BaseService<ImportData> {
                   row.resultCode = row.resultCode.split('_')[0];
                   row.resultParentCode = row.resultParentCode.split('_')[0];
                   row.fromFile = importData.fileName;
+                  row.queuedAt = 0;
+                  row.syncedAt = 0;
                   console.log(
                     `------ Row(${j}/${readResult.rows.length}) handled data`,
                     row,

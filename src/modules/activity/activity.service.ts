@@ -193,6 +193,8 @@ export class ActivityService extends BaseService<Activity> {
     data: any,
     handler: DataHandler,
   ): Promise<Activity> {
+    data.syncedAt = 0;
+    data.queuedAt = 0;
     const result = await super.updateOne(id, data, handler);
     if (result) {
       const activity = await super.findOne(id, handler);

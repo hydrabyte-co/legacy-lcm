@@ -29,4 +29,10 @@ export class TransactionService extends BaseService<Transaction> {
   async findOneByCode(code: string, handler: DataHandler): Promise<any> {
     return super.findOneByField('code', code, handler);
   }
+
+  async updateOne(id: string, data: any, handler: DataHandler): Promise<any> {
+    data.syncedAt = 0;
+    data.queuedAt = 0;
+    return super.updateOne(id, data, handler);
+  }
 }

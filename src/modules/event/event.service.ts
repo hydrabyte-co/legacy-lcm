@@ -53,7 +53,7 @@ export class EventService {
     logInfo(`*`, `EventService.handleDataMigartion -> data`, data);
     let batchSize = 1000;
     let updateStatusResult;
-    let currentTimestamp = new Date().getTime();
+    const currentTimestamp = new Date().getTime();
 
     if (data.recordsCount > 0) {
       if (data.recordsCount < batchSize) {
@@ -248,7 +248,7 @@ export class EventService {
       if (connectResult) {
         let findQuery = `SELECT * FROM LCM.dbo.[${data.tableName}] WHERE refId='${data.data.id}'`;
         let insertQuery = ``;
-        // let updateQuery = ``;
+        let updateQuery = ``;
         switch (data.collectionName) {
           case DataMigration_Collections.Activities: {
             const importData = new MSSQLActivity();
@@ -310,6 +310,26 @@ export class EventService {
         ,N'${importData.contactNote || ''}'
         ,'${importData.ptpDate || ''}'
         ,N'${importData.fullname}')`;
+            updateQuery = `
+        UPDATE [dbo].[activities]
+   SET 
+      [contractCode] = '${importData.contractCode}'
+      ,[customerCode] = '${importData.customerCode}'
+      ,[staffCode] = '${importData.staffCode}'
+      ,[type] = '${importData.type}'
+      ,[resultCode] = '${importData.resultCode}'
+      ,[resultParentCode] = '${importData.resultParentCode}'
+      ,[note] = N'${importData.note}'
+      ,[ptpAmount] = ${importData.ptpAmount || 0}
+      ,[createdAt] = '${importData.createdAt || ''}'
+      ,[relationCode] = '${importData.relationCode}'
+      ,[relationName] = N'${importData.relationName}'
+      ,[phoneNumber] = '${importData.phoneNumber}'
+      ,[contactNote] = N'${importData.contactNote || ''}'
+      ,[ptpDate] = '${importData.ptpDate || ''}'
+      ,[fullname] = N'${importData.fullname}'
+ WHERE [refId] = '${importData.refId}'
+        `;
             break;
           }
           case DataMigration_Collections.Contracts: {
@@ -402,7 +422,36 @@ export class EventService {
            ,${importData.totalPaymentAmountFromPartner || 0}
            ,'${importData.bucket}')
             `;
-
+            updateQuery = `
+          UPDATE [dbo].[contracts]
+   SET [refId] = '${importData.refId}'
+      ,[partnerCode] = '${importData.partnerCode}'
+      ,[customerCode] = '${importData.customerCode}'
+      ,[customerCIF] = '${importData.customerCIF}'
+      ,[productGroup] = '${importData.productGroup}'
+      ,[originalBalance] = ${importData.originalBalance || 0}
+      ,[totalBalance] = ${importData.totalBalance || 0}
+      ,[ovdBalance] = ${importData.ovdBalance || 0}
+      ,[performingBalance] = ${importData.performingBalance || 0}
+      ,[periodicalPaymentAmount] = ${importData.periodicalPaymentAmount || 0}
+      ,[prAmount] = ${importData.prAmount || 0}
+      ,[inAmount] = ${importData.inAmount || 0}
+      ,[psAmount] = ${importData.psAmount || 0}
+      ,[ovdDays] = ${importData.ovdDays || 0}
+      ,[totalPaymentAmount] = ${importData.totalPaymentAmount || 0}
+      ,[term] = '${importData.term}'
+      ,[status] = '${importData.status}'
+      ,[createdAt] = '${importData.createdAt || ''}'
+      ,[accountNo] = '${importData.accountNo}'
+      ,[statusOfLoan] = '${importData.statusOfLoan}'
+      ,[guid] = '${importData.guid}'
+      ,[fromFile] = '${importData.fromFile}'
+      ,[totalPaymentAmountFromPartner] = ${
+        importData.totalPaymentAmountFromPartner || 0
+      }
+      ,[bucket] = '${importData.bucket}'
+ WHERE [code] = '${importData.code}'
+          `;
             break;
           }
           case DataMigration_Collections.Customers: {
@@ -495,6 +544,40 @@ export class EventService {
            ,N'${importData.officeAddress}'
            ,${importData.lastPaidAmount || 0})
             `;
+            updateQuery = `
+            UPDATE [dbo].[customers]
+   SET 
+      [refId] = '${importData.refId}'
+      ,[partnerCode] = '${importData.partnerCode}'
+      ,[callStaffCode] = '${importData.callStaffCode}'
+      ,[fullname] = N'${importData.fullname}'
+      ,[gender] = N'${importData.gender}'
+      ,[dob] = '${importData.dob || ''}'
+      ,[mobileNumber] = '${importData.mobileNumber}'
+      ,[officeNumber] = '${importData.officeNumber}'
+      ,[temporaryAddress] = N'${importData.temporaryAddress}'
+      ,[permanentAddress] = N'${importData.permanentAddress}'
+      ,[createdAt] = '${importData.createdAt || ''}'
+      ,[identityNumber] = '${importData.identityNumber}'
+      ,[priority] = '${
+        importData.priority !== undefined &&
+        importData.priority !== null &&
+        importData.priority.toString() !== ''
+          ? importData.priority
+          : 'NULL'
+      }'
+      ,[status] = '${importData.status}'
+      ,[fromFile] = '${importData.fromFile}'
+      ,[officeName] = N'${importData.officeName}'
+      ,[acim] = ${importData.acim || 0}
+      ,[lovdd] = ${importData.lovdd || 0}
+      ,[tbim] = ${importData.tbim || 0}
+      ,[tpafpim] = ${importData.tpafpim || 0}
+      ,[tpaim] = ${importData.tpaim || 0}
+      ,[officeAddress] = N'${importData.officeAddress}'
+      ,[lastPaidAmount] = ${importData.lastPaidAmount || 0}
+ WHERE [code] = '${importData.code}'
+            `;
 
             break;
           }
@@ -532,6 +615,17 @@ VALUES
      ,N'${importData.note}'
      ,'${importData.createdAt || ''}'
      )
+            `;
+            updateQuery = `
+            UPDATE [dbo].[investigations]
+   SET 
+      [customerCode] = '${importData.customerCode}'
+      ,[staffCode] = '${importData.staffCode}'
+      ,[typeCode] = '${importData.typeCode}'
+      ,[value] = N'${importData.value}'
+      ,[note] = N'${importData.note}'
+      ,[createdAt] = '${importData.createdAt || ''}'
+ WHERE [refId] = '${importData.refId}'
             `;
             break;
           }
@@ -593,18 +687,22 @@ VALUES
           );
         } catch (error) {
           // MSSQL Connection error!
-          logWarning(`*`, `EventService.handleSQLTableImport -> findError`, error);
+          logWarning(
+            `*`,
+            `EventService.handleSQLTableImport -> findError`,
+            error,
+          );
         }
         if (findResult) {
-          logInfo(
-            `*`,
-            `EventService.handleSQLTableImport -> importQuery`,
-            insertQuery,
-          );
           let importResult;
           if (findResult?.recordset?.length > 0) {
+            logInfo(
+              `*`,
+              `EventService.handleSQLTableImport -> updateQuery`,
+              updateQuery,
+            );
             try {
-              // importResult = await mssql.query(updateQuery);
+              importResult = await mssql.query(updateQuery);
             } catch (error) {
               // MSSQL Connection error!
               logWarning(
@@ -614,6 +712,11 @@ VALUES
               );
             }
           } else {
+            logInfo(
+              `*`,
+              `EventService.handleSQLTableImport -> insertQuery`,
+              insertQuery,
+            );
             try {
               importResult = await mssql.query(insertQuery);
             } catch (error) {
