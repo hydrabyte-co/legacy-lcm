@@ -812,6 +812,7 @@ VALUES
           }
         }
       }
+      await mssql.close();
     }
 
     if (isImportSuccess === false) {
