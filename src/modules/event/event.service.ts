@@ -318,7 +318,7 @@ export class EventService {
         ,N'${importData.relationName}'
         ,'${importData.phoneNumber}'
         ,N'${importData.contactNote || ''}'
-        ,'${importData.ptpDate || ''}'
+        ,${importData.ptpDate ? `'${importData.ptpDate}'` : 'NULL'}
         ,N'${importData.fullname}')`;
             updateQuery = `
         UPDATE [dbo].[activities]
@@ -336,7 +336,7 @@ export class EventService {
       ,[relationName] = N'${importData.relationName}'
       ,[phoneNumber] = '${importData.phoneNumber}'
       ,[contactNote] = N'${importData.contactNote || ''}'
-      ,[ptpDate] = '${importData.ptpDate || ''}'
+      ,[ptpDate] = ${importData.ptpDate ? `'${importData.ptpDate}'` : 'NULL'}
       ,[fullname] = N'${importData.fullname}'
  WHERE [refId] = '${importData.refId}'
         `;
