@@ -19,6 +19,7 @@ import { ExportDataModule } from './modules/export-data/export-data.module';
 import { PerformanceModule } from './modules/performance/performance.module';
 import { DataMigrationModule } from './modules/data-migration/data-migration.module';
 import { EventModule } from './modules/event/event.module';
+import { UtilModule } from './modules/utils/utils.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { EventModule } from './modules/event/event.module';
     DataHandlerModule,
     DataMigrationModule,
     EventModule,
+    UtilModule,
   ],
   controllers: [AppController],
   providers: [AppService, JWTAuthStrategy, BasicAuthStrategy],

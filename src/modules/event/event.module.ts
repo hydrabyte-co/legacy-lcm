@@ -45,8 +45,6 @@ import { InvestigationModule } from '../investigation/investigation.module';
           queue: `${process.env.RABBITMQ_QUEUE || 'lcm'}`,
           queueOptions: {
             durable: false,
-            noAck: false,
-            prefetchCount: 1,
           },
         },
       },
