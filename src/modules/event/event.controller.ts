@@ -4,6 +4,7 @@ import {
   Ctx,
   EventPattern,
   NatsContext,
+  Payload,
   RmqContext,
 } from '@nestjs/microservices';
 import { MessagePattern as EventPatterns } from './enum/event.enum';
@@ -15,11 +16,11 @@ export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @EventPattern(EventPatterns.DataMigration)
-  async handleDataMigartion(data: any, @Ctx() context: RmqContext) {
+  async handleDataMigartion(@Payload() data: any, @Ctx() context: RmqContext) {
     const start = new Date();
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
-    // logInfo('*', `EventController.handleDataMigartion -> dataString:`, data);
+    logInfo('*', `EventController.handleDataMigartion -> data`, data);
     await this.eventService.handleDataMigration(data);
     logInfo(
       '*',
@@ -32,7 +33,10 @@ export class EventController {
   }
 
   @EventPattern(EventPatterns.MSSQLTableImport)
-  async handleMSSQLTableImport(data: any, @Ctx() context: RmqContext) {
+  async handleMSSQLTableImport(
+    @Payload() data: any,
+    @Ctx() context: RmqContext,
+  ) {
     const start = new Date();
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();

@@ -39,10 +39,10 @@ import { Services } from 'src/common/enums/services';
               'amqp://admin:SecurePassword@10.0.0.40?heartbeat=30',
           ],
           queue: `${process.env.RABBITMQ_QUEUE || 'lcm'}`,
+          noAck: false,
+          prefetchCount: 1,
           queueOptions: {
             durable: false,
-            noAck: false,
-            prefetchCount: 1,
           },
         },
       },

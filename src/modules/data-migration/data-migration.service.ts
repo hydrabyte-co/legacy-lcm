@@ -136,6 +136,7 @@ export class DataMigrationService extends BaseService<DataMigration> {
       handler: {},
       recordsCount: data.recordsCount,
     });
+    logInfo(`*`, `DataMigration.Service.createNoData -> data`, data);
     logInfo(
       `*`,
       `DataMigration.Service.createNoData -> emitResult`,

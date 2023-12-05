@@ -53,132 +53,71 @@ export class EventService {
   ) {}
   async handleDataMigration(data: any): Promise<any> {
     logInfo(`*`, `EventService.handleDataMigartion -> data`, data);
-    let batchSize = 1000;
-    let updateStatusResult;
-    const currentTimestamp = new Date().getTime();
+    if (data) {
+      let batchSize = 1000;
+      let updateStatusResult;
+      const currentTimestamp = new Date().getTime();
 
-    if (data.recordsCount > 0) {
-      if (data.recordsCount < batchSize) {
-        batchSize = data.recordsCount;
+      if (data?.recordsCount > 0) {
+        if (data.recordsCount < batchSize) {
+          batchSize = data.recordsCount;
+        }
       }
-    }
 
-    if (data.id && data.id?.length > 0) {
-      updateStatusResult = await this.dataMigrationRepo.updateOne(
-        {
-          _id: ObjectId.createFromHexString(data.id),
-        },
-        {
-          $set: {
-            status: DataMigration_Status.InProgress,
-            results: {
-              totalCount: batchSize,
-              processedCount: 0,
-              successCount: 0,
-              failedCount: 0,
+      if (data?.id && data?.id?.length > 0) {
+        updateStatusResult = await this.dataMigrationRepo.updateOne(
+          {
+            _id: ObjectId.createFromHexString(data.id),
+          },
+          {
+            $set: {
+              status: DataMigration_Status.InProgress,
+              results: {
+                totalCount: batchSize,
+                processedCount: 0,
+                successCount: 0,
+                failedCount: 0,
+              },
             },
           },
-        },
-      );
+        );
+        logInfo(
+          `*`,
+          `EventService.handleDataMigartion -> updateStatusResult 'in-progress'`,
+          updateStatusResult,
+        );
+      }
+      let documents = [];
+      const documentFilter = {
+        where: data.filter?.where || {},
+        order: data.filter?.order || {},
+        take: batchSize,
+        skip: 0,
+      };
       logInfo(
         `*`,
-        `EventService.handleDataMigartion -> updateStatusResult 'in-progress'`,
-        updateStatusResult,
+        `EventService.handleDataMigartion -> documentFilter`,
+        JSON.stringify(documentFilter),
       );
-    }
-    let documents = [];
-    const documentFilter = {
-      where: data.filter?.where || {},
-      order: data.filter?.order || {},
-      take: batchSize,
-      skip: 0,
-    };
-    logInfo(
-      `*`,
-      `EventService.handleDataMigartion -> documentFilter`,
-      JSON.stringify(documentFilter),
-    );
-    switch (data.collectionName) {
-      case DataMigration_Collections.Activities: {
-        documents = await this.activityRepo.find(documentFilter);
-        break;
-      }
-      case DataMigration_Collections.Contracts: {
-        documents = await this.contractRepo.find(documentFilter);
-        break;
-      }
-      case DataMigration_Collections.Customers: {
-        documents = await this.customerRepo.find(documentFilter);
-        break;
-      }
-      case DataMigration_Collections.Investigations: {
-        documents = await this.investigationRepo.find(documentFilter);
-        break;
-      }
-      case DataMigration_Collections.References: {
-        documents = await this.referenceRepo.find(documentFilter);
-        break;
-      }
-      default:
-        break;
-    }
-    logInfo(
-      `*`,
-      `EventService.handleDataMigartion -> documents`,
-      documents.length,
-    );
-    for (let j = 0; j < documents.length; j++) {
-      const document = documents[j];
-      logInfo(
-        `*`,
-        `EventService.handleDataMigartion -> document '${
-          data.collectionName
-        }' ${j + 1}/${documents.length}`,
-        document.id,
-      );
-      let updateQueueTimeResults;
-      const updateQuery = {
-        _id: document.id,
-      };
-      const updateFilter = {
-        $set: {
-          queuedAt: currentTimestamp,
-        },
-      };
       switch (data.collectionName) {
         case DataMigration_Collections.Activities: {
-          updateQueueTimeResults = await this.activityRepo.updateMany(
-            updateQuery,
-            updateFilter,
-          );
+          documents = await this.activityRepo.find(documentFilter);
           break;
         }
         case DataMigration_Collections.Contracts: {
-          updateQueueTimeResults = await this.contractRepo.updateMany(
-            updateQuery,
-            updateFilter,
-          );
+          documents = await this.contractRepo.find(documentFilter);
           break;
         }
         case DataMigration_Collections.Customers: {
-          updateQueueTimeResults = await this.customerRepo.updateMany(
-            updateQuery,
-            updateFilter,
-          );
+          documents = await this.customerRepo.find(documentFilter);
           break;
         }
         case DataMigration_Collections.Investigations: {
-          updateQueueTimeResults = await this.investigationRepo.updateMany(
-            updateQuery,
-            updateFilter,
-          );
+          documents = await this.investigationRepo.find(documentFilter);
           break;
         }
         case DataMigration_Collections.References: {
-          updateQueueTimeResults = await this.referenceRepo.updateMany(
-            updateQuery,
-            updateFilter,
-          );
+          documents = await this.referenceRepo.find(documentFilter);
           break;
         }
         default:
@@ -186,47 +125,110 @@ export class EventService {
       }
       logInfo(
         `*`,
-        `EventService.handleDataMigartion -> updateQueueTimeResults`,
-        updateQueueTimeResults,
+        `EventService.handleDataMigartion -> documents`,
+        documents.length,
       );
-      if (updateQueueTimeResults) {
-        if (updateQueueTimeResults.modifiedCount > 0) {
-          const emitResult = await this.client.emit(
-            MessagePattern.MSSQLTableImport,
-            {
-              collectionName: data.collectionName,
-              tableName: data.collectionName,
-              data: document,
-              dataMigrationId: data.id,
-            },
-          );
-          logInfo(
-            `*`,
-            `DataMigration.Service.createOne -> emitResult`,
-            emitResult,
-          );
-          const subscriberResult = await emitResult.subscribe();
-          /*  logInfo(
+      for (let j = 0; j < documents.length; j++) {
+        const document = documents[j];
+        logInfo(
+          `*`,
+          `EventService.handleDataMigartion -> document '${
+            data.collectionName
+          }' ${j + 1}/${documents.length}`,
+          document.id,
+        );
+        let updateQueueTimeResults;
+        const updateQuery = {
+          _id: document.id,
+        };
+        const updateFilter = {
+          $set: {
+            queuedAt: currentTimestamp,
+          },
+        };
+        switch (data.collectionName) {
+          case DataMigration_Collections.Activities: {
+            updateQueueTimeResults = await this.activityRepo.updateMany(
+              updateQuery,
+              updateFilter,
+            );
+            break;
+          }
+          case DataMigration_Collections.Contracts: {
+            updateQueueTimeResults = await this.contractRepo.updateMany(
+              updateQuery,
+              updateFilter,
+            );
+            break;
+          }
+          case DataMigration_Collections.Customers: {
+            updateQueueTimeResults = await this.customerRepo.updateMany(
+              updateQuery,
+              updateFilter,
+            );
+            break;
+          }
+          case DataMigration_Collections.Investigations: {
+            updateQueueTimeResults = await this.investigationRepo.updateMany(
+              updateQuery,
+              updateFilter,
+            );
+            break;
+          }
+          case DataMigration_Collections.References: {
+            updateQueueTimeResults = await this.referenceRepo.updateMany(
+              updateQuery,
+              updateFilter,
+            );
+            break;
+          }
+          default:
+            break;
+        }
+        logInfo(
+          `*`,
+          `EventService.handleDataMigartion -> updateQueueTimeResults`,
+          updateQueueTimeResults,
+        );
+        if (updateQueueTimeResults) {
+          if (updateQueueTimeResults.modifiedCount > 0) {
+            const emitResult = await this.client.emit(
+              MessagePattern.MSSQLTableImport,
+              {
+                collectionName: data.collectionName,
+                tableName: data.collectionName,
+                data: document,
+                dataMigrationId: data.id,
+              },
+            );
+            logInfo(
               `*`,
-              `DataMigration.Service.createOne -> subscriberResult`,
-              subscriberResult,
-            ); */
+              `DataMigration.Service.createOne -> emitResult`,
+              emitResult,
+            );
+            const subscriberResult = await emitResult.subscribe();
+            /*  logInfo(
+                `*`,
+                `DataMigration.Service.createOne -> subscriberResult`,
+                subscriberResult,
+              ); */
+          }
         }
       }
-    }
 
-    if (data.id && data.id?.length > 0) {
-      updateStatusResult = await this.dataMigrationRepo.updateOne(
-        {
-          _id: ObjectId.createFromHexString(data.id),
-        },
-        { $set: { status: DataMigration_Status.Done } },
-      );
-      logInfo(
-        `*`,
-        `EventService.handleDataMigartion -> updateStatusResult 'done'`,
-        updateStatusResult,
-      );
+      if (data.id && data.id?.length > 0) {
+        updateStatusResult = await this.dataMigrationRepo.updateOne(
+          {
+            _id: ObjectId.createFromHexString(data.id),
+          },
+          { $set: { status: DataMigration_Status.Done } },
+        );
+        logInfo(
+          `*`,
+          `EventService.handleDataMigartion -> updateStatusResult 'done'`,
+          updateStatusResult,
+        );
+      }
     }
 
     return {};
@@ -825,7 +827,7 @@ VALUES
     }
 
     if (isImportSuccess === false) {
-      if (data.dataMigrationId && data.dataMigrationId?.length > 0) {
+      if (data?.dataMigrationId && data?.dataMigrationId?.length > 0) {
         const updateDataMigrationResult = await this.activityRepo.updateOne(
           {
             _id: ObjectId.createFromHexString(data.dataMigrationId),
