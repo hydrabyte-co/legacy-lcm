@@ -34,6 +34,8 @@ import {
 
 @Injectable()
 export class EventService {
+  private connectResult;
+
   constructor(
     @InjectRepository(DataMigration)
     private readonly dataMigrationRepo: MongoRepository<DataMigration>,
@@ -234,18 +236,26 @@ export class EventService {
     let isImportSuccess = false;
     logInfo(`*`, `EventService.handleSQLTableImport -> data`, data);
     if (data) {
-      let connectResult;
       try {
-        connectResult = await mssql.connect(process.env.MSSQLDB_URL || '');
+        if (this.connectResult === undefined) {
+          this.connectResult = await mssql.connect(
+            process.env.MSSQLDB_URL || '',
+          );
+          logInfo(
+            `*`,
+            `EventService.handleSQLTableImport -> connectResult`,
+            this.connectResult,
+          );
+        }
       } catch (error) {
         // MSSQL Connection error!
         logWarning(
           `*`,
           `EventService.handleSQLTableImport -> connectResult`,
-          connectResult,
+          this.connectResult,
         );
       }
-      if (connectResult) {
+      if (this.connectResult) {
         let findQuery = `SELECT * FROM LCM.dbo.[${data.tableName}] WHERE refId='${data.data.id}'`;
         let insertQuery = ``;
         let updateQuery = ``;
@@ -812,7 +822,6 @@ VALUES
           }
         }
       }
-      await mssql.close();
     }
 
     if (isImportSuccess === false) {
