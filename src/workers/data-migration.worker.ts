@@ -62,6 +62,9 @@ export class DataMigrationWorker {
                           {
                             syncedAt: 0,
                           },
+                          {
+                            syncedAt: null,
+                          },
                         ],
                       },
                       {
