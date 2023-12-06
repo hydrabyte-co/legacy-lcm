@@ -799,6 +799,16 @@ VALUES
             }
             logInfo(
               `*`,
+              `EventService.handleSQLTableImport -> updateDocumentQuery`,
+              updateDocumentQuery,
+            );
+            logInfo(
+              `*`,
+              `EventService.handleSQLTableImport -> updateDocumentFilter`,
+              updateDocumentFilter,
+            );
+            logInfo(
+              `*`,
               `EventService.handleSQLTableImport -> updateDocumentResult`,
               updateDocumentResult,
             );
