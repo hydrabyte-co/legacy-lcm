@@ -71,7 +71,7 @@ export class DataMigrationWorker {
                         $or: [
                           {
                             queuedAt: {
-                              $lte: currentTimestamp - 1000 * 60 * 30,
+                              $lte: currentTimestamp - 1000 * 60 * 360,
                             },
                           },
                           {
