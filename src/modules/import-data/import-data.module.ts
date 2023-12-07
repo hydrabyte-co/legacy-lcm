@@ -41,8 +41,6 @@ import { Services } from 'src/common/enums/services';
           queue: process.env.RABBITMQ_QUEUE || 'lcm',
           queueOptions: {
             durable: false,
-            noAck: false,
-            prefetchCount: 1,
           },
         },
       },

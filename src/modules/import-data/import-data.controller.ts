@@ -32,7 +32,7 @@ import { Services } from 'src/common/enums/services';
 import { Controllers } from 'src/common/enums/controllers';
 import { ImportData } from './entity/import-data.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { EventPattern } from '@nestjs/microservices';
+import { EventPattern, Ctx, Payload, RmqContext } from '@nestjs/microservices';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Controllers.LCM_ImportData)
@@ -98,9 +98,11 @@ export class ImportDatasController extends BaseController {
   }
 
   @EventPattern('process-import-data')
-  async handleEvent(dataString: Record<string, unknown>) {
-    const data = JSON.parse(dataString.toString());
+  async handleEvent(@Payload() data: any, @Ctx() context: RmqContext) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
     await this.importDatasService.handleProcessFile(data);
+    channel.ack(originalMsg);
     return 'ack';
   }
 }
