@@ -12,42 +12,27 @@ import { Controllers } from 'src/common/enums/controllers';
 @Entity(Controllers.LCM_Partners)
 export class Partner extends Base {
   @Column({ unique: true })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(24)
   code = '';
 
   @Column()
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(60)
   name = '';
 
   @Column()
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(24)
+  userId = '';
+
+  @Column()
   businessCode = '';
 
   @Column()
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(24)
   contractCode = '';
 
   @Column()
-  @IsString()
-  @MaxLength(46)
   address = '';
 
   @Column()
-  @IsString()
-  @IsNotEmpty()
   note = '';
 
   @Column()
-  @IsBoolean()
-  @IsNotEmpty()
   isActive = false;
 
   @Column()

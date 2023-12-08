@@ -35,6 +35,10 @@ export class CreatePartnerData extends BaseCreateData {
 
   @IsOptional()
   @IsString()
+  userId = '';
+
+  @IsOptional()
+  @IsString()
   note = '';
 
   @IsOptional()
@@ -66,6 +70,9 @@ export class CreatePartnerResult extends BaseCreateResult {
 
   @Expose()
   name = '';
+
+  @Expose()
+  userId = '';
 
   @Expose()
   note = '';

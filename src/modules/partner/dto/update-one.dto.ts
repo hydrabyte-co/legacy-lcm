@@ -37,6 +37,10 @@ export class UpdatePartnerData extends UpdateOneData {
 
   @IsOptional()
   @IsString()
+  userId;
+
+  @IsOptional()
+  @IsString()
   note;
 
   @IsOptional()
@@ -67,6 +71,9 @@ export class UpdatePartnerResult extends UpdateOneResult {
 
   @Expose()
   name = '';
+
+  @Expose()
+  userId = '';
 
   @Expose()
   note = '';
