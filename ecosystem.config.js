@@ -53,6 +53,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         APP_TYPE: 'worker',
+        RABBITMQ_QUEUE: 'lcm-sync',
       },
     },
   ],
