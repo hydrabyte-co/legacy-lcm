@@ -101,6 +101,11 @@ export class ImportDatasController extends BaseController {
   async handleEvent(@Payload() data: any, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
+    if (typeof data === 'string') {
+      try {
+        data = JSON.parse(data);
+      } catch (error) {}
+    }
     await this.importDatasService.handleProcessFile(data);
     channel.ack(originalMsg);
     return 'ack';

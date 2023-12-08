@@ -267,11 +267,13 @@ export class EventService {
             importData.refId = data.data?.id;
             importData.contactNote = data.data?.contactInfo?.note;
             importData.contractCode = data.data?.contractCode;
-            importData.createdAt = data.data?.createdAt;
+            importData.createdAt = data.data?.performAt;
             importData.customerCode = data.data?.customerCode;
             importData.note = data.data?.note;
             importData.phoneNumber = data.data?.contactInfo?.phoneNumber;
             importData.ptpAmount = data.data?.ptpAmount;
+            importData.ptpDate = data.data?.ptpDate;
+            importData.performedAt = data.data?.performAt;
             importData.relationCode = data.data?.contactInfo?.relation?.code;
             importData.relationName = data.data?.contactInfo?.relation?.name;
             importData.resultCode = data.data?.resultCode;
@@ -315,7 +317,7 @@ export class EventService {
         ,'${importData.resultParentCode}'
         ,N'${importData.note}'
         ,${importData.ptpAmount || 0}
-        ,'${importData.createdAt || ''}'
+        ,${importData.createdAt ? `'${importData.createdAt}'` : 'NULL'}
         ,'${importData.relationCode}'
         ,N'${importData.relationName}'
         ,'${importData.phoneNumber}'
@@ -333,7 +335,9 @@ export class EventService {
       ,[resultParentCode] = '${importData.resultParentCode}'
       ,[note] = N'${importData.note}'
       ,[ptpAmount] = ${importData.ptpAmount || 0}
-      ,[createdAt] = '${importData.createdAt || ''}'
+      ,[createdAt] = ${
+        importData.createdAt ? `'${importData.createdAt}'` : 'NULL'
+      }
       ,[relationCode] = '${importData.relationCode}'
       ,[relationName] = N'${importData.relationName}'
       ,[phoneNumber] = '${importData.phoneNumber}'

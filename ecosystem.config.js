@@ -14,7 +14,7 @@ module.exports = {
       },
     },
     {
-      name: 'lcm-ms',
+      name: 'lcm-ms-file',
       script: 'dist/main.js',
       args: ' ',
       instances: 1,
@@ -24,6 +24,21 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         APP_TYPE: 'microservice',
+        RABBITMQ_QUEUE: 'lsm-file',
+      },
+    },
+    {
+      name: 'lcm-ms-sync',
+      script: 'dist/main.js',
+      args: ' ',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '4G',
+      env: {
+        NODE_ENV: 'production',
+        APP_TYPE: 'microservice',
+        RABBITMQ_QUEUE: 'lsm-sync',
       },
     },
     {

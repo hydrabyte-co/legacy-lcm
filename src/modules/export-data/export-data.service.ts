@@ -204,304 +204,312 @@ export class ExportDataService extends BaseService<ExportData> {
     console.log(``);
     console.log(`Process Export Data request`);
     console.log(`-- Received data from message queue`, data);
-    const exportData = await this.exportDatasRepository.findOneBy(
-      //data.exportDataId,
-      { _id: ObjectId.createFromHexString(data.exportDataId) },
-    );
-    const schemas = [];
-    const sheets = [];
-    const dataArray = [];
+    let objectId;
     let processExportDataResult;
-    exportData.results = [];
-    console.log(
-      `-- Export Data Request`,
-      JSON.stringify(exportData, null, ' '),
-    );
-    if (exportData) {
-      const updateExportDataResult = await this.exportDatasRepository.update(
-        exportData.id,
-        { status: ExportData_Status.InProgress },
+    try {
+      objectId = ObjectId.createFromHexString(data.exportDataId);
+    } catch (error) {}
+    if (objectId) {
+      const exportData = await this.exportDatasRepository.findOneBy(
+        //data.exportDataId,
+        { _id: objectId },
       );
+      const schemas = [];
+      const sheets = [];
+      const dataArray = [];
 
-      for (let i = 0; i < exportData.datasources.length; i++) {
-        const datasource = exportData.datasources[i];
-        console.log(`---- Datasource`, JSON.stringify(datasource, null, ' '));
-        switch (datasource.name) {
-          case ExportData_FromDocuments.Customers: {
-            const filter: any = {
-              where: {
-                callStaffCode: '_',
-                status: 'active',
-              },
-              select: [
-                'code',
-                'partnerCode',
-                'callStaffCode',
-                'fieldStaffCode',
-                'priority',
-                'fullname',
-                'temporaryAddress',
-                'lastPTPActivity.ptpAmount',
-                'lastPTPActivity.ptpDate',
-                'status',
-                'contractCodes',
-              ],
-            };
-            console.log(
-              `---- Condition is ${Roles.OrganizationOwner} or ${Roles.OrganizationAdmin}`,
-              data.handler.roles,
-              `index of ${
-                Roles.OrganizationOwner
-              } is ${data.handler.roles.indexOf(
-                Roles.OrganizationOwner,
-              )}, index of ${
-                Roles.OrganizationAdmin
-              } is ${data.handler.roles.indexOf(Roles.OrganizationAdmin)}`,
-              data.handler.roles.indexOf(Roles.OrganizationOwner) >= 0 ||
-                data.handler.roles.indexOf(Roles.OrganizationAdmin) >= 0,
-            );
-            if (
-              data.handler.roles.indexOf(Roles.OrganizationOwner) >= 0 ||
-              data.handler.roles.indexOf(Roles.OrganizationAdmin) >= 0
-            ) {
-              filter.where = {
-                status: 'active',
-              };
-            }
-            if (data.handler.roles.indexOf(Roles.OrganizationAgent) >= 0) {
-              filter.where = {
-                callStaffCode: data.handler.staffCode || '_',
-                status: 'active',
-              };
-            }
-            console.log(`------ Filter`, JSON.stringify(filter, null, ' '));
-            const customers = await this.customersRepository.find(filter);
-            console.log(`------ Customers`, customers.length);
-            exportData.results.push({
-              name: datasource.name,
-              count: customers.length,
-            });
+      exportData.results = [];
+      console.log(
+        `-- Export Data Request`,
+        JSON.stringify(exportData, null, ' '),
+      );
+      if (exportData) {
+        const updateExportDataResult = await this.exportDatasRepository.update(
+          exportData.id,
+          { status: ExportData_Status.InProgress },
+        );
 
-            dataArray.push(customers);
-            schemas.push(CustomersToExcelSchema);
-            sheets.push(datasource.name);
-            break;
-          }
-          case ExportData_FromDocuments.Activities: {
-            const filter: any = {
-              where: {
-                staffCode: '_',
-              },
-            };
-            if (
-              data.handler.roles.indexOf(Roles.OrganizationOwner) >= 0 ||
-              data.handler.roles.indexOf(Roles.OrganizationAdmin) >= 0
-            ) {
-              if (datasource.where.from && datasource.where.to) {
-                const fromDate = new Date(datasource.where.from);
-                const toDate = new Date(datasource.where.to);
+        for (let i = 0; i < exportData.datasources.length; i++) {
+          const datasource = exportData.datasources[i];
+          console.log(`---- Datasource`, JSON.stringify(datasource, null, ' '));
+          switch (datasource.name) {
+            case ExportData_FromDocuments.Customers: {
+              const filter: any = {
+                where: {
+                  callStaffCode: '_',
+                  status: 'active',
+                },
+                select: [
+                  'code',
+                  'partnerCode',
+                  'callStaffCode',
+                  'fieldStaffCode',
+                  'priority',
+                  'fullname',
+                  'temporaryAddress',
+                  'lastPTPActivity.ptpAmount',
+                  'lastPTPActivity.ptpDate',
+                  'status',
+                  'contractCodes',
+                ],
+              };
+              console.log(
+                `---- Condition is ${Roles.OrganizationOwner} or ${Roles.OrganizationAdmin}`,
+                data.handler.roles,
+                `index of ${
+                  Roles.OrganizationOwner
+                } is ${data.handler.roles.indexOf(
+                  Roles.OrganizationOwner,
+                )}, index of ${
+                  Roles.OrganizationAdmin
+                } is ${data.handler.roles.indexOf(Roles.OrganizationAdmin)}`,
+                data.handler.roles.indexOf(Roles.OrganizationOwner) >= 0 ||
+                  data.handler.roles.indexOf(Roles.OrganizationAdmin) >= 0,
+              );
+              if (
+                data.handler.roles.indexOf(Roles.OrganizationOwner) >= 0 ||
+                data.handler.roles.indexOf(Roles.OrganizationAdmin) >= 0
+              ) {
                 filter.where = {
-                  $and: [
-                    { performAt: { $gte: fromDate } },
-                    { performAt: { $lte: toDate } },
-                  ],
+                  status: 'active',
                 };
               }
+              if (data.handler.roles.indexOf(Roles.OrganizationAgent) >= 0) {
+                filter.where = {
+                  callStaffCode: data.handler.staffCode || '_',
+                  status: 'active',
+                };
+              }
+              console.log(`------ Filter`, JSON.stringify(filter, null, ' '));
+              const customers = await this.customersRepository.find(filter);
+              console.log(`------ Customers`, customers.length);
+              exportData.results.push({
+                name: datasource.name,
+                count: customers.length,
+              });
+
+              dataArray.push(customers);
+              schemas.push(CustomersToExcelSchema);
+              sheets.push(datasource.name);
+              break;
             }
-            if (data.handler.roles.indexOf(Roles.OrganizationAgent) >= 0) {
-              filter.where = {
-                staffCode: data.handler.staffCode || '_',
+            case ExportData_FromDocuments.Activities: {
+              const filter: any = {
+                where: {
+                  staffCode: '_',
+                },
               };
+              if (
+                data.handler.roles.indexOf(Roles.OrganizationOwner) >= 0 ||
+                data.handler.roles.indexOf(Roles.OrganizationAdmin) >= 0
+              ) {
+                if (datasource.where.from && datasource.where.to) {
+                  const fromDate = new Date(datasource.where.from);
+                  const toDate = new Date(datasource.where.to);
+                  filter.where = {
+                    $and: [
+                      { performAt: { $gte: fromDate } },
+                      { performAt: { $lte: toDate } },
+                    ],
+                  };
+                }
+              }
+              if (data.handler.roles.indexOf(Roles.OrganizationAgent) >= 0) {
+                filter.where = {
+                  staffCode: data.handler.staffCode || '_',
+                };
+              }
+              console.log(`------ Filter`, JSON.stringify(filter, null, ' '));
+              const activities = await this.activitiesRepository.find(filter);
+              console.log(`------ Activities`, activities.length);
+              exportData.results.push({
+                name: datasource.name,
+                count: activities.length,
+              });
+
+              dataArray.push(activities);
+              schemas.push(ActivitiesToExcelSchema);
+              sheets.push(datasource.name);
+              break;
             }
-            console.log(`------ Filter`, JSON.stringify(filter, null, ' '));
-            const activities = await this.activitiesRepository.find(filter);
-            console.log(`------ Activities`, activities.length);
-            exportData.results.push({
-              name: datasource.name,
-              count: activities.length,
+            case ExportData_FromDocuments.AnsweredOutboundCalls:
+            case ExportData_FromDocuments.OutboundCalls: {
+              const from = datasource.where?.from || '';
+              const to = datasource.where?.to || '';
+              let apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${from}&to=${to}&pageSize=90000`;
+              if (
+                datasource.name ===
+                ExportData_FromDocuments.AnsweredOutboundCalls
+              ) {
+                apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${from}&to=${to}&result=answered&pageSize=90000`;
+              }
+              const config: AxiosRequestConfig = {
+                method: 'get',
+                maxBodyLength: Infinity,
+                url: apiURL,
+                headers: {
+                  Authorization: data.handler.accessToken,
+                },
+              };
+              console.log(`------ Call Axios config`, config);
+              const getCallsResult = await axios(config)
+                .then(function (response) {
+                  return {
+                    error: undefined,
+                    data: response.data,
+                  };
+                })
+                .catch(function (error) {
+                  console.log(error);
+                  return {
+                    error: {
+                      code: '',
+                      message: error.messaage,
+                    },
+                    data: undefined,
+                  };
+                });
+
+              if (getCallsResult.data) {
+                if (getCallsResult.data.data) {
+                  const calls = getCallsResult.data.data;
+                  console.log(`------ Calls`, calls.length);
+                  dataArray.push(calls);
+                  schemas.push(OutboundCallsToExcelSchema);
+                  sheets.push(datasource.name);
+                }
+              }
+              break;
+            }
+
+            case ExportData_FromDocuments.InboundCalls: {
+              const from = datasource.where?.from || '';
+              const to = datasource.where?.to || '';
+              const apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=inbound&from=${from}&to=${to}&pageSize=90000`;
+              const config: AxiosRequestConfig = {
+                method: 'get',
+                maxBodyLength: Infinity,
+                url: apiURL,
+                headers: {
+                  Authorization: data.handler.accessToken,
+                },
+              };
+              console.log(`------ Call Axios config`, config);
+              const getCallsResult = await axios(config)
+                .then(function (response) {
+                  return {
+                    error: undefined,
+                    data: response.data,
+                  };
+                })
+                .catch(function (error) {
+                  console.log(error);
+                  return {
+                    error: {
+                      code: '',
+                      message: error.messaage,
+                    },
+                    data: undefined,
+                  };
+                });
+
+              if (getCallsResult.data) {
+                if (getCallsResult.data.data) {
+                  const calls = getCallsResult.data.data;
+                  console.log(`------ Calls`, calls.length);
+                  dataArray.push(calls);
+                  schemas.push(OutboundCallsToExcelSchema);
+                  sheets.push(datasource.name);
+                }
+              }
+              break;
+            }
+            default:
+              break;
+          }
+        }
+
+        let outFilePath = `./data/${exportData.id}`;
+        switch (exportData.outputFileType) {
+          case ExportData_OutputFileType.Excel: {
+            outFilePath += '.xlsx';
+            console.log(
+              `---- outFilePath`,
+              JSON.stringify(outFilePath, null, ' '),
+            );
+            // console.log(`---- Excel Schemas`, JSON.stringify(schemas, null, ' '));
+            // console.log(`---- Excel sheets`, JSON.stringify(sheets, null, ' '));
+            const writeFileResult = await writeXlsxFile(dataArray, {
+              schema: schemas,
+              sheets: sheets,
+              filePath: outFilePath,
             });
-
-            dataArray.push(activities);
-            schemas.push(ActivitiesToExcelSchema);
-            sheets.push(datasource.name);
+            console.log(
+              `---- Write Excel file ${outFilePath}`,
+              JSON.stringify(writeFileResult, null, ' '),
+            );
             break;
           }
-          case ExportData_FromDocuments.AnsweredOutboundCalls:
-          case ExportData_FromDocuments.OutboundCalls: {
-            const from = datasource.where?.from || '';
-            const to = datasource.where?.to || '';
-            let apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${from}&to=${to}&pageSize=90000`;
-            if (
-              datasource.name === ExportData_FromDocuments.AnsweredOutboundCalls
-            ) {
-              apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${from}&to=${to}&result=answered&pageSize=90000`;
-            }
-            const config: AxiosRequestConfig = {
-              method: 'get',
-              maxBodyLength: Infinity,
-              url: apiURL,
-              headers: {
-                Authorization: data.handler.accessToken,
-              },
-            };
-            console.log(`------ Call Axios config`, config);
-            const getCallsResult = await axios(config)
-              .then(function (response) {
-                return {
-                  error: undefined,
-                  data: response.data,
-                };
-              })
-              .catch(function (error) {
-                console.log(error);
-                return {
-                  error: {
-                    code: '',
-                    message: error.messaage,
-                  },
-                  data: undefined,
-                };
-              });
-
-            if (getCallsResult.data) {
-              if (getCallsResult.data.data) {
-                const calls = getCallsResult.data.data;
-                console.log(`------ Calls`, calls.length);
-                dataArray.push(calls);
-                schemas.push(OutboundCallsToExcelSchema);
-                sheets.push(datasource.name);
-              }
-            }
-            break;
-          }
-
-          case ExportData_FromDocuments.InboundCalls: {
-            const from = datasource.where?.from || '';
-            const to = datasource.where?.to || '';
-            const apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=inbound&from=${from}&to=${to}&pageSize=90000`;
-            const config: AxiosRequestConfig = {
-              method: 'get',
-              maxBodyLength: Infinity,
-              url: apiURL,
-              headers: {
-                Authorization: data.handler.accessToken,
-              },
-            };
-            console.log(`------ Call Axios config`, config);
-            const getCallsResult = await axios(config)
-              .then(function (response) {
-                return {
-                  error: undefined,
-                  data: response.data,
-                };
-              })
-              .catch(function (error) {
-                console.log(error);
-                return {
-                  error: {
-                    code: '',
-                    message: error.messaage,
-                  },
-                  data: undefined,
-                };
-              });
-
-            if (getCallsResult.data) {
-              if (getCallsResult.data.data) {
-                const calls = getCallsResult.data.data;
-                console.log(`------ Calls`, calls.length);
-                dataArray.push(calls);
-                schemas.push(OutboundCallsToExcelSchema);
-                sheets.push(datasource.name);
-              }
-            }
+          case ExportData_OutputFileType.CSV: {
             break;
           }
           default:
             break;
         }
-      }
 
-      let outFilePath = `./data/${exportData.id}`;
-      switch (exportData.outputFileType) {
-        case ExportData_OutputFileType.Excel: {
-          outFilePath += '.xlsx';
-          console.log(
-            `---- outFilePath`,
-            JSON.stringify(outFilePath, null, ' '),
-          );
-          // console.log(`---- Excel Schemas`, JSON.stringify(schemas, null, ' '));
-          // console.log(`---- Excel sheets`, JSON.stringify(sheets, null, ' '));
-          const writeFileResult = await writeXlsxFile(dataArray, {
-            schema: schemas,
-            sheets: sheets,
-            filePath: outFilePath,
+        const formData = new FormData();
+        formData.append('file', fs.createReadStream(outFilePath));
+        formData.append('note', exportData.note);
+        formData.append('tags', '["export-data"]');
+
+        const config: AxiosRequestConfig = {
+          method: 'post',
+          maxBodyLength: Infinity,
+          url: `${process.env.STORAGE_API_ROOT_URL}/files`,
+          headers: {
+            Authorization: data.handler.accessToken,
+            ...formData.getHeaders(),
+          },
+          data: formData,
+        };
+        // console.log(`---- Axios config`, JSON.stringify(config, null, ' '));
+
+        const uploadFileResult = await axios(config)
+          .then(function (response) {
+            return {
+              error: undefined,
+              data: response.data,
+            };
+          })
+          .catch(function (error) {
+            console.log(error);
+            return {
+              error: {
+                code: '',
+                message: error.messaage,
+              },
+              data: undefined,
+            };
           });
-          console.log(
-            `---- Write Excel file ${outFilePath}`,
-            JSON.stringify(writeFileResult, null, ' '),
-          );
-          break;
+
+        console.log(
+          `---- Upload file result`,
+          JSON.stringify(uploadFileResult, null, ' '),
+        );
+
+        if (uploadFileResult.data) {
+          exportData.fileId = uploadFileResult.data.id.toString();
         }
-        case ExportData_OutputFileType.CSV: {
-          break;
-        }
-        default:
-          break;
+
+        processExportDataResult = await this.exportDatasRepository.update(
+          exportData.id,
+          {
+            fileId: exportData.fileId,
+            status: ExportData_Status.Done,
+            results: exportData.results,
+          },
+        );
       }
-
-      const formData = new FormData();
-      formData.append('file', fs.createReadStream(outFilePath));
-      formData.append('note', exportData.note);
-      formData.append('tags', '["export-data"]');
-
-      const config: AxiosRequestConfig = {
-        method: 'post',
-        maxBodyLength: Infinity,
-        url: `${process.env.STORAGE_API_ROOT_URL}/files`,
-        headers: {
-          Authorization: data.handler.accessToken,
-          ...formData.getHeaders(),
-        },
-        data: formData,
-      };
-      // console.log(`---- Axios config`, JSON.stringify(config, null, ' '));
-
-      const uploadFileResult = await axios(config)
-        .then(function (response) {
-          return {
-            error: undefined,
-            data: response.data,
-          };
-        })
-        .catch(function (error) {
-          console.log(error);
-          return {
-            error: {
-              code: '',
-              message: error.messaage,
-            },
-            data: undefined,
-          };
-        });
-
-      console.log(
-        `---- Upload file result`,
-        JSON.stringify(uploadFileResult, null, ' '),
-      );
-
-      if (uploadFileResult.data) {
-        exportData.fileId = uploadFileResult.data.id.toString();
-      }
-
-      processExportDataResult = await this.exportDatasRepository.update(
-        exportData.id,
-        {
-          fileId: exportData.fileId,
-          status: ExportData_Status.Done,
-          results: exportData.results,
-        },
-      );
     }
     return processExportDataResult;
   }

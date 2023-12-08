@@ -19,6 +19,7 @@ export class MSSQLActivity {
   type = '';
   ptpAmount: number | null | undefined;
   createdAt: Date | null | undefined;
+  performedAt: Date | null | undefined;
 }
 export class MSSQLCustomer {
   refId = '';

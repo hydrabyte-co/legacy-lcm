@@ -29,6 +29,7 @@ import { Controllers } from 'src/common/enums/controllers';
 import { ExportData } from './entity/export-data.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { EventPattern, Ctx, Payload, RmqContext } from '@nestjs/microservices';
+import { getTypeOf } from 'src/common/utils/object-helper';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Controllers.LCM_ExportData)
@@ -77,6 +78,11 @@ export class ExportDatasController extends BaseController {
   async handleEvent(@Payload() data: any, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
+    if (typeof data === 'string') {
+      try {
+        data = JSON.parse(data);
+      } catch (error) {}
+    }
     await this.exportDatasService.handleProcessExportData(data);
     channel.ack(originalMsg);
     return 'ack';

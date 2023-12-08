@@ -236,638 +236,644 @@ export class ImportDataService extends BaseService<ImportData> {
     console.log(``);
     console.log(`Process Data File`);
     console.log(`-- Received data from message queue`, data);
-    const importData = await this.importDatasRepository.findOneBy(
-      {
-        _id: ObjectId.createFromHexString(data.importDataId),
-      },
-      //data.importDataId,
-    );
-    console.log(`-- Data file`, importData);
-    if (importData) {
-      const updateImportDataResult = await this.importDatasRepository.update(
-        importData.id,
-        { status: ImportData_Status.Processing },
+    let objectId;
+    let processExportDataResult;
+    try {
+      objectId = ObjectId.createFromHexString(data.importDataId);
+    } catch (error) {}
+    if (objectId) {
+      const importData = await this.importDatasRepository.findOneBy(
+        {
+          _id: objectId,
+        },
+        //data.importDataId,
       );
-      console.log(
-        `-- Update data file status to 'processing'`,
-        updateImportDataResult.affected > 0,
-      );
-      importData.status = ImportData_Status.Processing;
-
-      const now = new Date();
-      const dataDirPath = './data';
-      const importDataPath = `${dataDirPath}/${now.getTime()}.xlsx`;
-      if (!fs.existsSync(dataDirPath)) {
-        console.log(
-          `-- Directory '${dataDirPath} not existed, create new one...'`,
+      console.log(`-- Data file`, importData);
+      if (importData) {
+        const updateImportDataResult = await this.importDatasRepository.update(
+          importData.id,
+          { status: ImportData_Status.Processing },
         );
-        fs.mkdirSync(dataDirPath);
-      }
-      const downloadFileResult = await downloadFile(
-        importData.fileName,
-        importDataPath,
-      );
-      console.log(
-        `-- Download file '${importData.fileName} to '${importDataPath}'`,
-        downloadFileResult,
-      );
+        console.log(
+          `-- Update data file status to 'processing'`,
+          updateImportDataResult.affected > 0,
+        );
+        importData.status = ImportData_Status.Processing;
 
-      if (getTypeOf(importData.settings.sheets) === 'array') {
-        for (let i = 0; i < importData.settings.sheets.length; i++) {
-          const sheet = importData.settings.sheets[i];
-          const sheetProcessResult = {
-            name: sheet.name,
-            totalCount: 0,
-            validCount: 0,
-            errorCount: 0,
-            insertCount: 0,
-            updateCount: 0,
-            errors: [],
-          };
-          let readResult = undefined;
-          let readSchema = undefined;
+        const now = new Date();
+        const dataDirPath = './data';
+        const importDataPath = `${dataDirPath}/${now.getTime()}.xlsx`;
+        if (!fs.existsSync(dataDirPath)) {
+          console.log(
+            `-- Directory '${dataDirPath} not existed, create new one...'`,
+          );
+          fs.mkdirSync(dataDirPath);
+        }
+        const downloadFileResult = await downloadFile(
+          importData.fileName,
+          importDataPath,
+        );
+        console.log(
+          `-- Download file '${importData.fileName} to '${importDataPath}'`,
+          downloadFileResult,
+        );
 
-          switch (sheet.toTable) {
-            case ImportData_ToTable.Customer: {
-              readSchema = CustomerXlsxSchema;
-              break;
-            }
-            case ImportData_ToTable.Contract: {
-              readSchema = ContractXlsxSchema;
-              break;
-            }
-            case ImportData_ToTable.Reference: {
-              readSchema = ReferenceXlsxSchema;
-              break;
-            }
-            case ImportData_ToTable.Activity: {
-              readSchema = ActivityXlsxSchema;
-              break;
-            }
-            case ImportData_ToTable.Investigation: {
-              readSchema = InvestigationXlsxSchema;
-              break;
-            }
-            case ImportData_ToTable.Transaction: {
-              readSchema = TransactionXlsxSchema;
-              break;
-            }
-            default:
-              break;
-          }
-          readResult = await readXlsxFile(importDataPath, {
-            schema: readSchema,
-            sheet: sheet.name,
-          })
-            .then((result) => {
-              return result;
-            })
-            .catch((e) => {
-              return undefined;
-            });
-          if (readResult != undefined) {
-            sheetProcessResult.validCount = readResult.rows.length;
-            sheetProcessResult.errorCount = readResult.errors.length;
-            sheetProcessResult.errors = readResult.errors;
-            console.log(`---- `);
-            console.log(
-              `---- Process Data File '${importDataPath}' Sheet(${i}/${importData.settings.sheets.length}) '${sheet.name}': ${readResult.rows.length} rows, ${readResult.errors.length} errors`,
-            );
-            console.log(`---- Import Rule '${sheet.rule}'`);
-            console.log(`---- To Table '${sheet.toTable}'`);
+        if (getTypeOf(importData.settings.sheets) === 'array') {
+          for (let i = 0; i < importData.settings.sheets.length; i++) {
+            const sheet = importData.settings.sheets[i];
+            const sheetProcessResult = {
+              name: sheet.name,
+              totalCount: 0,
+              validCount: 0,
+              errorCount: 0,
+              insertCount: 0,
+              updateCount: 0,
+              errors: [],
+            };
+            let readResult = undefined;
+            let readSchema = undefined;
 
-            switch (sheet.rule) {
-              case ImportData_ImportRule.CloseAll: {
-                if (sheet.toTable === ImportData_ToTable.Customer) {
-                  const updateAllCustomerResult =
-                    await this.customersRepository.update(
-                      { partnerCode: importData.partnerCode },
-                      { status: CustomerStatus.Closed },
-                    );
-                  console.log(
-                    `---- Update status of all customers  to 'closed'`,
-                    updateAllCustomerResult,
-                  );
-                }
-                if (sheet.toTable === ImportData_ToTable.Contract) {
-                  const updateAllContractResult =
-                    await this.contractsRepository.update(
-                      { partnerCode: importData.partnerCode },
-                      { status: ContractStatus.Closed },
-                    );
-                  console.log(
-                    `---- Update status of all contracts to 'closed'`,
-                    updateAllContractResult,
-                  );
-                }
+            switch (sheet.toTable) {
+              case ImportData_ToTable.Customer: {
+                readSchema = CustomerXlsxSchema;
                 break;
               }
-              case ImportData_ImportRule.DeleteAll: {
-                if (sheet.toTable === ImportData_ToTable.Investigation) {
-                  const deleteAllImportedRecordsResults =
-                    await this.investigationsRepository.deleteMany({
-                      $and: [
-                        { fromFile: { $ne: null } },
-                        { fromFile: { $ne: '' } },
-                        { partnerCode: importData.partnerCode },
-                      ],
-                    });
-                  console.log(
-                    `---- Delete all imported Investigations`,
-                    deleteAllImportedRecordsResults,
-                  );
-                }
-                if (sheet.toTable === ImportData_ToTable.Reference) {
-                  const deleteAllImportedRecordsResults =
-                    await this.referencesRepository.deleteMany({
-                      $and: [
-                        { fromFile: { $ne: null } },
-                        { fromFile: { $ne: '' } },
-                        { partnerCode: importData.partnerCode },
-                      ],
-                    });
-                  console.log(
-                    `---- Delete all imported References`,
-                    deleteAllImportedRecordsResults,
-                  );
-                }
-                if (sheet.toTable === ImportData_ToTable.Transaction) {
-                  const deleteAllImportedRecordsResults =
-                    await this.transactionsRepository.deleteMany({
-                      $and: [
-                        { fromFile: { $ne: null } },
-                        { fromFile: { $ne: '' } },
-                        { partnerCode: importData.partnerCode },
-                      ],
-                    });
-                  console.log(
-                    `---- Delete all imported Transactions`,
-                    deleteAllImportedRecordsResults,
-                  );
-                }
+              case ImportData_ToTable.Contract: {
+                readSchema = ContractXlsxSchema;
+                break;
+              }
+              case ImportData_ToTable.Reference: {
+                readSchema = ReferenceXlsxSchema;
+                break;
+              }
+              case ImportData_ToTable.Activity: {
+                readSchema = ActivityXlsxSchema;
+                break;
+              }
+              case ImportData_ToTable.Investigation: {
+                readSchema = InvestigationXlsxSchema;
+                break;
+              }
+              case ImportData_ToTable.Transaction: {
+                readSchema = TransactionXlsxSchema;
                 break;
               }
               default:
                 break;
             }
-            for (let j = 0; j < readResult.rows.length; j++) {
-              const row = readResult.rows[j];
+            readResult = await readXlsxFile(importDataPath, {
+              schema: readSchema,
+              sheet: sheet.name,
+            })
+              .then((result) => {
+                return result;
+              })
+              .catch((e) => {
+                return undefined;
+              });
+            if (readResult != undefined) {
+              sheetProcessResult.validCount = readResult.rows.length;
+              sheetProcessResult.errorCount = readResult.errors.length;
+              sheetProcessResult.errors = readResult.errors;
+              console.log(`---- `);
               console.log(
-                `------ Row(${j}/${readResult.rows.length}) raw data`,
-                row,
+                `---- Process Data File '${importDataPath}' Sheet(${i}/${importData.settings.sheets.length}) '${sheet.name}': ${readResult.rows.length} rows, ${readResult.errors.length} errors`,
               );
+              console.log(`---- Import Rule '${sheet.rule}'`);
+              console.log(`---- To Table '${sheet.toTable}'`);
 
-              switch (sheet.toTable) {
-                case ImportData_ToTable.Customer: {
-                  row.identityNumber = replaceRegexPatternFromString(
-                    row.identityNumber,
-                    '[^0-9]+',
-                    '',
-                  );
-                  row.mobileNumber = replaceRegexPatternFromString(
-                    row.mobileNumber,
-                    '[^0-9]+',
-                    '',
-                  );
-                  row.officeNumber = replaceRegexPatternFromString(
-                    row.officeNumber,
-                    '[^0-9]+',
-                    '',
-                  );
-                  row.gender = (row.gender || '')
-                    .toString()
-                    .toLowerCase()
-                    .trim();
-                  if (['phụ nữ', 'nữ', 'gái'].indexOf(row.gender) >= 0) {
-                    row.gender = 'female';
-                  }
-                  if (['đàn ông', 'nam', 'trai'].indexOf(row.gender) >= 0) {
-                    row.gender = 'male';
-                  }
-                  if (row.status.toLowerCase().indexOf('a') === 0) {
-                    row.status = 'active';
-                  }
-                  if (row.dob) row.dob = row.dob.toISOString().split('T')[0];
-                  if (!row.callStaffCode) row.callStaffCode = '_';
-                  row.fromFile = importData.fileName;
-                  row.queuedAt = 0;
-                  row.syncedAt = 0;
-                  console.log(
-                    `------ Row(${j}/${readResult.rows.length}) handled data`,
-                    row,
-                  );
-                  const foundCustomer = await this._customersRepo.findOne({
-                    where: { code: row.code },
-                  });
-
-                  if (foundCustomer) {
-                    const updateCustomerResult =
-                      await this._customersRepo.update(foundCustomer.id, row);
-                    console.log(
-                      `------ Find customer by code '${row.code}'`,
-                      foundCustomer,
-                    );
-                    console.log(
-                      `------ Update customer:`,
-                      (updateCustomerResult as any).result,
-                    );
-                    if (updateCustomerResult.affected > 0) {
-                      sheetProcessResult.updateCount++;
-                    }
-                  } else {
-                    row.isDeleted = false;
-                    row.owner = {
-                      orgId: data.handler.orgId,
-                      userId: '',
-                    };
-                    const createCustomerResult = await this._customersRepo.save(
-                      row,
-                    );
-                    console.log(
-                      `------ Create customer:`,
-                      createCustomerResult,
-                    );
-                    if (createCustomerResult) {
-                      sheetProcessResult.insertCount++;
-                    }
-                  }
-                  break;
-                }
-                case ImportData_ToTable.Contract: {
-                  if (row.status.toLowerCase().indexOf('a') === 0) {
-                    row.status = 'active';
-                  }
-                  row.fromFile = importData.fileName;
-                  row.queuedAt = 0;
-                  row.syncedAt = 0;
-                  console.log(
-                    `------ Row(${j}/${readResult.rows.length}) handled data`,
-                    row,
-                  );
-                  const foundContract = await this._contractsRepo.findOne({
-                    where: { code: row.code },
-                  });
-
-                  if (foundContract) {
-                    const updateContractResult =
-                      await this._contractsRepo.update(foundContract.id, row);
-                    console.log(
-                      `------ Find contract by code '${row.code}'`,
-                      foundContract,
-                    );
-                    console.log(
-                      `------ Update contract:`,
-                      (updateContractResult as any).result,
-                    );
-                    if (updateContractResult.affected > 0) {
-                      sheetProcessResult.updateCount++;
-                    }
-                  } else {
-                    row.isDeleted = false;
-                    row.owner = {
-                      orgId: data.handler.orgId,
-                      userId: '',
-                    };
-                    const createContractResult = await this._contractsRepo.save(
-                      row,
-                    );
-                    console.log(
-                      `------ Create contract:`,
-                      createContractResult,
-                    );
-                    if (createContractResult) {
-                      sheetProcessResult.insertCount++;
-                    }
-                  }
-                  break;
-                }
-                case ImportData_ToTable.Transaction: {
-                  row.fromFile = importData.fileName;
-                  row.queuedAt = 0;
-                  row.syncedAt = 0;
-                  console.log(
-                    `------ Row(${j}/${readResult.rows.length}) handled data`,
-                    row,
-                  );
-                  const foundTransaction = await this._transactionsRepo.findOne(
-                    {
-                      where: {
-                        customerCode: row.customerCode,
-                        amount: row.amount,
-                        date: row.date,
-                      },
-                    },
-                  );
-
-                  if (foundTransaction) {
-                    const updateTransactionResult =
-                      await this._transactionsRepo.update(
-                        foundTransaction.id,
-                        row,
+              switch (sheet.rule) {
+                case ImportData_ImportRule.CloseAll: {
+                  if (sheet.toTable === ImportData_ToTable.Customer) {
+                    const updateAllCustomerResult =
+                      await this.customersRepository.update(
+                        { partnerCode: importData.partnerCode },
+                        { status: CustomerStatus.Closed },
                       );
                     console.log(
-                      `------ Find transaction by customerCode '${row.customerCode}', amount '${row.amount}', date '${row.date}'`,
-                      foundTransaction,
+                      `---- Update status of all customers  to 'closed'`,
+                      updateAllCustomerResult,
                     );
+                  }
+                  if (sheet.toTable === ImportData_ToTable.Contract) {
+                    const updateAllContractResult =
+                      await this.contractsRepository.update(
+                        { partnerCode: importData.partnerCode },
+                        { status: ContractStatus.Closed },
+                      );
                     console.log(
-                      `------ Update transaction:`,
-                      (updateTransactionResult as any).result,
+                      `---- Update status of all contracts to 'closed'`,
+                      updateAllContractResult,
                     );
-                    if (updateTransactionResult.affected > 0) {
-                      sheetProcessResult.updateCount++;
-                    }
-                  } else {
-                    row.isDeleted = false;
-                    row.owner = {
-                      orgId: data.handler.orgId,
-                      userId: '',
-                    };
-                    const createContractResult =
-                      await this._transactionsRepo.save(row);
-                    console.log(
-                      `------ Create transaction:`,
-                      createContractResult,
-                    );
-                    if (createContractResult) {
-                      sheetProcessResult.updateCount++;
-                    }
                   }
                   break;
                 }
-                case ImportData_ToTable.Reference: {
-                  row.identityNumber = replaceRegexPatternFromString(
-                    row.identityNumber,
-                    '[^0-9]+',
-                    '',
-                  );
-                  row.mobileNumber = replaceRegexPatternFromString(
-                    row.mobileNumber,
-                    '[^0-9]+',
-                    '',
-                  );
-                  row.officeNumber = replaceRegexPatternFromString(
-                    row.officeNumber,
-                    '[^0-9]+',
-                    '',
-                  );
-                  row.gender = (row.gender || '')
-                    .toString()
-                    .toLowerCase()
-                    .trim();
-                  if (['phụ nữ', 'nữ', 'gái'].indexOf(row.gender) >= 0) {
-                    row.gender = 'female';
-                  }
-                  if (['đàn ông', 'nam', 'trai'].indexOf(row.gender) >= 0) {
-                    row.gender = 'male';
-                  }
-                  if (row.dob) row.dob = row.dob.toISOString().split('T')[0];
-                  row.fromFile = importData.fileName;
-                  row.queuedAt = 0;
-                  row.syncedAt = 0;
-                  console.log(
-                    `------ Row(${j}/${readResult.rows.length}) handled data`,
-                    row,
-                  );
-                  const relation = relations.find(
-                    (r) =>
-                      r.tags.indexOf((row.relationCode + '').toLowerCase()) >=
-                      0,
-                  );
-                  if (relation) {
-                    row.relationCode = relation.code;
-                  } else {
-                    row.relationCode = 'other';
-                  }
-
-                  const foundRefence = await this._referencesRepo.findOne({
-                    where: {
-                      customerCode: row.customerCode,
-                      relationCode: row.relationCode,
-                      mobileNumber: row.mobileNumber,
-                    },
-                  });
-
-                  if (foundRefence) {
-                    const updateReferenceResult =
-                      await this._referencesRepo.update(foundRefence.id, row);
-                    console.log(`------ Find Reference`, foundRefence);
+                case ImportData_ImportRule.DeleteAll: {
+                  if (sheet.toTable === ImportData_ToTable.Investigation) {
+                    const deleteAllImportedRecordsResults =
+                      await this.investigationsRepository.deleteMany({
+                        $and: [
+                          { fromFile: { $ne: null } },
+                          { fromFile: { $ne: '' } },
+                          { partnerCode: importData.partnerCode },
+                        ],
+                      });
                     console.log(
-                      `------ Update Reference:`,
-                      (updateReferenceResult as any).result,
+                      `---- Delete all imported Investigations`,
+                      deleteAllImportedRecordsResults,
                     );
-                    if (updateReferenceResult.affected > 0) {
-                      sheetProcessResult.updateCount++;
-                    }
-                  } else {
-                    row.isDeleted = false;
-                    row.owner = {
-                      orgId: data.handler.orgId,
-                      userId: '',
-                    };
-                    const createReferenceResult =
-                      await this._referencesRepo.save(row);
+                  }
+                  if (sheet.toTable === ImportData_ToTable.Reference) {
+                    const deleteAllImportedRecordsResults =
+                      await this.referencesRepository.deleteMany({
+                        $and: [
+                          { fromFile: { $ne: null } },
+                          { fromFile: { $ne: '' } },
+                          { partnerCode: importData.partnerCode },
+                        ],
+                      });
                     console.log(
-                      `------ Create Reference:`,
-                      createReferenceResult,
+                      `---- Delete all imported References`,
+                      deleteAllImportedRecordsResults,
                     );
-                    if (createReferenceResult) {
-                      sheetProcessResult.insertCount++;
-                    }
                   }
-                  break;
-                }
-                case ImportData_ToTable.Investigation: {
-                  row.fromFile = importData.fileName;
-                  row.queuedAt = 0;
-                  row.syncedAt = 0;
-                  console.log(
-                    `------ Row(${j}/${readResult.rows.length}) handled data`,
-                    row,
-                  );
-                  const type = investigationTypes.find(
-                    (r) => r.tags.indexOf(row.typeCode.toLowerCase()) >= 0,
-                  );
-                  if (type) {
-                    row.typeCode = type.code;
-                  } else {
-                    row.typeCode = 'other';
-                  }
-
-                  const foundInvestigation =
-                    await this._investigationsRepo.findOne({
-                      where: {
-                        customerCode: row.customerCode,
-                        typeCode: row.typeCode,
-                        value: row.value,
-                      },
-                    });
-
-                  if (foundInvestigation) {
+                  if (sheet.toTable === ImportData_ToTable.Transaction) {
+                    const deleteAllImportedRecordsResults =
+                      await this.transactionsRepository.deleteMany({
+                        $and: [
+                          { fromFile: { $ne: null } },
+                          { fromFile: { $ne: '' } },
+                          { partnerCode: importData.partnerCode },
+                        ],
+                      });
                     console.log(
-                      `------ Find Investigation. No thing to do!`,
-                      foundInvestigation,
+                      `---- Delete all imported Transactions`,
+                      deleteAllImportedRecordsResults,
                     );
-                  } else {
-                    row.isDeleted = false;
-                    row.owner = {
-                      orgId: data.handler.orgId,
-                      userId: '',
-                    };
-                    const createReferenceResult =
-                      await this._investigationsRepo.save(row);
-                    console.log(
-                      `------ Create Investigation:`,
-                      createReferenceResult,
-                    );
-                    if (createReferenceResult) {
-                      sheetProcessResult.insertCount++;
-                    }
-                  }
-                  break;
-                }
-                case ImportData_ToTable.Activity: {
-                  const activity = new Activity();
-
-                  if (row.resultCode === 'DTT_Đã tất toán') {
-                    row.resultCode = 'DT2';
-                  }
-                  if (row.resultParentCode === 'DTT_Khách hàng đã tất toán') {
-                    row.resultParentCode = 'DT2';
-                  }
-                  row.resultCode = row.resultCode.split('_')[0];
-                  row.resultParentCode = row.resultParentCode.split('_')[0];
-                  row.fromFile = importData.fileName;
-                  row.queuedAt = 0;
-                  row.syncedAt = 0;
-                  console.log(
-                    `------ Row(${j}/${readResult.rows.length}) handled data`,
-                    row,
-                  );
-
-                  activity.fromFile = importData.fileName;
-                  activity.note = row.note;
-                  activity.type = (row.type || '').toLowerCase().trim();
-                  activity.staffCode = (row.staffCode || '').trim();
-                  activity.customerCode = (row.customerCode || '').trim();
-                  activity.contractCode = (row.contractCode || '').trim();
-                  activity.resultCode = (row.resultCode || '').trim();
-                  activity.resultParentCode = (
-                    row.resultParentCode || ''
-                  ).trim();
-                  activity.contactInfo = {
-                    fullname: '',
-                    relation: {
-                      code: '',
-                      name: '',
-                    },
-                    phoneNumber: '',
-                    note: '',
-                  };
-                  activity.performAt = row.createdAt;
-                  activity.isDeleted = false;
-                  activity.owner = {
-                    orgId: data.handler.orgId,
-                    userId: '',
-                  };
-                  activity.createdBy = {
-                    appId: '',
-                    orgId: data.handler.orgId,
-                    userId: data.handler.userId,
-                    staffCode: data.handler.staffCode,
-                    roles: [],
-                  };
-
-                  const activityType = activityTypes.find(
-                    (r) =>
-                      r.tags.indexOf((activity.type + '').toLowerCase()) >= 0,
-                  );
-                  if (activityType) {
-                    activity.type = activityType.code;
-                  }
-
-                  if (
-                    activity.type === ActivityTypeCode.Call ||
-                    activity.type === ActivityTypeCode.Letter ||
-                    activity.type === ActivityTypeCode.Chat
-                  ) {
-                    if (row.referenceId) {
-                      const arr = row.referenceId.split('-');
-                      if (arr.length === 2) {
-                        activity.contactInfo.relation.code = arr[0].trim();
-                        activity.contactInfo.phoneNumber = arr[1].trim();
-                        activity.contactInfo.note = arr[0].trim();
-
-                        const relation = relations.find(
-                          (r) =>
-                            r.tags.indexOf(
-                              (
-                                activity.contactInfo.relation.code + ''
-                              ).toLowerCase(),
-                            ) >= 0,
-                        );
-
-                        if (relation) {
-                          activity.contactInfo.relation.code = relation.code;
-                          activity.contactInfo.relation.name = relation.name;
-                        }
-
-                        if (
-                          activity.contactInfo.relation.code ===
-                          RelationCode.Client
-                        ) {
-                          const customers = await this.customersRepository.find(
-                            { where: { code: activity.customerCode } },
-                          );
-                          if (customers) {
-                            if (customers.length > 0) {
-                              activity.contactInfo.fullname =
-                                customers[0].fullname;
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                  if (activity.type === ActivityTypeCode.Visit) {
-                    if (row.referenceId) {
-                      activity.contactInfo.address = row.referenceId;
-                    }
-                  }
-
-                  console.log(`------ Activity:`, activity);
-                  const createActivityResult = await this._activitiesRepo.save(
-                    activity,
-                  );
-                  console.log(`------ Create Activity:`, createActivityResult);
-                  if (createActivityResult) {
-                    sheetProcessResult.insertCount++;
                   }
                   break;
                 }
                 default:
                   break;
               }
-            }
-            // End loop of rows
-            console.log(
-              `---- Process Data File '${importDataPath}' Sheet(${i}/${importData.settings.sheets.length}) '${sheet.name}' result`,
-              sheetProcessResult,
-            );
-            for (let j = 0; j < importData.info.sheets.length; j++) {
-              if (importData.info.sheets[j].name === sheet.name)
-                importData.info.sheets[j] = { ...sheetProcessResult };
+              for (let j = 0; j < readResult.rows.length; j++) {
+                const row = readResult.rows[j];
+                console.log(
+                  `------ Row(${j}/${readResult.rows.length}) raw data`,
+                  row,
+                );
+
+                switch (sheet.toTable) {
+                  case ImportData_ToTable.Customer: {
+                    row.identityNumber = replaceRegexPatternFromString(
+                      row.identityNumber,
+                      '[^0-9]+',
+                      '',
+                    );
+                    row.mobileNumber = replaceRegexPatternFromString(
+                      row.mobileNumber,
+                      '[^0-9]+',
+                      '',
+                    );
+                    row.officeNumber = replaceRegexPatternFromString(
+                      row.officeNumber,
+                      '[^0-9]+',
+                      '',
+                    );
+                    row.gender = (row.gender || '')
+                      .toString()
+                      .toLowerCase()
+                      .trim();
+                    if (['phụ nữ', 'nữ', 'gái'].indexOf(row.gender) >= 0) {
+                      row.gender = 'female';
+                    }
+                    if (['đàn ông', 'nam', 'trai'].indexOf(row.gender) >= 0) {
+                      row.gender = 'male';
+                    }
+                    if (row.status.toLowerCase().indexOf('a') === 0) {
+                      row.status = 'active';
+                    }
+                    if (row.dob) row.dob = row.dob.toISOString().split('T')[0];
+                    if (!row.callStaffCode) row.callStaffCode = '_';
+                    row.fromFile = importData.fileName;
+                    row.queuedAt = 0;
+                    row.syncedAt = 0;
+                    console.log(
+                      `------ Row(${j}/${readResult.rows.length}) handled data`,
+                      row,
+                    );
+                    const foundCustomer = await this._customersRepo.findOne({
+                      where: { code: row.code },
+                    });
+
+                    if (foundCustomer) {
+                      const updateCustomerResult =
+                        await this._customersRepo.update(foundCustomer.id, row);
+                      console.log(
+                        `------ Find customer by code '${row.code}'`,
+                        foundCustomer,
+                      );
+                      console.log(
+                        `------ Update customer:`,
+                        (updateCustomerResult as any).result,
+                      );
+                      if (updateCustomerResult.affected > 0) {
+                        sheetProcessResult.updateCount++;
+                      }
+                    } else {
+                      row.isDeleted = false;
+                      row.owner = {
+                        orgId: data.handler.orgId,
+                        userId: '',
+                      };
+                      const createCustomerResult =
+                        await this._customersRepo.save(row);
+                      console.log(
+                        `------ Create customer:`,
+                        createCustomerResult,
+                      );
+                      if (createCustomerResult) {
+                        sheetProcessResult.insertCount++;
+                      }
+                    }
+                    break;
+                  }
+                  case ImportData_ToTable.Contract: {
+                    if (row.status.toLowerCase().indexOf('a') === 0) {
+                      row.status = 'active';
+                    }
+                    row.fromFile = importData.fileName;
+                    row.queuedAt = 0;
+                    row.syncedAt = 0;
+                    console.log(
+                      `------ Row(${j}/${readResult.rows.length}) handled data`,
+                      row,
+                    );
+                    const foundContract = await this._contractsRepo.findOne({
+                      where: { code: row.code },
+                    });
+
+                    if (foundContract) {
+                      const updateContractResult =
+                        await this._contractsRepo.update(foundContract.id, row);
+                      console.log(
+                        `------ Find contract by code '${row.code}'`,
+                        foundContract,
+                      );
+                      console.log(
+                        `------ Update contract:`,
+                        (updateContractResult as any).result,
+                      );
+                      if (updateContractResult.affected > 0) {
+                        sheetProcessResult.updateCount++;
+                      }
+                    } else {
+                      row.isDeleted = false;
+                      row.owner = {
+                        orgId: data.handler.orgId,
+                        userId: '',
+                      };
+                      const createContractResult =
+                        await this._contractsRepo.save(row);
+                      console.log(
+                        `------ Create contract:`,
+                        createContractResult,
+                      );
+                      if (createContractResult) {
+                        sheetProcessResult.insertCount++;
+                      }
+                    }
+                    break;
+                  }
+                  case ImportData_ToTable.Transaction: {
+                    row.fromFile = importData.fileName;
+                    row.queuedAt = 0;
+                    row.syncedAt = 0;
+                    console.log(
+                      `------ Row(${j}/${readResult.rows.length}) handled data`,
+                      row,
+                    );
+                    const foundTransaction =
+                      await this._transactionsRepo.findOne({
+                        where: {
+                          customerCode: row.customerCode,
+                          amount: row.amount,
+                          date: row.date,
+                        },
+                      });
+
+                    if (foundTransaction) {
+                      const updateTransactionResult =
+                        await this._transactionsRepo.update(
+                          foundTransaction.id,
+                          row,
+                        );
+                      console.log(
+                        `------ Find transaction by customerCode '${row.customerCode}', amount '${row.amount}', date '${row.date}'`,
+                        foundTransaction,
+                      );
+                      console.log(
+                        `------ Update transaction:`,
+                        (updateTransactionResult as any).result,
+                      );
+                      if (updateTransactionResult.affected > 0) {
+                        sheetProcessResult.updateCount++;
+                      }
+                    } else {
+                      row.isDeleted = false;
+                      row.owner = {
+                        orgId: data.handler.orgId,
+                        userId: '',
+                      };
+                      const createContractResult =
+                        await this._transactionsRepo.save(row);
+                      console.log(
+                        `------ Create transaction:`,
+                        createContractResult,
+                      );
+                      if (createContractResult) {
+                        sheetProcessResult.updateCount++;
+                      }
+                    }
+                    break;
+                  }
+                  case ImportData_ToTable.Reference: {
+                    row.identityNumber = replaceRegexPatternFromString(
+                      row.identityNumber,
+                      '[^0-9]+',
+                      '',
+                    );
+                    row.mobileNumber = replaceRegexPatternFromString(
+                      row.mobileNumber,
+                      '[^0-9]+',
+                      '',
+                    );
+                    row.officeNumber = replaceRegexPatternFromString(
+                      row.officeNumber,
+                      '[^0-9]+',
+                      '',
+                    );
+                    row.gender = (row.gender || '')
+                      .toString()
+                      .toLowerCase()
+                      .trim();
+                    if (['phụ nữ', 'nữ', 'gái'].indexOf(row.gender) >= 0) {
+                      row.gender = 'female';
+                    }
+                    if (['đàn ông', 'nam', 'trai'].indexOf(row.gender) >= 0) {
+                      row.gender = 'male';
+                    }
+                    if (row.dob) row.dob = row.dob.toISOString().split('T')[0];
+                    row.fromFile = importData.fileName;
+                    row.queuedAt = 0;
+                    row.syncedAt = 0;
+                    console.log(
+                      `------ Row(${j}/${readResult.rows.length}) handled data`,
+                      row,
+                    );
+                    const relation = relations.find(
+                      (r) =>
+                        r.tags.indexOf((row.relationCode + '').toLowerCase()) >=
+                        0,
+                    );
+                    if (relation) {
+                      row.relationCode = relation.code;
+                    } else {
+                      row.relationCode = 'other';
+                    }
+
+                    const foundRefence = await this._referencesRepo.findOne({
+                      where: {
+                        customerCode: row.customerCode,
+                        relationCode: row.relationCode,
+                        mobileNumber: row.mobileNumber,
+                      },
+                    });
+
+                    if (foundRefence) {
+                      const updateReferenceResult =
+                        await this._referencesRepo.update(foundRefence.id, row);
+                      console.log(`------ Find Reference`, foundRefence);
+                      console.log(
+                        `------ Update Reference:`,
+                        (updateReferenceResult as any).result,
+                      );
+                      if (updateReferenceResult.affected > 0) {
+                        sheetProcessResult.updateCount++;
+                      }
+                    } else {
+                      row.isDeleted = false;
+                      row.owner = {
+                        orgId: data.handler.orgId,
+                        userId: '',
+                      };
+                      const createReferenceResult =
+                        await this._referencesRepo.save(row);
+                      console.log(
+                        `------ Create Reference:`,
+                        createReferenceResult,
+                      );
+                      if (createReferenceResult) {
+                        sheetProcessResult.insertCount++;
+                      }
+                    }
+                    break;
+                  }
+                  case ImportData_ToTable.Investigation: {
+                    row.fromFile = importData.fileName;
+                    row.queuedAt = 0;
+                    row.syncedAt = 0;
+                    console.log(
+                      `------ Row(${j}/${readResult.rows.length}) handled data`,
+                      row,
+                    );
+                    const type = investigationTypes.find(
+                      (r) => r.tags.indexOf(row.typeCode.toLowerCase()) >= 0,
+                    );
+                    if (type) {
+                      row.typeCode = type.code;
+                    } else {
+                      row.typeCode = 'other';
+                    }
+
+                    const foundInvestigation =
+                      await this._investigationsRepo.findOne({
+                        where: {
+                          customerCode: row.customerCode,
+                          typeCode: row.typeCode,
+                          value: row.value,
+                        },
+                      });
+
+                    if (foundInvestigation) {
+                      console.log(
+                        `------ Find Investigation. No thing to do!`,
+                        foundInvestigation,
+                      );
+                    } else {
+                      row.isDeleted = false;
+                      row.owner = {
+                        orgId: data.handler.orgId,
+                        userId: '',
+                      };
+                      const createReferenceResult =
+                        await this._investigationsRepo.save(row);
+                      console.log(
+                        `------ Create Investigation:`,
+                        createReferenceResult,
+                      );
+                      if (createReferenceResult) {
+                        sheetProcessResult.insertCount++;
+                      }
+                    }
+                    break;
+                  }
+                  case ImportData_ToTable.Activity: {
+                    const activity = new Activity();
+
+                    if (row.resultCode === 'DTT_Đã tất toán') {
+                      row.resultCode = 'DT2';
+                    }
+                    if (row.resultParentCode === 'DTT_Khách hàng đã tất toán') {
+                      row.resultParentCode = 'DT2';
+                    }
+                    row.resultCode = row.resultCode.split('_')[0];
+                    row.resultParentCode = row.resultParentCode.split('_')[0];
+                    row.fromFile = importData.fileName;
+                    row.queuedAt = 0;
+                    row.syncedAt = 0;
+                    console.log(
+                      `------ Row(${j}/${readResult.rows.length}) handled data`,
+                      row,
+                    );
+
+                    activity.fromFile = importData.fileName;
+                    activity.note = row.note;
+                    activity.type = (row.type || '').toLowerCase().trim();
+                    activity.staffCode = (row.staffCode || '').trim();
+                    activity.customerCode = (row.customerCode || '').trim();
+                    activity.contractCode = (row.contractCode || '').trim();
+                    activity.resultCode = (row.resultCode || '').trim();
+                    activity.resultParentCode = (
+                      row.resultParentCode || ''
+                    ).trim();
+                    activity.contactInfo = {
+                      fullname: '',
+                      relation: {
+                        code: '',
+                        name: '',
+                      },
+                      phoneNumber: '',
+                      note: '',
+                    };
+                    activity.performAt = row.createdAt;
+                    activity.isDeleted = false;
+                    activity.owner = {
+                      orgId: data.handler.orgId,
+                      userId: '',
+                    };
+                    activity.createdBy = {
+                      appId: '',
+                      orgId: data.handler.orgId,
+                      userId: data.handler.userId,
+                      staffCode: data.handler.staffCode,
+                      roles: [],
+                    };
+
+                    const activityType = activityTypes.find(
+                      (r) =>
+                        r.tags.indexOf((activity.type + '').toLowerCase()) >= 0,
+                    );
+                    if (activityType) {
+                      activity.type = activityType.code;
+                    }
+
+                    if (
+                      activity.type === ActivityTypeCode.Call ||
+                      activity.type === ActivityTypeCode.Letter ||
+                      activity.type === ActivityTypeCode.Chat
+                    ) {
+                      if (row.referenceId) {
+                        const arr = row.referenceId.split('-');
+                        if (arr.length === 2) {
+                          activity.contactInfo.relation.code = arr[0].trim();
+                          activity.contactInfo.phoneNumber = arr[1].trim();
+                          activity.contactInfo.note = arr[0].trim();
+
+                          const relation = relations.find(
+                            (r) =>
+                              r.tags.indexOf(
+                                (
+                                  activity.contactInfo.relation.code + ''
+                                ).toLowerCase(),
+                              ) >= 0,
+                          );
+
+                          if (relation) {
+                            activity.contactInfo.relation.code = relation.code;
+                            activity.contactInfo.relation.name = relation.name;
+                          }
+
+                          if (
+                            activity.contactInfo.relation.code ===
+                            RelationCode.Client
+                          ) {
+                            const customers =
+                              await this.customersRepository.find({
+                                where: { code: activity.customerCode },
+                              });
+                            if (customers) {
+                              if (customers.length > 0) {
+                                activity.contactInfo.fullname =
+                                  customers[0].fullname;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    if (activity.type === ActivityTypeCode.Visit) {
+                      if (row.referenceId) {
+                        activity.contactInfo.address = row.referenceId;
+                      }
+                    }
+
+                    console.log(`------ Activity:`, activity);
+                    const createActivityResult =
+                      await this._activitiesRepo.save(activity);
+                    console.log(
+                      `------ Create Activity:`,
+                      createActivityResult,
+                    );
+                    if (createActivityResult) {
+                      sheetProcessResult.insertCount++;
+                    }
+                    break;
+                  }
+                  default:
+                    break;
+                }
+              }
+              // End loop of rows
+              console.log(
+                `---- Process Data File '${importDataPath}' Sheet(${i}/${importData.settings.sheets.length}) '${sheet.name}' result`,
+                sheetProcessResult,
+              );
+              for (let j = 0; j < importData.info.sheets.length; j++) {
+                if (importData.info.sheets[j].name === sheet.name)
+                  importData.info.sheets[j] = { ...sheetProcessResult };
+              }
             }
           }
+          // End loop of sheets
         }
-        // End loop of sheets
       }
+      const updateImportDataResult = await super.updateOne(
+        importData.id.toString(),
+        { status: ImportData_Status.Done, info: importData.info },
+        data.handler,
+      );
     }
-    const updateImportDataResult = await super.updateOne(
-      importData.id.toString(),
-      { status: ImportData_Status.Done, info: importData.info },
-      data.handler,
-    );
-
-    return updateImportDataResult;
+    return processExportDataResult;
   }
 }
