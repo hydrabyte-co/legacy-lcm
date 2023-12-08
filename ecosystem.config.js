@@ -11,6 +11,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         API_PORT: 3005,
+        RABBITMQ_QUEUE: 'lcm-file',
       },
     },
     {
@@ -24,7 +25,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         APP_TYPE: 'microservice',
-        RABBITMQ_QUEUE: 'lsm-file',
+        RABBITMQ_QUEUE: 'lcm-file',
       },
     },
     {
@@ -38,7 +39,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         APP_TYPE: 'microservice',
-        RABBITMQ_QUEUE: 'lsm-sync',
+        RABBITMQ_QUEUE: 'lcm-sync',
       },
     },
     {
