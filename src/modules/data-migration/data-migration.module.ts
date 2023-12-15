@@ -38,7 +38,7 @@ import { Services } from 'src/common/enums/services';
             process.env.RABBITMQ_URL ||
               'amqp://admin:SecurePassword@10.0.0.40?heartbeat=30',
           ],
-          queue: `${process.env.RABBITMQ_QUEUE || 'lcm'}`,
+          queue: `${process.env.RABBITMQ_QUEUE || 'lcm-sync'}`,
           noAck: false,
           prefetchCount: 1,
           queueOptions: {

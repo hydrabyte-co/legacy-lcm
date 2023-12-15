@@ -42,7 +42,7 @@ import { InvestigationModule } from '../investigation/investigation.module';
             process.env.RABBITMQ_URL ||
               'amqp://admin:SecurePassword@10.0.0.40?heartbeat=30',
           ],
-          queue: `${process.env.RABBITMQ_QUEUE || 'lcm'}`,
+          queue: `${process.env.RABBITMQ_QUEUE || 'lcm-sync'}`,
           queueOptions: {
             durable: false,
           },

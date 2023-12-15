@@ -575,13 +575,13 @@ export class EventService {
       ,[permanentAddress] = N'${importData.permanentAddress}'
       ,[createdAt] = '${importData.createdAt || ''}'
       ,[identityNumber] = '${importData.identityNumber}'
-      ,[priority] = '${
+      ,[priority] = ${
         importData.priority !== undefined &&
         importData.priority !== null &&
         importData.priority.toString() !== ''
           ? importData.priority
           : 'NULL'
-      }'
+      }
       ,[status] = '${importData.status}'
       ,[fromFile] = '${importData.fromFile}'
       ,[officeName] = N'${importData.officeName}'
