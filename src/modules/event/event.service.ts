@@ -54,7 +54,7 @@ export class EventService {
   async handleDataMigration(data: any): Promise<any> {
     logInfo(`*`, `EventService.handleDataMigartion -> data`, data);
     if (data) {
-      let batchSize = 1000;
+      let batchSize = 10000;
       let updateStatusResult;
       const currentTimestamp = new Date().getTime();
 
@@ -135,7 +135,7 @@ export class EventService {
           `EventService.handleDataMigartion -> document '${
             data.collectionName
           }' ${j + 1}/${documents.length}`,
-          document.id,
+          document,
         );
         let updateQueueTimeResults;
         const updateQuery = {
