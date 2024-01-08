@@ -88,7 +88,11 @@ export class DataMigrationWorker {
               };
               const createDMResult =
                 await this.dataMigrationService.createNoData(dataMigration);
-              logInfo(`*`, `DataMigrationWorker -> `, createDMResult);
+              logInfo(
+                `*`,
+                `DataMigrationWorker -> `,
+                JSON.stringify(createDMResult, null, 4),
+              );
             }
           }
           this.isJobProcessing = false;
