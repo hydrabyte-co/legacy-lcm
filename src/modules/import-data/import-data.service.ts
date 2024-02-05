@@ -499,7 +499,7 @@ export class ImportDataService extends BaseService<ImportData> {
                     break;
                   }
                   case ImportData_ToTable.Contract: {
-                    if (row.status.toLowerCase().indexOf('a') === 0) {
+                    if (row.status?.toLowerCase().indexOf('a') === 0) {
                       row.status = 'active';
                     }
                     row.fromFile = importData.fileName;
