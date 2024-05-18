@@ -4,6 +4,7 @@ import {
   VersioningType,
 } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import * as bodyParser from 'body-parser';
 import { MongoRepository } from 'typeorm';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
@@ -92,6 +93,8 @@ async function bootstrap() {
       app.enableVersioning({
         type: VersioningType.URI,
       });
+      app.use(bodyParser.json({ limit: '50mb' }));
+      app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
       app.useGlobalPipes(new ValidationPipe());
 
       await app.listen(apiPort);
