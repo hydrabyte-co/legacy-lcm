@@ -10,10 +10,10 @@ import {
   IsObject,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { ActivityTypeCode } from '../enum/activity.enum';
 
-@Entity(Controllers.LCM_Activities)
+@Entity(Resources.LCM_Activities)
 export class Activity extends Base {
   @Column({ unique: false })
   @IsString()

@@ -9,10 +9,10 @@ import {
   IsEnum,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { ContractStatus } from '../enum/contract.enum';
 
-@Entity(Controllers.LCM_Contracts)
+@Entity(Resources.LCM_Contracts)
 export class Contract extends Base {
   @Column({ unique: true })
   @IsString()

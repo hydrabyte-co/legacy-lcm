@@ -8,10 +8,10 @@ import {
   RmqContext,
 } from '@nestjs/microservices';
 import { MessagePattern as EventPatterns } from './enum/event.enum';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { logInfo } from 'src/common/utils/log-helper';
 
-@Controller(Controllers.Event)
+@Controller(Resources.Event)
 export class EventController {
   constructor(private readonly eventService: EventService) {}
 

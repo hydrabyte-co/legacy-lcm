@@ -8,9 +8,9 @@ import {
   IsNumber,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 
-@Entity(Controllers.LCM_Results)
+@Entity(Resources.LCM_Results)
 export class Result extends Base {
   @Column({ unique: true })
   @IsString()

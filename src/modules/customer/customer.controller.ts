@@ -25,13 +25,13 @@ import { FindCustomerByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { Customer } from './entity/customer.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_Customers)
-@Controller(Controllers.LCM_Customers)
+@ControllerInfo(Resources.LCM_Customers)
+@Controller(Resources.LCM_Customers)
 export class CustomersController extends BaseController {
   constructor(private readonly customersService: CustomerService) {
     super(customersService);

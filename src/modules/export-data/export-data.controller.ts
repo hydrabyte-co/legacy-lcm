@@ -25,15 +25,15 @@ import { FindExportDataByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { ExportData } from './entity/export-data.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { EventPattern, Ctx, Payload, RmqContext } from '@nestjs/microservices';
 import { getTypeOf } from 'src/common/utils/object-helper';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_ExportData)
-@Controller(Controllers.LCM_ExportData)
+@ControllerInfo(Resources.LCM_ExportData)
+@Controller(Resources.LCM_ExportData)
 export class ExportDatasController extends BaseController {
   constructor(private readonly exportDatasService: ExportDataService) {
     super(exportDatasService);

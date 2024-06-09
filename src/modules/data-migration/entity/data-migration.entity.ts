@@ -8,7 +8,7 @@ import {
   IsArray,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import {
   DataMigration_Collections,
   DataMigration_Status,
@@ -29,7 +29,7 @@ export type DataMigration_Result = {
   failedCount: number;
 };
 
-@Entity(Controllers.LCM_DataMigration)
+@Entity(Resources.LCM_DataMigration)
 export class DataMigration extends Base {
   @Column()
   collectionName = '';

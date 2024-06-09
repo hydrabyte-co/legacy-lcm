@@ -31,12 +31,12 @@ import { FindInvestigationByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { Investigation } from './entity/investigation.entity';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_Investigations)
-@Controller(Controllers.LCM_Investigations)
+@ControllerInfo(Resources.LCM_Investigations)
+@Controller(Resources.LCM_Investigations)
 export class InvestigationsController extends BaseController {
   constructor(private readonly investigationsService: InvestigationService) {
     super(investigationsService);

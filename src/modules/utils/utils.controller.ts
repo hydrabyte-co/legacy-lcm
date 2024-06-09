@@ -22,16 +22,16 @@ import {
 import { UtilService } from './utils.service';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import {
   UpdateTransactionData,
   UpdateTransactionResult,
 } from '../transaction/dto/update-one.dto';
-import { CustomerData } from './dto/util';
+import { CustomerData, OriginateAutoCallData } from './dto/util';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.Util)
-@Controller(Controllers.Util)
+@ControllerInfo(Resources.Util)
+@Controller(Resources.Util)
 export class UtilController {
   constructor(private readonly utilService: UtilService) {}
 
@@ -48,5 +48,16 @@ export class UtilController {
     } else {
       throw new BadRequestException({ messages: ['invalid customers data'] });
     }
+  }
+
+  @Post('/originate-auto-call')
+  @UseGuards(AuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  async originateAutoCall(
+    @Body() data: OriginateAutoCallData,
+    @Req() req,
+  ): Promise<any> {
+    const handler = req.user || new DataHandler();
+    return this.utilService.originateAutoCall(data, handler);
   }
 }

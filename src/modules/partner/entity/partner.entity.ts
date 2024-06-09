@@ -7,9 +7,9 @@ import {
   IsDate,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 
-@Entity(Controllers.LCM_Partners)
+@Entity(Resources.LCM_Partners)
 export class Partner extends Base {
   @Column({ unique: true })
   code = '';

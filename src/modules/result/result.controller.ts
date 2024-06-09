@@ -25,12 +25,12 @@ import { FindResultByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { Result } from './entity/result.entity';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_Results)
-@Controller(Controllers.LCM_Results)
+@ControllerInfo(Resources.LCM_Results)
+@Controller(Resources.LCM_Results)
 export class ResultsController extends BaseController {
   constructor(private readonly resultsService: ResultService) {
     super(resultsService);

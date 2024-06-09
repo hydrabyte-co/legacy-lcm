@@ -10,10 +10,10 @@ import {
   IsArray,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { StaffStatus, StaffType } from '../enum/staff.enum';
 
-@Entity(Controllers.LCM_Staff)
+@Entity(Resources.LCM_Staff)
 export class Staff extends Base {
   @Column()
   hostname = '';

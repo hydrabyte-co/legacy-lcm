@@ -29,14 +29,14 @@ import { FindImportDataByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { ImportData } from './entity/import-data.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { EventPattern, Ctx, Payload, RmqContext } from '@nestjs/microservices';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_ImportData)
-@Controller(Controllers.LCM_ImportData)
+@ControllerInfo(Resources.LCM_ImportData)
+@Controller(Resources.LCM_ImportData)
 export class ImportDatasController extends BaseController {
   constructor(private readonly importDatasService: ImportDataService) {
     super(importDatasService);

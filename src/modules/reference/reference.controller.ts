@@ -28,12 +28,12 @@ import { FindReferenceByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { Reference } from './entity/reference.entity';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_References)
-@Controller(Controllers.LCM_References)
+@ControllerInfo(Resources.LCM_References)
+@Controller(Resources.LCM_References)
 export class ReferencesController extends BaseController {
   constructor(private readonly referencesService: ReferenceService) {
     super(referencesService);

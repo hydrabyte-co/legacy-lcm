@@ -26,13 +26,13 @@ import { FindActivityByIdActivity } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { Activity } from './entity/activity.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_Activities)
-@Controller(Controllers.LCM_Activities)
+@ControllerInfo(Resources.LCM_Activities)
+@Controller(Resources.LCM_Activities)
 export class ActivitiesController extends BaseController {
   constructor(private readonly activitiesService: ActivityService) {
     super(activitiesService);

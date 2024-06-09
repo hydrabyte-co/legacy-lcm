@@ -16,11 +16,11 @@ import {
 import { DataHandlerService } from './data-handler.service';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_DataHandler)
-@Controller(Controllers.LCM_DataHandler)
+@ControllerInfo(Resources.LCM_DataHandler)
+@Controller(Resources.LCM_DataHandler)
 export class DataHandlerController {
   constructor(private readonly dataHandlerService: DataHandlerService) {}
 

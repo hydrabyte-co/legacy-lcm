@@ -8,7 +8,7 @@ import {
   IsArray,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import {
   ExportData_FromDocuments,
   ExportData_OutputFileType,
@@ -28,7 +28,7 @@ export type ExportData_Result = {
   count: number;
 };
 
-@Entity(Controllers.LCM_ExportData)
+@Entity(Resources.LCM_ExportData)
 export class ExportData extends Base {
   @Column()
   @IsString()

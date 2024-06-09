@@ -7,14 +7,14 @@ import {
   IsEnum,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import {
   ImportData_ImportRule,
   ImportData_Status,
   ImportData_ToTable,
 } from '../enum/import-data.enum';
 
-@Entity(Controllers.LCM_ImportData)
+@Entity(Resources.LCM_ImportData)
 export class ImportData extends Base {
   @Column()
   @IsString()

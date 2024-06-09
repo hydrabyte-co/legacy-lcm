@@ -25,12 +25,12 @@ import { FindStaffByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { Staff } from './entity/staff.entity';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_Staff)
-@Controller(Controllers.LCM_Staff)
+@ControllerInfo(Resources.LCM_Staff)
+@Controller(Resources.LCM_Staff)
 export class StaffsController extends BaseController {
   constructor(private readonly staffsService: StaffService) {
     super(staffsService);

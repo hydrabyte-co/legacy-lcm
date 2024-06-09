@@ -23,12 +23,12 @@ import { FindPerformanceByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { Performance } from './entity/performance.entity';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_Performance)
-@Controller(Controllers.LCM_Performance)
+@ControllerInfo(Resources.LCM_Performance)
+@Controller(Resources.LCM_Performance)
 export class PerformancesController extends BaseController {
   constructor(private readonly performancesService: PerformanceService) {
     super(performancesService);

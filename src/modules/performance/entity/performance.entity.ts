@@ -9,7 +9,7 @@ import {
   IsArray,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 
 export type PerformanceTaget = {
   code: string;
@@ -23,7 +23,7 @@ export type PerformanceResult = {
   value: number;
 };
 
-@Entity(Controllers.LCM_Performance)
+@Entity(Resources.LCM_Performance)
 export class Performance extends Base {
   @Column()
   @IsNumber()

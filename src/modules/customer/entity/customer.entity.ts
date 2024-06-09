@@ -12,10 +12,10 @@ import {
   IsArray,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { CustomerStatus } from '../enum/customer.enum';
 
-@Entity(Controllers.LCM_Customers)
+@Entity(Resources.LCM_Customers)
 export class Customer extends Base {
   @Column({ unique: true })
   @IsString()

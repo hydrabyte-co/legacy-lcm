@@ -25,12 +25,12 @@ import { FindContractByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { Contract } from './entity/contract.entity';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_Contracts)
-@Controller(Controllers.LCM_Contracts)
+@ControllerInfo(Resources.LCM_Contracts)
+@Controller(Resources.LCM_Contracts)
 export class ContractsController extends BaseController {
   constructor(private readonly contractsService: ContractService) {
     super(contractsService);

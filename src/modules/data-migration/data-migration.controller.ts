@@ -28,14 +28,14 @@ import { FindDataMigrationByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { DataMigration } from './entity/data-migration.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { EventPattern } from '@nestjs/microservices';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_DataMigration)
-@Controller(Controllers.LCM_DataMigration)
+@ControllerInfo(Resources.LCM_DataMigration)
+@Controller(Resources.LCM_DataMigration)
 export class DataMigrationsController extends BaseController {
   constructor(private readonly dataMigrationsService: DataMigrationService) {
     super(dataMigrationsService);

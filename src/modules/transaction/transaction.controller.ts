@@ -31,12 +31,12 @@ import { FindTransactionByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
-import { Controllers } from 'src/common/enums/controllers';
+import { Resources } from 'src/common/enums/resources';
 import { Transaction } from './entity/transaction.entity';
 
 @ServiceInfo(Services.LCM)
-@ControllerInfo(Controllers.LCM_Transactions)
-@Controller(Controllers.LCM_Transactions)
+@ControllerInfo(Resources.LCM_Transactions)
+@Controller(Resources.LCM_Transactions)
 export class TransactionsController extends BaseController {
   constructor(private readonly transactionsService: TransactionService) {
     super(transactionsService);
