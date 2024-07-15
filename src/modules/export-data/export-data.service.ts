@@ -348,7 +348,7 @@ export class ExportDataService extends BaseService<ExportData> {
               if (
                 datasource.name === ExportData_FromDocuments.ATCOutboundCalls
               ) {
-                apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${from}&to=${to}&result=answered&pageSize=200000`;
+                apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&campaignId=all&from=${from}&to=${to}&result=answered&pageSize=200000`;
               }
               if (
                 datasource.name === ExportData_FromDocuments.MCOutboundCalls
