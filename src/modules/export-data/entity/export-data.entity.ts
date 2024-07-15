@@ -20,6 +20,7 @@ export type ExportData_Datasource = {
   where: {
     from: string;
     to: string;
+    [key: string]: string | number;
   };
 };
 
