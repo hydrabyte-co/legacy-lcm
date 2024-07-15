@@ -74,7 +74,7 @@ export class UtilService {
         isDeleted: false,
       });
       const callData: any = {
-        dialplanId: data.diplanId,
+        dialplanId: data.dialplanId,
         toNumber: data.toNumber,
         fromNumber: data.fromNumber,
         orgId: handler.orgId,

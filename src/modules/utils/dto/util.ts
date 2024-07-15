@@ -36,5 +36,5 @@ export class OriginateAutoCallData {
 
   @IsString()
   @IsNotEmpty()
-  diplanId: string;
+  dialplanId: string;
 }

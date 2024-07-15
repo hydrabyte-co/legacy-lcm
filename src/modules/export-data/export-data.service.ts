@@ -336,7 +336,7 @@ export class ExportDataService extends BaseService<ExportData> {
             case ExportData_FromDocuments.OutboundCalls: {
               const from = datasource.where?.from || '';
               const to = datasource.where?.to || '';
-              let apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${from}&to=${to}&pageSize=90000`;
+              let apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&from=${from}&to=${to}&pageSize=200000`;
               if (
                 datasource.name ===
                 ExportData_FromDocuments.AnsweredOutboundCalls
