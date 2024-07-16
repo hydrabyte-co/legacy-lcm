@@ -348,12 +348,12 @@ export class ExportDataService extends BaseService<ExportData> {
               if (
                 datasource.name === ExportData_FromDocuments.ATCOutboundCalls
               ) {
-                apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&campaignId=all&from=${from}&to=${to}&result=answered&pageSize=200000`;
+                apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&campaignId=all&from=${from}&to=${to}&pageSize=200000`;
               }
               if (
                 datasource.name === ExportData_FromDocuments.MCOutboundCalls
               ) {
-                apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&campaignId=null&from=${from}&to=${to}&result=answered&pageSize=200000`;
+                apiURL = `${process.env.VOICE_API_ROOT_URL}/calls?direction=outbound&campaignId=null&from=${from}&to=${to}&pageSize=200000`;
               }
 
               const config: AxiosRequestConfig = {
