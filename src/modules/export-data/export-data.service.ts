@@ -116,7 +116,7 @@ export class ExportDataService extends BaseService<ExportData> {
     console.log(`Emit data`, { exportDataId: createResult.id, handler });
     const emitResult = await this.client.emit(
       'process-export-data',
-      JSON.stringify({ exportDataId: createResult.id, handler }),
+      JSON.stringify({ exportDataId: createResult.id.toString(), handler }),
     );
     console.log(`-- Emit result`, emitResult);
     const subscriberResult = await emitResult.subscribe();
