@@ -219,12 +219,12 @@ export class ExportDataService extends BaseService<ExportData> {
       const sheets = [];
       const dataArray = [];
 
-      exportData.results = [];
       console.log(
         `-- Export Data Request`,
         JSON.stringify(exportData, null, ' '),
       );
       if (exportData) {
+        exportData.results = [];
         const updateExportDataResult = await this.exportDatasRepository.update(
           exportData.id,
           { status: ExportData_Status.InProgress },
