@@ -453,11 +453,20 @@ export class ExportDataService extends BaseService<ExportData> {
             );
             // console.log(`---- Excel Schemas`, JSON.stringify(schemas, null, ' '));
             // console.log(`---- Excel sheets`, JSON.stringify(sheets, null, ' '));
-            const writeFileResult = await writeXlsxFile(dataArray, {
-              schema: schemas,
-              sheets: sheets,
-              filePath: outFilePath,
-            });
+            let writeFileResult;
+            try {
+              writeFileResult = await writeXlsxFile(dataArray, {
+                schema: schemas,
+                sheets: sheets,
+                filePath: outFilePath,
+              });
+            } catch (error) {
+              console.log(
+                `---- Write Excel file ${outFilePath} error`,
+                JSON.stringify(error, null, ' '),
+              );
+            }
+
             console.log(
               `---- Write Excel file ${outFilePath}`,
               JSON.stringify(writeFileResult, null, ' '),
