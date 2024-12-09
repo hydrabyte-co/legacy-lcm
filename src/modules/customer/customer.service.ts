@@ -402,6 +402,8 @@ export class CustomerService extends BaseService<Customer> {
         '363',
         '364',
         '365',
+        '408',
+        '410',
       ];
       if (members.indexOf(filter.where.callStaffCode) >= 0) {
         filter.where.callStaffCode = filter.where.callStaffCode;
