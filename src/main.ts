@@ -5,13 +5,9 @@ import {
 } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import * as bodyParser from 'body-parser';
-import { MongoRepository } from 'typeorm';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
 import { logInfo, logWarning } from './common/utils/log-helper';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataMigration } from './modules/data-migration/entity/data-migration.entity';
-import { Activity } from './modules/activity/entity/activity.entity';
 import { DataMigrationService } from './modules/data-migration/data-migration.service';
 import { DataMigrationWorker } from './workers/data-migration.worker';
 // import { SampleWorker } from './workers/sample.worker';

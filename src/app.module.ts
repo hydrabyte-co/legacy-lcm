@@ -20,6 +20,8 @@ import { PerformanceModule } from './modules/performance/performance.module';
 import { DataMigrationModule } from './modules/data-migration/data-migration.module';
 import { EventModule } from './modules/event/event.module';
 import { UtilModule } from './modules/utils/utils.module';
+import { ReportModule } from './modules/report/report.module';
+import { TaskModule } from './modules/task/task.module';
 
 @Module({
   imports: [
@@ -46,8 +48,10 @@ import { UtilModule } from './modules/utils/utils.module';
     PerformanceModule,
     DataHandlerModule,
     DataMigrationModule,
+    TaskModule,
     EventModule,
     UtilModule,
+    ReportModule,
   ],
   controllers: [AppController],
   providers: [AppService, JWTAuthStrategy, BasicAuthStrategy],
