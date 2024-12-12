@@ -128,7 +128,7 @@ export class ReportService {
             {
               $match: {
                 ptpAmount: {
-                  $gte: 0,
+                  $gt: 0,
                 },
               },
             },
