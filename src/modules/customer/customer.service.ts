@@ -390,7 +390,7 @@ export class CustomerService extends BaseService<Customer> {
       }
     }
     if (handler.staffCode === '272') {
-      const members = [
+      /* const members = [
         '272',
         '265',
         '125',
@@ -411,7 +411,7 @@ export class CustomerService extends BaseService<Customer> {
         filter.where.callStaffCode = {
           $in: members,
         };
-      }
+      } */
     }
     console.log('filter', JSON.stringify(filter, null, '\t'));
     return await super.findManyWithPaging(filter, handler);

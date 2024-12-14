@@ -47,7 +47,7 @@ export class ReportService {
           '268',
         ];
       } else if (handler.staffCode === '272') {
-        staffCodes = [
+        /* staffCodes = [
           '272',
           '265',
           '125',
@@ -61,7 +61,7 @@ export class ReportService {
           '365',
           '408',
           '410',
-        ];
+        ]; */
       } else {
         staffCodes = [handler.staffCode || '_'];
       }
