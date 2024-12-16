@@ -1,12 +1,27 @@
-import { IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsNumberString,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { UpdateOneData } from '../../../common/modules/base/dto/update-one.dto';
+import { TeamStatuses } from 'src/enums';
 
 export class UpdateTeamData extends UpdateOneData {
   @IsString()
   @IsOptional()
-  name;
+  name: string;
 
-  @IsString()
+  @IsNumberString()
   @IsOptional()
-  body;
+  leaderStaffCode: string;
+
+  @IsArray()
+  @IsOptional()
+  membersStaffCodes: string[];
+
+  @IsOptional()
+  @IsEnum(TeamStatuses)
+  status: string;
 }
