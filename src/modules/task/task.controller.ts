@@ -28,9 +28,9 @@ import { Resources } from 'src/common/enums/resources';
 import { Task } from './entity/task.entity';
 import { DeleteOneResult } from 'src/common/types/controller-dto';
 
-@ServiceInfo(Services.VCM)
-@ControllerInfo(Resources.VCM_Task)
-@Controller(Resources.VCM_Task)
+@ServiceInfo(Services.LCM)
+@ControllerInfo(Resources.LCM_Task)
+@Controller(Resources.LCM_Task)
 export class TaskController extends BaseController {
   constructor(private readonly UpdatesService: TaskService) {
     super(UpdatesService);
