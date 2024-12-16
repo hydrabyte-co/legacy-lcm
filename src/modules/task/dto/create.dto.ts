@@ -1,15 +1,32 @@
-import { IsString, IsNotEmpty, IsMongoId } from 'class-validator';
+import { IsNotEmpty, IsMongoId, IsObject } from 'class-validator';
 import { CreateData as BaseCreateData } from '../../../common/modules/base/dto/create.dto';
+import { BasicObject } from 'src/common/types/data';
 
 export class CreateTaskData extends BaseCreateData {
-  @IsMongoId()
+  @IsObject()
   @IsNotEmpty()
-  assignerId = '';
+  assigner: {
+    userId: string;
+    staffCode: string;
+  } = {
+    userId: '',
+    staffCode: '',
+  };
 
-  @IsMongoId()
+  @IsObject()
   @IsNotEmpty()
-  assigneeId = '';
+  assignee: {
+    userId: string;
+    staffCode: string;
+  } = {
+    userId: '',
+    staffCode: '',
+  };
 
   @IsNotEmpty()
   summary = '';
+
+  @IsObject()
+  @IsNotEmpty()
+  data: BasicObject = {};
 }

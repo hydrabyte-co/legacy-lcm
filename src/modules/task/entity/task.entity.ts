@@ -7,10 +7,22 @@ import { TaskStatuses } from 'src/enums';
 @Entity(Resources.LCM_Activities)
 export class Task extends Base {
   @Column()
-  assignerId = '';
+  assigner: {
+    userId: string;
+    staffCode: string;
+  } = {
+    userId: '',
+    staffCode: '',
+  };
 
   @Column()
-  assigneeId = '';
+  assignee: {
+    userId: string;
+    staffCode: string;
+  } = {
+    userId: '',
+    staffCode: '',
+  };
 
   @Column()
   summary = '';
