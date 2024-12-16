@@ -26,21 +26,3 @@ export class CreateTeamData extends BaseCreateData {
   @IsEnum(TeamStatuses)
   status: string;
 }
-
-export class UpdateTeamData {
-  @IsString()
-  @IsOptional()
-  name: string;
-
-  @IsNumberString()
-  @IsOptional()
-  leaderStaffCode: string;
-
-  @IsArray()
-  @IsOptional()
-  membersStaffCodes: string[];
-
-  @IsOptional()
-  @IsEnum(TeamStatuses)
-  status: string;
-}
