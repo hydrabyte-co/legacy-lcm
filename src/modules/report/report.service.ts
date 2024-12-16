@@ -361,4 +361,90 @@ export class ReportService {
     } */
     return reportData;
   }
+
+  async debtCollectionByBank(handler: DataHandler): Promise<any> {
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    let staffCodes = [];
+
+    const pipeline = [
+      {
+        $match: {
+          status: 'active',
+          callStaffCode: /.+/,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          code: 1,
+          partnerCode: 1,
+          callStaffCode: 1,
+          activities: {
+            $abs: 0,
+          },
+          hasActivity: {
+            $cond: [
+              {
+                $gte: ['$lastActivity.performAt', firstDayOfMonth],
+              },
+              true,
+              false,
+            ],
+          },
+          ptpAmount: {
+            $cond: [
+              {
+                $gte: ['$lastPTPActivity.performAt', firstDayOfMonth],
+              },
+              '$lastPTPActivity.ptpAmount',
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            partnerCode: '$partnerCode',
+          },
+          totalCustomers: { $sum: 1 },
+          interactedCustomers: { $sum: '$hasActivity' },
+          ptpAmount: { $sum: '$ptpAmount' },
+        },
+      },
+      {
+        $project: {
+          partnerCode: '$_id.partnerCode',
+          totalCustomers: 1,
+          interactedCustomers: 1,
+          ptpAmount: 1,
+          collectedAmount: { $ceil: 0 },
+        },
+      },
+    ];
+    logInfo('*', `report.service.debtCollectionReport => pipeline`, pipeline);
+    const stream = await this.customersRepository.aggregate(pipeline);
+    const results = await this.handleAggregateStream(stream);
+    let reportData = [];
+    if (results.length > 0) {
+      let total = {
+        totalCustomers: 0,
+        interactedCustomers: 0,
+        ptpAmount: 0,
+        partnerCode: 'ALL',
+        collectedAmount: 0,
+      };
+      for (let i = 0; i < results.length; i++) {
+        const r = results[i];
+        total.totalCustomers += r.totalCustomers;
+        total.interactedCustomers += r.interactedCustomers;
+        total.ptpAmount += r.ptpAmount;
+        total.collectedAmount += r.collectedAmount;
+      }
+      results.push(total);
+      reportData = [...results];
+    }
+    return reportData;
+  }
 }

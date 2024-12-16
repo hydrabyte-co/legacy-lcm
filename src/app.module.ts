@@ -22,6 +22,7 @@ import { EventModule } from './modules/event/event.module';
 import { UtilModule } from './modules/utils/utils.module';
 import { ReportModule } from './modules/report/report.module';
 import { TaskModule } from './modules/task/task.module';
+import { TeamModule } from './modules/team/team.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { TaskModule } from './modules/task/task.module';
     DataHandlerModule,
     DataMigrationModule,
     TaskModule,
+    TeamModule,
     EventModule,
     UtilModule,
     ReportModule,

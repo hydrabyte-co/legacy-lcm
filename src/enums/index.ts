@@ -3,3 +3,7 @@ export enum TaskStatuses {
   Done = 'done',
   Canceled = 'canceled',
 }
+export enum TeamStatuses {
+  Active = 'active',
+  Inactive = 'inactive',
+}
