@@ -19,7 +19,7 @@ export class UpdateTeamData extends UpdateOneData {
 
   @IsArray()
   @IsOptional()
-  membersStaffCodes: string[];
+  memberStaffCodes: string[];
 
   @IsOptional()
   @IsEnum(TeamStatuses)
