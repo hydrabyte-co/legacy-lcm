@@ -25,6 +25,6 @@ export class TaskService extends BaseService<Task> {
     filter.order = {
       createdAt: 'DESC',
     };
-    return await this.findManyWithPaging(filter, handler);
+    return await super.findManyWithPaging(filter, handler);
   }
 }

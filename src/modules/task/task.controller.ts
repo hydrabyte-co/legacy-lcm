@@ -50,6 +50,7 @@ export class TaskController extends BaseController {
   }
 
   @Get()
+  @UseGuards(AuthGuard, RolesGuard)
   async findManyWithPaging(
     @Query() queries: string,
     @Req() req,
