@@ -4,7 +4,7 @@ import { Resources } from 'src/common/enums/resources';
 import { BasicObject } from 'src/common/types/data';
 import { TaskStatuses } from 'src/enums';
 
-@Entity(Resources.LCM_Activities)
+@Entity(Resources.LCM_Task)
 export class Task extends Base {
   @Column()
   assigner: {
