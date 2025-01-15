@@ -588,11 +588,11 @@ export class ReportService {
     const tranStream = await this.transactionsRepository.aggregate(
       tranPipelines,
     );
-    const customersResults = await this.handleAggregateStream(customerStream);
+    const customersResults = (
+      await this.handleAggregateStream(customerStream)
+    ).sort((n, p) => (n < p ? 1 : -1));
     const activityResults = await this.handleAggregateStream(activityStream);
     const tranResults = await this.handleAggregateStream(tranStream);
-    console.log(customersResults);
-    console.log(activityResults);
 
     let reportData = [];
     if (customersResults.length > 0) {
@@ -640,7 +640,6 @@ export class ReportService {
         total.totalAnsweredCalls += r.totalAnsweredCalls;
         total.totalNoAnsweredCalls += r.totalNoAnsweredCalls;
         total.answeredRate += r.answeredRate;
-        total.collectedAmount += r.collectedAmount;
         total.payments += r.payments;
 
         customersResults[i] = r;
@@ -886,7 +885,6 @@ export class ReportService {
         total.totalAnsweredCalls += r.totalAnsweredCalls;
         total.totalNoAnsweredCalls += r.totalNoAnsweredCalls;
         total.answeredRate += r.answeredRate;
-        total.collectedAmount += r.collectedAmount;
         total.payments += r.payments;
 
         customersResults[i] = r;
