@@ -5,6 +5,8 @@ import { Customer } from '../customer/entity/customer.entity';
 import { Contract } from '../contract/entity/contract.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { logInfo } from 'src/common/utils/log-helper';
+import { Activity } from '../activity/entity/activity.entity';
+import { Transaction } from '../transaction/entity/transaction.entity';
 @Injectable()
 export class ReportService {
   constructor(
@@ -12,6 +14,10 @@ export class ReportService {
     private readonly customersRepository: MongoRepository<Customer>,
     @InjectRepository(Contract)
     private readonly contractsRepository: MongoRepository<Contract>,
+    @InjectRepository(Activity)
+    private readonly activitiesRepository: MongoRepository<Activity>,
+    @InjectRepository(Transaction)
+    private readonly transactionsRepository: MongoRepository<Transaction>,
   ) {}
 
   async handleAggregateStream(aggregateStream: any): Promise<any[]> {
@@ -28,6 +34,48 @@ export class ReportService {
     }
     return aggrResult;
   }
+
+  getStartOfMonthUTC7() {
+    // Lấy thời gian hiện tại theo UTC
+    const now = new Date();
+
+    // Lấy năm và tháng từ thời gian hiện tại theo UTC
+    const year = now.getUTCFullYear();
+    const month = now.getUTCMonth();
+
+    // Tạo ngày đầu tháng theo UTC+0
+    const startOfMonthUTC = new Date(Date.UTC(year, month, 1, 0, 0, 0));
+
+    // Trừ đi offset để chuyển về UTC (UTC+0)
+    const offsetMilliseconds = -7 * 60 * 60 * 1000; // -7 giờ (UTC+7)
+    const startOfMonthUTC7 = new Date(
+      startOfMonthUTC.getTime() + offsetMilliseconds,
+    );
+
+    return startOfMonthUTC7;
+  }
+
+  getStartOfTodayUTC7() {
+    // Lấy thời gian hiện tại theo UTC
+    const now = new Date();
+
+    // Lấy năm, tháng và ngày hiện tại theo UTC
+    const year = now.getUTCFullYear();
+    const month = now.getUTCMonth();
+    const date = now.getUTCDate();
+
+    // Tạo thời gian đầu ngày hôm nay theo UTC
+    const startOfDayUTC = new Date(Date.UTC(year, month, date, 0, 0, 0));
+
+    // Trừ đi offset để chuyển về UTC (UTC+0)
+    const offsetMilliseconds = -7 * 60 * 60 * 1000; // -7 giờ (UTC+7)
+    const startOfTodayUTC7 = new Date(
+      startOfDayUTC.getTime() + offsetMilliseconds,
+    );
+
+    return startOfTodayUTC7;
+  }
+
   async customerSummaryReport(handler: DataHandler): Promise<any> {
     const today = new Date();
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -363,15 +411,15 @@ export class ReportService {
   }
 
   async debtCollectionByBank(handler: DataHandler): Promise<any> {
-    const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    let staffCodes = [];
+    const firstDayOfMonth = this.getStartOfMonthUTC7();
+    const today = this.getStartOfTodayUTC7();
+    //let staffCodes = [];
 
-    const pipeline = [
+    const customerPipeline = [
       {
         $match: {
           status: 'active',
-          callStaffCode: /.+/,
+          callStaffCode: /[0-9]+/,
         },
       },
       {
@@ -388,8 +436,8 @@ export class ReportService {
               {
                 $gte: ['$lastActivity.performAt', firstDayOfMonth],
               },
-              true,
-              false,
+              1,
+              0,
             ],
           },
           ptpAmount: {
@@ -423,27 +471,418 @@ export class ReportService {
         },
       },
     ];
-    logInfo('*', `report.service.debtCollectionReport => pipeline`, pipeline);
-    const stream = await this.customersRepository.aggregate(pipeline);
-    const results = await this.handleAggregateStream(stream);
+    const activityPipeline = [
+      {
+        $match: {
+          type: 'call',
+          createdAt: {
+            $gte: today,
+          },
+        },
+      },
+      {
+        $project: {
+          partnerCode: {
+            $arrayElemAt: [{ $split: ['$customerCode', '-'] }, 0],
+          },
+          staffCode: 1,
+          resultParentCode: 1,
+          isAnswered: {
+            $cond: [
+              {
+                $ne: ['$resultParentCode', 'UTC'],
+              },
+              1,
+              0,
+            ],
+          },
+          isNoAnswered: {
+            $cond: [
+              {
+                $eq: ['$resultParentCode', 'UTC'],
+              },
+              1,
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            partnerCode: '$partnerCode',
+          },
+          totalCalls: { $sum: 1 },
+          totalAnsweredCalls: { $sum: '$isAnswered' },
+          totalNoAnsweredCalls: { $sum: '$isNoAnswered' },
+        },
+      },
+      {
+        $project: {
+          partnerCode: '$_id.partnerCode',
+          totalCalls: 1,
+          totalAnsweredCalls: 1,
+          totalNoAnsweredCalls: 1,
+          answeredRate: {
+            $cond: {
+              if: { $gt: ['$totalCalls', 0] }, // Check if totalCalls > 0
+              then: {
+                $multiply: [
+                  { $divide: ['$totalAnsweredCalls', '$totalCalls'] },
+                  100,
+                ],
+              }, // Calculate percentage
+              else: 0, // Default to 0 if totalCalls is 0
+            },
+          },
+        },
+      },
+    ];
+    const tranPipelines = [
+      {
+        $match: {
+          date: {
+            $gte: firstDayOfMonth,
+          },
+        },
+      },
+      {
+        $project: {
+          partnerCode: {
+            $arrayElemAt: [{ $split: ['$customerCode', '-'] }, 0],
+          },
+          staffCode: 1,
+          customerCode: 1,
+          amount: 1,
+          date: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            partnerCode: '$partnerCode',
+          },
+          amount: { $sum: '$amount' },
+        },
+      },
+      {
+        $project: {
+          partnerCode: '$_id.partnerCode',
+          amount: 1,
+        },
+      },
+    ];
+    logInfo(
+      '*',
+      `report.service.debtCollectionReport => pipeline`,
+      customerPipeline,
+    );
+    const customerStream = await this.customersRepository.aggregate(
+      customerPipeline,
+    );
+    const activityStream = await this.activitiesRepository.aggregate(
+      activityPipeline,
+    );
+    const tranStream = await this.transactionsRepository.aggregate(
+      tranPipelines,
+    );
+    const customersResults = await this.handleAggregateStream(customerStream);
+    const activityResults = await this.handleAggregateStream(activityStream);
+    const tranResults = await this.handleAggregateStream(tranStream);
+    console.log(customersResults);
+    console.log(activityResults);
+
     let reportData = [];
-    if (results.length > 0) {
-      let total = {
+    if (customersResults.length > 0) {
+      const total = {
         totalCustomers: 0,
         interactedCustomers: 0,
         ptpAmount: 0,
         partnerCode: 'ALL',
         collectedAmount: 0,
+        totalCalls: 0,
+        totalAnsweredCalls: 0,
+        totalNoAnsweredCalls: 0,
+        answeredRate: 0,
       };
-      for (let i = 0; i < results.length; i++) {
-        const r = results[i];
+      for (let i = 0; i < customersResults.length; i++) {
+        let r = customersResults[i];
+        const foundAR = activityResults.find(
+          (ar) => ar.partnerCode === r.partnerCode,
+        );
+        const foundTR = tranResults.find(
+          (tr) => tr.partnerCode === r.partnerCode,
+        );
+        if (foundAR) {
+          r = { ...r, ...foundAR };
+        } else {
+          r.totalCalls = 0;
+          r.totalAnsweredCalls = 0;
+          r.totalNoAnsweredCalls = 0;
+          r.answeredRate = 0;
+        }
+        if (foundTR) {
+          r.collectedAmount = foundTR.amount;
+        } else {
+          r.collectedAmount = 0;
+        }
+
         total.totalCustomers += r.totalCustomers;
         total.interactedCustomers += r.interactedCustomers;
         total.ptpAmount += r.ptpAmount;
         total.collectedAmount += r.collectedAmount;
+        total.totalCalls += r.totalCalls;
+        total.totalAnsweredCalls += r.totalAnsweredCalls;
+        total.totalNoAnsweredCalls += r.totalNoAnsweredCalls;
+        total.answeredRate += r.answeredRate;
+        total.collectedAmount += r.collectedAmount;
+
+        customersResults[i] = r;
       }
-      results.push(total);
-      reportData = [...results];
+      if (customersResults.length > 0)
+        total.answeredRate = Math.floor(
+          total.answeredRate / customersResults.length,
+        );
+      customersResults.push(total);
+      reportData = [...customersResults];
+    }
+    return reportData;
+  }
+
+  async debtCollectionByStaff(handler: DataHandler): Promise<any> {
+    const firstDayOfMonth = this.getStartOfMonthUTC7();
+    const today = this.getStartOfTodayUTC7();
+    //let staffCodes = [];
+
+    const customerPipeline = [
+      {
+        $match: {
+          status: 'active',
+          callStaffCode: /[0-9]+/,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          code: 1,
+          partnerCode: 1,
+          callStaffCode: 1,
+          activities: {
+            $abs: 0,
+          },
+          hasActivity: {
+            $cond: [
+              {
+                $gte: ['$lastActivity.performAt', firstDayOfMonth],
+              },
+              1,
+              0,
+            ],
+          },
+          ptpAmount: {
+            $cond: [
+              {
+                $gte: ['$lastPTPActivity.performAt', firstDayOfMonth],
+              },
+              '$lastPTPActivity.ptpAmount',
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            callStaffCode: '$callStaffCode',
+          },
+          totalCustomers: { $sum: 1 },
+          interactedCustomers: { $sum: '$hasActivity' },
+          ptpAmount: { $sum: '$ptpAmount' },
+        },
+      },
+      {
+        $project: {
+          staffCode: '$_id.callStaffCode',
+          totalCustomers: 1,
+          interactedCustomers: 1,
+          ptpAmount: 1,
+          collectedAmount: { $ceil: 0 },
+        },
+      },
+    ];
+    const activityPipeline = [
+      {
+        $match: {
+          type: 'call',
+          createdAt: {
+            $gte: today,
+          },
+        },
+      },
+      {
+        $project: {
+          partnerCode: {
+            $arrayElemAt: [{ $split: ['$customerCode', '-'] }, 0],
+          },
+          staffCode: 1,
+          resultParentCode: 1,
+          isAnswered: {
+            $cond: [
+              {
+                $ne: ['$resultParentCode', 'UTC'],
+              },
+              1,
+              0,
+            ],
+          },
+          isNoAnswered: {
+            $cond: [
+              {
+                $eq: ['$resultParentCode', 'UTC'],
+              },
+              1,
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            staffCode: '$staffCode',
+          },
+          totalCalls: { $sum: 1 },
+          totalAnsweredCalls: { $sum: '$isAnswered' },
+          totalNoAnsweredCalls: { $sum: '$isNoAnswered' },
+        },
+      },
+      {
+        $project: {
+          staffCode: '$_id.staffCode',
+          totalCalls: 1,
+          totalAnsweredCalls: 1,
+          totalNoAnsweredCalls: 1,
+          answeredRate: {
+            $cond: {
+              if: { $gt: ['$totalCalls', 0] }, // Check if totalCalls > 0
+              then: {
+                $multiply: [
+                  { $divide: ['$totalAnsweredCalls', '$totalCalls'] },
+                  100,
+                ],
+              }, // Calculate percentage
+              else: 0, // Default to 0 if totalCalls is 0
+            },
+          },
+        },
+      },
+    ];
+    const tranPipelines = [
+      {
+        $match: {
+          date: {
+            $gte: firstDayOfMonth,
+          },
+        },
+      },
+      {
+        $project: {
+          partnerCode: {
+            $arrayElemAt: [{ $split: ['$customerCode', '-'] }, 0],
+          },
+          staffCode: 1,
+          customerCode: 1,
+          amount: 1,
+          date: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            partnerCode: '$partnerCode',
+          },
+          amount: { $sum: '$amount' },
+        },
+      },
+      {
+        $project: {
+          partnerCode: '$_id.partnerCode',
+          amount: 1,
+        },
+      },
+    ];
+    logInfo(
+      '*',
+      `report.service.debtCollectionReport => pipeline`,
+      customerPipeline,
+    );
+    const customerStream = await this.customersRepository.aggregate(
+      customerPipeline,
+    );
+    const activityStream = await this.activitiesRepository.aggregate(
+      activityPipeline,
+    );
+    const tranStream = await this.transactionsRepository.aggregate(
+      tranPipelines,
+    );
+    const customersResults = (
+      await this.handleAggregateStream(customerStream)
+    ).sort((n, p) => parseInt(n.staffCode) - parseInt(p.staffCode));
+    const activityResults = await this.handleAggregateStream(activityStream);
+    const tranResults = await this.handleAggregateStream(tranStream);
+
+    let reportData = [];
+    if (customersResults.length > 0) {
+      const total = {
+        totalCustomers: 0,
+        interactedCustomers: 0,
+        ptpAmount: 0,
+        partnerCode: 'ALL',
+        collectedAmount: 0,
+        totalCalls: 0,
+        totalAnsweredCalls: 0,
+        totalNoAnsweredCalls: 0,
+        answeredRate: 0,
+      };
+      for (let i = 0; i < customersResults.length; i++) {
+        let r = customersResults[i];
+        const foundAR = activityResults.find(
+          (ar) => ar.staffCode === r.staffCode,
+        );
+        const foundTR = tranResults.find((tr) => tr.staffCode === r.staffCode);
+        if (foundAR) {
+          r = { ...r, ...foundAR };
+        } else {
+          r.totalCalls = 0;
+          r.totalAnsweredCalls = 0;
+          r.totalNoAnsweredCalls = 0;
+          r.answeredRate = 0;
+        }
+        if (foundTR) {
+          r.collectedAmount = foundTR.amount;
+        } else {
+          r.collectedAmount = 0;
+        }
+
+        r.collectedAmount = 0;
+        total.totalCustomers += r.totalCustomers;
+        total.interactedCustomers += r.interactedCustomers;
+        total.ptpAmount += r.ptpAmount;
+        total.collectedAmount += r.collectedAmount;
+        total.totalCalls += r.totalCalls;
+        total.totalAnsweredCalls += r.totalAnsweredCalls;
+        total.totalNoAnsweredCalls += r.totalNoAnsweredCalls;
+        total.answeredRate += r.answeredRate;
+        total.collectedAmount += r.collectedAmount;
+
+        customersResults[i] = r;
+      }
+      if (customersResults.length > 0)
+        total.answeredRate = Math.floor(
+          total.answeredRate / customersResults.length,
+        );
+      customersResults.push(total);
+      reportData = [...customersResults];
     }
     return reportData;
   }

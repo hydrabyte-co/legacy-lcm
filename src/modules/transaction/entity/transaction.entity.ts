@@ -25,6 +25,10 @@ export class Transaction extends Base {
   contractCode = '';
 
   @Column()
+  @IsString()
+  stallCode = '';
+
+  @Column()
   @IsNumber()
   amount = 0;
 

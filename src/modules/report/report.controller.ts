@@ -46,12 +46,23 @@ export class ReportController {
   @Get('/debt-collection-by-bank')
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async debtCollectionReport(
+  async debtCollectionByBankReport(
     @Body() data: CustomerData[],
     @Req() req,
   ): Promise<any> {
     const handler = req.user || new DataHandler();
     return this.reportService.debtCollectionByBank(handler);
+  }
+
+  @Get('/debt-collection-by-staff')
+  @UseGuards(AuthGuard, RolesGuard)
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+  async debtCollectionByStaffReport(
+    @Body() data: CustomerData[],
+    @Req() req,
+  ): Promise<any> {
+    const handler = req.user || new DataHandler();
+    return this.reportService.debtCollectionByStaff(handler);
   }
 
   @Get('/tasks-summary')
