@@ -563,12 +563,14 @@ export class ReportService {
             partnerCode: '$partnerCode',
           },
           amount: { $sum: '$amount' },
+          payments: { $sum: 1 },
         },
       },
       {
         $project: {
           partnerCode: '$_id.partnerCode',
           amount: 1,
+          payments: 1,
         },
       },
     ];
@@ -604,6 +606,7 @@ export class ReportService {
         totalAnsweredCalls: 0,
         totalNoAnsweredCalls: 0,
         answeredRate: 0,
+        payments: 0,
       };
       for (let i = 0; i < customersResults.length; i++) {
         let r = customersResults[i];
@@ -623,8 +626,10 @@ export class ReportService {
         }
         if (foundTR) {
           r.collectedAmount = foundTR.amount;
+          r.payments = foundTR.payments;
         } else {
           r.collectedAmount = 0;
+          r.payments = 0;
         }
 
         total.totalCustomers += r.totalCustomers;
@@ -636,6 +641,7 @@ export class ReportService {
         total.totalNoAnsweredCalls += r.totalNoAnsweredCalls;
         total.answeredRate += r.answeredRate;
         total.collectedAmount += r.collectedAmount;
+        total.payments += r.payments;
 
         customersResults[i] = r;
       }
@@ -799,15 +805,17 @@ export class ReportService {
       {
         $group: {
           _id: {
-            partnerCode: '$partnerCode',
+            staffCode: '$staffCode',
           },
           amount: { $sum: '$amount' },
+          payments: { $sum: 1 },
         },
       },
       {
         $project: {
-          partnerCode: '$_id.partnerCode',
+          staffCode: '$_id.staffCode',
           amount: 1,
+          payments: 1,
         },
       },
     ];
@@ -843,13 +851,16 @@ export class ReportService {
         totalAnsweredCalls: 0,
         totalNoAnsweredCalls: 0,
         answeredRate: 0,
+        payments: 0,
       };
       for (let i = 0; i < customersResults.length; i++) {
         let r = customersResults[i];
         const foundAR = activityResults.find(
           (ar) => ar.staffCode === r.staffCode,
         );
-        const foundTR = tranResults.find((tr) => tr.staffCode === r.staffCode);
+        const foundTR = tranResults.find(
+          (tr) => tr.staffCode?.toString() === r.staffCode?.toString(),
+        );
         if (foundAR) {
           r = { ...r, ...foundAR };
         } else {
@@ -860,8 +871,10 @@ export class ReportService {
         }
         if (foundTR) {
           r.collectedAmount = foundTR.amount;
+          r.payments = foundTR.payments;
         } else {
           r.collectedAmount = 0;
+          r.payments = 0;
         }
 
         r.collectedAmount = 0;
@@ -874,6 +887,7 @@ export class ReportService {
         total.totalNoAnsweredCalls += r.totalNoAnsweredCalls;
         total.answeredRate += r.answeredRate;
         total.collectedAmount += r.collectedAmount;
+        total.payments += r.payments;
 
         customersResults[i] = r;
       }
