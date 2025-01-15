@@ -590,7 +590,7 @@ export class ReportService {
     );
     const customersResults = (
       await this.handleAggregateStream(customerStream)
-    ).sort((n, p) => (n < p ? 1 : -1));
+    ).sort((n, p) => (n.partnerCode < p.partnerCode ? 1 : -1));
     const activityResults = await this.handleAggregateStream(activityStream);
     const tranResults = await this.handleAggregateStream(tranStream);
 
