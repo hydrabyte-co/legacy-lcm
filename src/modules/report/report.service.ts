@@ -844,7 +844,7 @@ export class ReportService {
         totalCustomers: 0,
         interactedCustomers: 0,
         ptpAmount: 0,
-        partnerCode: 'ALL',
+        staffCode: 'ALL',
         collectedAmount: 0,
         totalCalls: 0,
         totalAnsweredCalls: 0,
