@@ -837,7 +837,7 @@ export class ReportService {
     ).sort((n, p) => parseInt(n.staffCode) - parseInt(p.staffCode));
     const activityResults = await this.handleAggregateStream(activityStream);
     const tranResults = await this.handleAggregateStream(tranStream);
-
+    
     let reportData = [];
     if (customersResults.length > 0) {
       const total = {
@@ -876,7 +876,6 @@ export class ReportService {
           r.payments = 0;
         }
 
-        r.collectedAmount = 0;
         total.totalCustomers += r.totalCustomers;
         total.interactedCustomers += r.interactedCustomers;
         total.ptpAmount += r.ptpAmount;
