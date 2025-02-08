@@ -82,34 +82,9 @@ export class ReportService {
     let staffCodes = [];
     if (handler.roles.indexOf('org.staff') >= 0) {
       if (handler.staffCode === '263') {
-        staffCodes = [
-          '263',
-          '330',
-          '313',
-          '269',
-          '332',
-          '267',
-          '335',
-          '261',
-          '275',
-          '268',
-        ];
+        staffCodes = ['261', '263', '267', '275', '313', '415', '268'];
       } else if (handler.staffCode === '272') {
-        /* staffCodes = [
-          '272',
-          '265',
-          '125',
-          '346',
-          '350',
-          '352',
-          '358',
-          '361',
-          '363',
-          '364',
-          '365',
-          '408',
-          '410',
-        ]; */
+        staffCodes = ['125', '346', '363', '408', '410', '272'];
       } else {
         staffCodes = [handler.staffCode || '_'];
       }
@@ -837,7 +812,7 @@ export class ReportService {
     ).sort((n, p) => parseInt(n.staffCode) - parseInt(p.staffCode));
     const activityResults = await this.handleAggregateStream(activityStream);
     const tranResults = await this.handleAggregateStream(tranStream);
-    
+
     let reportData = [];
     if (customersResults.length > 0) {
       const total = {
