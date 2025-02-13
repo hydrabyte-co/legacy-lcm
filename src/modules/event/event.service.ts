@@ -33,6 +33,9 @@ import {
 } from '../data-migration/entity/sql-table';
 
 const getCurrentTimeUTC7 = (date) => {
+  if (typeof date === 'string') {
+    date = new Date(date);
+  }
   if (typeof date === 'object') {
     date.setHours(date.getUTCHours() + 7); // Cộng 7 giờ từ UTC
     return date.toISOString().slice(0, 19).replace('T', ' ');
