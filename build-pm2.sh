@@ -1,5 +1,5 @@
 git pull origin main
 git submodule foreach git pull origin main
 npm run build
-pm2 restart lcm-api lcm-ms lcm-ms-file  lcm-ms-sync
+pm2 restart lcm-api lcm-ms-file  lcm-ms-sync
 
