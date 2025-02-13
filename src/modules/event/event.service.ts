@@ -615,6 +615,7 @@ export class EventService {
             importData.staffCode = sourceData.staffCode;
             importData.typeCode = sourceData.typeCode;
             importData.value = sourceData.value;
+            importData.createdAt = sourceData.createdAt;
 
             for (const key in importData) {
               if (typeof importData[key] === 'string') {
@@ -638,7 +639,7 @@ VALUES
      ,'${importData.typeCode}'
      ,N'${importData.value}'
      ,N'${importData.note}'
-     ,'${getCurrentTimeUTC7(importData.createdAt) || ''}'
+     ,'${getCurrentTimeUTC7(importData.createdAt) || '0'}'
      )
             `;
             updateQuery = `
@@ -649,7 +650,7 @@ VALUES
       ,[typeCode] = '${importData.typeCode}'
       ,[value] = N'${importData.value}'
       ,[note] = N'${importData.note}'
-      ,[createdAt] = '${getCurrentTimeUTC7(importData.createdAt) || ''}'
+      ,[createdAt] = '${getCurrentTimeUTC7(importData.createdAt) || '0'}'
  WHERE [refId] = '${importData.refId}'
             `;
             break;
