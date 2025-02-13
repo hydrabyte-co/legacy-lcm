@@ -32,6 +32,15 @@ import {
   MSSQLReference,
 } from '../data-migration/entity/sql-table';
 
+const getCurrentTimeUTC7 = (date) => {
+  if (typeof date === 'object') {
+    date.setHours(date.getUTCHours() + 7); // Cộng 7 giờ từ UTC
+    return date.toISOString().slice(0, 19).replace('T', ' ');
+  } else {
+    return undefined;
+  }
+};
+
 @Injectable()
 export class EventService {
   private connectResult;
@@ -629,7 +638,7 @@ VALUES
      ,'${importData.typeCode}'
      ,N'${importData.value}'
      ,N'${importData.note}'
-     ,'${importData.createdAt || ''}'
+     ,'${getCurrentTimeUTC7(importData.createdAt) || ''}'
      )
             `;
             updateQuery = `
@@ -640,7 +649,7 @@ VALUES
       ,[typeCode] = '${importData.typeCode}'
       ,[value] = N'${importData.value}'
       ,[note] = N'${importData.note}'
-      ,[createdAt] = '${importData.createdAt || ''}'
+      ,[createdAt] = '${getCurrentTimeUTC7(importData.createdAt) || ''}'
  WHERE [refId] = '${importData.refId}'
             `;
             break;
