@@ -33,6 +33,8 @@ import {
 } from '../data-migration/entity/sql-table';
 
 const getCurrentTimeUTC7 = (date) => {
+  console.log(`getCurrentTimeUTC7`, date, typeof date);
+
   if (typeof date === 'string') {
     date = new Date(date);
   }
