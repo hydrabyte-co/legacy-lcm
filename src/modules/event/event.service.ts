@@ -65,7 +65,7 @@ export class EventService {
     private readonly referenceRepo: MongoRepository<Reference>,
     @InjectRepository(Investigation)
     private readonly investigationRepo: MongoRepository<Investigation>,
-    @InjectRepository(Call)
+    @InjectRepository(Call, "voice")
     private readonly callRepo: MongoRepository<Call>,
     @Inject(Services.LCM) private client: ClientProxy,
   ) {}
