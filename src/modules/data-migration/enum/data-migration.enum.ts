@@ -6,6 +6,7 @@ export enum DataMigration_Collections {
   References = 'references',
   Transactions = 'transactions',
   Tests = 'tests',
+  Calls = 'calls',
 }
 
 export enum DataMigration_Status {

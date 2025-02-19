@@ -26,11 +26,13 @@ import { Services } from 'src/common/enums/services';
 import { MessagePattern } from './enum/event.enum';
 import {
   MSSQLActivity,
+  MSSQLCalls,
   MSSQLContract,
   MSSQLCustomer,
   MSSQLInvestigation,
   MSSQLReference,
 } from '../data-migration/entity/sql-table';
+import { Call } from '../call/entity/call.entity';
 
 const getCurrentTimeUTC7 = (date) => {
   console.log(`getCurrentTimeUTC7`, date, typeof date);
@@ -63,6 +65,8 @@ export class EventService {
     private readonly referenceRepo: MongoRepository<Reference>,
     @InjectRepository(Investigation)
     private readonly investigationRepo: MongoRepository<Investigation>,
+    @InjectRepository(Call)
+    private readonly callRepo: MongoRepository<Call>,
     @Inject(Services.LCM) private client: ClientProxy,
   ) {}
   async handleDataMigration(data: any): Promise<any> {
@@ -134,6 +138,10 @@ export class EventService {
           documents = await this.referenceRepo.find(documentFilter);
           break;
         }
+        case DataMigration_Collections.Calls: {
+          documents = await this.callRepo.find(documentFilter);
+          break;
+        }
         default:
           break;
       }
@@ -191,6 +199,13 @@ export class EventService {
           }
           case DataMigration_Collections.References: {
             updateQueueTimeResults = await this.referenceRepo.updateMany(
+              updateQuery,
+              updateFilter,
+            );
+            break;
+          }
+          case DataMigration_Collections.Calls: {
+            updateQueueTimeResults = await this.callRepo.updateMany(
               updateQuery,
               updateFilter,
             );
@@ -701,6 +716,65 @@ VALUES
            ,N'${importData.gender}'
            ,'${importData.identityNumber}'
            ,'${importData.officeNumber}')
+            `;
+            break;
+          }
+          case DataMigration_Collections.Calls: {
+            const importData = new MSSQLCalls();
+            const sourceData = data.data as Call;
+            importData.refId = sourceData.id.toString();
+            importData.customerCode = sourceData.data?.customerCode || '';
+            importData.customerFullname =
+              sourceData.data?.customerFullname || '';
+            importData.createdAt = sourceData.createdAt;
+            importData.activityId = sourceData.data?.activityId || '';
+            importData.campaignId = sourceData.campaignId;
+            importData.campaignName = '';
+            importData.direction = sourceData.direction;
+            importData.fromNumber = sourceData.fromNumber;
+            importData.fromSIPAccountId = sourceData.fromSIPAccountId;
+            importData.recordFile = sourceData.recordingFile;
+            importData.refId = sourceData.id.toString();
+            importData.result = sourceData.result;
+            importData.staffCode = sourceData.data?.staffCode;
+            importData.toNumber = sourceData.toNumber;
+
+            for (const key in importData) {
+              if (typeof importData[key] === 'string') {
+                importData[key] = importData[key].toString().replace(/'/g, '');
+              }
+            }
+            insertQuery = `
+            INSERT INTO [dbo].[calls]
+           ([refId]
+            ,[direction]
+            ,[campaignId]
+            ,[campaignName]
+            ,[fromSIPAccountId]
+            ,[result]
+            ,[recordFile]
+            ,[fromNumber]
+            ,[toNumber]
+            ,[activityId]
+            ,[customerFullname]
+            ,[staffCode]
+            ,[customerCode]
+            ,[createdAt])
+     VALUES
+           ('${importData.refId}'
+           ,'${importData.direction}'
+           ,'${importData.campaignId}'
+           ,'${importData.campaignName}'
+           ,'${importData.fromSIPAccountId}'
+           ,'${importData.result}'
+           ,'${importData.recordFile}'
+           ,'${importData.fromNumber}'
+           ,'${importData.toNumber}'
+           ,'${importData.activityId}'
+           ,N'${importData.customerFullname}'
+           ,'${importData.staffCode}'
+           ,'${importData.customerCode}'
+           ,'${importData.createdAt}')
             `;
             break;
           }

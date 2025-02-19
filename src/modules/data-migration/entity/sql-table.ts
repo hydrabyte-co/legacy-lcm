@@ -100,3 +100,20 @@ export class MSSQLInvestigation {
   note = '';
   createdAt: Date | null | undefined;
 }
+
+export class MSSQLCalls {
+  refId: string;
+  direction = '';
+  campaignId = '';
+  campaignName = '';
+  fromSIPAccountId = '';
+  result = '';
+  recordFile = '';
+  fromNumber = '';
+  toNumber = '';
+  activityId = '';
+  customerFullname = '';
+  staffCode = '';
+  customerCode = '';
+  createdAt: Date | null | undefined;
+}

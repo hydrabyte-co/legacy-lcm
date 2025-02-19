@@ -16,6 +16,7 @@ import { ContractModule } from '../contract/contract.module';
 import { ActivityModule } from '../activity/activity.module';
 import { ReferenceModule } from '../reference/reference.module';
 import { InvestigationModule } from '../investigation/investigation.module';
+import { Call } from '../call/entity/call.entity';
 
 @Module({
   imports: [
@@ -26,13 +27,14 @@ import { InvestigationModule } from '../investigation/investigation.module';
       Activity,
       Reference,
       Investigation,
+      Call,
     ]),
-    DataMigrationModule,
+    /* DataMigrationModule,
     CustomerModule,
     ContractModule,
     ActivityModule,
     ReferenceModule,
-    InvestigationModule,
+    InvestigationModule, */
     ClientsModule.register([
       {
         name: Services.LCM,

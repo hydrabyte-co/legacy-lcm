@@ -23,14 +23,28 @@ import { UtilModule } from './modules/utils/utils.module';
 import { ReportModule } from './modules/report/report.module';
 import { TaskModule } from './modules/task/task.module';
 import { TeamModule } from './modules/team/team.module';
+import { CallModule } from './modules/call/call.module';
+import { Call } from './modules/call/entity/call.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
+      //name: 'lcm',
       type: 'mongodb',
       url: process.env.MONGODB_URL,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      ssl: false,
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+      synchronize: false,
+    }),
+    TypeOrmModule.forRoot({
+      name: 'voice',
+      type: 'mongodb',
+      url: process.env.MONGODB_VOICE_URL,
+      database: 'voice',
+      entities: [Call],
       ssl: false,
       useUnifiedTopology: true,
       useNewUrlParser: true,
@@ -51,6 +65,7 @@ import { TeamModule } from './modules/team/team.module';
     DataMigrationModule,
     TaskModule,
     TeamModule,
+    CallModule,
     EventModule,
     UtilModule,
     ReportModule,
