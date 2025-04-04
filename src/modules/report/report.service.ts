@@ -85,6 +85,8 @@ export class ReportService {
         staffCodes = ['261', '263', '267', '275', '313', '415', '268'];
       } else if (handler.staffCode === '272') {
         staffCodes = ['125', '346', '363', '408', '410', '272'];
+      } else if (handler.staffCode === '429') {
+        staffCodes = ['424', '425', '426', '427', '428', '429'];
       } else {
         staffCodes = [handler.staffCode || '_'];
       }

@@ -388,6 +388,16 @@ export class CustomerService extends BaseService<Customer> {
         };
       }
     }
+    if (handler.staffCode === '429') {
+      const members = ['424', '425', '426', '427', '428', '429'];
+      if (members.indexOf(filter.where.callStaffCode) >= 0) {
+        filter.where.callStaffCode = filter.where.callStaffCode;
+      } else {
+        filter.where.callStaffCode = {
+          $in: members,
+        };
+      }
+    }
     console.log('filter', JSON.stringify(filter, null, '\t'));
     return await super.findManyWithPaging(filter, handler);
   }
