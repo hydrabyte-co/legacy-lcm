@@ -362,7 +362,7 @@ export class CustomerService extends BaseService<Customer> {
     if (
       handler.roles.indexOf('org.owner') < 0 &&
       handler.roles.indexOf('org.admin') < 0 &&
-      ['263', '272'].indexOf(handler.staffCode) < 0
+      ['263', '272', '429'].indexOf(handler.staffCode) < 0
     ) {
       filter.where.callStaffCode = handler.staffCode || '_';
     }
