@@ -90,22 +90,22 @@ export class UpdateCustomerData extends UpdateOneData {
   @IsOptional()
   @IsString()
   @MaxLength(360)
-  officeAddress = '';
+  officeAddress;
 
   @IsOptional()
   @IsString()
   @MaxLength(120)
-  officeName = '';
+  officeName;
 
   @IsOptional()
   @IsString()
   @MaxLength(60)
-  jobPosition = '';
+  jobPosition;
 
   @IsOptional()
   @IsString()
   @MaxLength(60)
-  businessDomain = '';
+  businessDomain;
 
   @IsOptional()
   @IsString()
