@@ -90,6 +90,7 @@ export class ImportDataService extends BaseService<ImportData> {
     filter.select = [
       'id',
       'fileName',
+      'fileId',
       'partnerCode',
       'settings',
       'note',

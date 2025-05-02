@@ -7,6 +7,9 @@ export class FindImportDataByIdResult extends BaseFindByIdResult {
   fileName = '';
 
   @Expose()
+  fileId = '';
+
+  @Expose()
   partnerCode = '';
 
   @Expose()
