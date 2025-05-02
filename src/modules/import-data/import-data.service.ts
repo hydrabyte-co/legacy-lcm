@@ -309,10 +309,15 @@ export class ImportDataService extends BaseService<ImportData> {
           );
           fs.mkdirSync(dataDirPath);
         }
-        const downloadFileResult = await downloadFile(
-          importData.fileName,
-          importDataPath,
-        );
+        let fileUrl = ``;
+        if (importData.fileId) {
+          fileUrl = `${
+            process.env.STORAGE_API_ROOT_URL
+          }/files/${importData.id.toString()}/download`;
+        } else {
+          fileUrl = importData.fileName;
+        }
+        const downloadFileResult = await downloadFile(fileUrl, importDataPath);
         console.log(
           `-- Download file '${importData.fileName} to '${importDataPath}'`,
           downloadFileResult,
