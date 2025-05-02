@@ -311,9 +311,7 @@ export class ImportDataService extends BaseService<ImportData> {
         }
         let fileUrl = ``;
         if (importData.fileId) {
-          fileUrl = `${
-            process.env.STORAGE_API_ROOT_URL
-          }/files/${importData.id.toString()}/download`;
+          fileUrl = `${process.env.STORAGE_API_ROOT_URL}/files/${importData.fileId}/download`;
         } else {
           fileUrl = importData.fileName;
         }
