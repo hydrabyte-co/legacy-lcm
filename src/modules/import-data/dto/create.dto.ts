@@ -1,5 +1,11 @@
 import { Exclude, Expose } from 'class-transformer';
-import { IsString, IsNotEmpty, MaxLength, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MaxLength,
+  IsOptional,
+  IsObject,
+} from 'class-validator';
 import {
   CreateData as BaseCreateData,
   CreateResult as BaseCreateResult,
@@ -12,12 +18,26 @@ export class CreateImportDataData extends BaseCreateData {
   partnerCode = '';
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   fileName = '';
+
+  @IsString()
+  @IsOptional()
+  fileId = '';
 
   @IsString()
   @MaxLength(64)
   note = '';
+
+  @IsOptional()
+  @IsObject()
+  settings: {
+    closeAll: boolean;
+    sheets: {
+      name: string;
+      [key: string]: any;
+    }[];
+  };
 }
 @Exclude()
 export class CreateImportDataResult extends BaseCreateResult {

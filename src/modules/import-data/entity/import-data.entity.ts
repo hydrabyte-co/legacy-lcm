@@ -24,6 +24,11 @@ export class ImportData extends Base {
   @Column()
   @IsString()
   @IsNotEmpty()
+  fileId = '';
+
+  @Column()
+  @IsString()
+  @IsNotEmpty()
   @MaxLength(12)
   partnerCode = '';
 
@@ -38,13 +43,14 @@ export class ImportData extends Base {
   @Column()
   @IsObject()
   settings: {
+    closeAll: boolean;
     sheets: {
       name: string;
       toTable: ImportData_ToTable;
       rule: ImportData_ImportRule;
       [key: string]: any;
     }[];
-  } = { sheets: [] };
+  } = { sheets: [], closeAll: false };
 
   @Column()
   @IsString()

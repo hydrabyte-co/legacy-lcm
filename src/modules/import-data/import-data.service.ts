@@ -111,7 +111,8 @@ export class ImportDataService extends BaseService<ImportData> {
       /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/,
     );
     const importData = new ImportData();
-    importData.fileName = data.fileName;
+    importData.fileId = data.fileId || '';
+    importData.fileName = data.fileName || '';
     importData.note = data.note;
     importData.partnerCode = data.partnerCode;
     importData.status = ImportData_Status.New;
@@ -149,6 +150,45 @@ export class ImportDataService extends BaseService<ImportData> {
         });
         return super.createOne(importData, handler);
       }
+    } else if (data.fileId) {
+      if (data.settings) {
+        if (data.settings.closeAll) {
+          importData.settings.closeAll = true;
+        }
+        if (data.settings.sheets) {
+          for (let i = 0; i < data.settings.sheets.length; i++) {
+            const sheet = data.settings[i];
+            importData.settings.sheets.push({
+              name: sheet.name,
+              toTable: sheet.name.toLowerCase(),
+              rule: ImportData_ImportRule.ReplaceAll,
+            });
+          }
+        }
+      }
+      const createResult: ImportData = await super.createOne(
+        importData,
+        handler,
+      );
+      if (createResult) {
+        const updateResult = await super.updateOne(
+          createResult.id.toString(),
+          { status: ImportData_Status.Queued },
+          handler,
+        );
+        if (createResult.settings.closeAll && createResult.partnerCode) {
+          await this.customersRepository.update(
+            { callStaffCode: importData.partnerCode },
+            { callStaffCode: '' },
+          );
+        }
+        const emitResult = await this.client.emit(
+          'process-import-data',
+          JSON.stringify({ importDataId: createResult.id.toString(), handler }),
+        );
+        console.log(`-- Emit result`, emitResult);
+      }
+      return createResult;
     } else {
       throw new BadRequestException({
         message: `-- Can not download file '${importData.fileName}'!`,
@@ -240,7 +280,7 @@ export class ImportDataService extends BaseService<ImportData> {
     let processExportDataResult;
     try {
       objectId = ObjectId.createFromHexString(data.importDataId);
-    } catch (error) {}
+    } catch (error) { }
     if (objectId) {
       const importData = await this.importDatasRepository.findOneBy(
         {
