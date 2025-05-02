@@ -157,7 +157,7 @@ export class ImportDataService extends BaseService<ImportData> {
         }
         if (data.settings.sheets) {
           for (let i = 0; i < data.settings.sheets.length; i++) {
-            const sheet = data.settings[i];
+            const sheet = data.settings.sheets[i];
             importData.settings.sheets.push({
               name: sheet.name,
               toTable: sheet.name.toLowerCase(),

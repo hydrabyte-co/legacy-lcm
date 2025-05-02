@@ -46,7 +46,7 @@ export class ImportData extends Base {
     closeAll: boolean;
     sheets: {
       name: string;
-      toTable: ImportData_ToTable;
+      toTable: ImportData_ToTable | string;
       rule: ImportData_ImportRule;
       [key: string]: any;
     }[];
