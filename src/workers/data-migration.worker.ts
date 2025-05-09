@@ -86,6 +86,11 @@ export class DataMigrationWorker {
                 createdBy: new DataHandler(),
                 createdAt: undefined,
               };
+              if (collectionName === DataMigration_Collections.Calls) {
+                dataMigration.filter.where.$and.push({
+                  result: { $ne: 'failed' },
+                });
+              }
               const createDMResult =
                 await this.dataMigrationService.createNoData(dataMigration);
               logInfo(
