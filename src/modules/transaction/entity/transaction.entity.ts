@@ -16,6 +16,12 @@ export class Transaction extends Base {
   @IsString()
   @IsNotEmpty()
   @MaxLength(24)
+  partnerCode = '';
+
+  @Column()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(24)
   customerCode = '';
 
   @Column()
@@ -26,7 +32,7 @@ export class Transaction extends Base {
 
   @Column()
   @IsString()
-  stallCode = '';
+  staffCode = '';
 
   @Column()
   @IsNumber()

@@ -56,5 +56,20 @@ module.exports = {
         RABBITMQ_QUEUE: 'lcm-sync',
       },
     },
+    {
+      name: 'lcm-wrk:payment-migration',
+      script: 'dist/main.js',
+      args: ' ',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '4G',
+      env: {
+        NODE_ENV: 'production',
+        APP_TYPE: 'worker',
+        APP_TYPE: 'payment-migration',
+        RABBITMQ_QUEUE: 'lcm-sync',
+      },
+    },
   ],
 };

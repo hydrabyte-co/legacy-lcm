@@ -10,6 +10,10 @@ import { AppModule } from './app.module';
 import { logInfo, logWarning } from './common/utils/log-helper';
 import { DataMigrationService } from './modules/data-migration/data-migration.service';
 import { DataMigrationWorker } from './workers/data-migration.worker';
+import { Transaction } from './modules/transaction/entity/transaction.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { MongoRepository } from 'typeorm';
+import { PaymentMigrationWorker } from './workers/payment-migration.worker';
 // import { SampleWorker } from './workers/sample.worker';
 
 let worker = undefined;
@@ -59,10 +63,23 @@ async function bootstrap() {
       const activityRepo = standAloneApp.get<MongoRepository<Activity>>(
         getRepositoryToken(Activity),
       ); */
-      const dataMigrationService =
-        standAloneApp.get<DataMigrationService>(DataMigrationService);
+      switch (process.env.WORKER_TYPE) {
+        case 'payment-migration': {
+          const transactionRepo = standAloneApp.get<
+            MongoRepository<Transaction>
+          >(getRepositoryToken(Transaction));
+          worker = new PaymentMigrationWorker(transactionRepo);
+          break;
+        }
+        case 'data-migration':
+        default: {
+          const dataMigrationService =
+            standAloneApp.get<DataMigrationService>(DataMigrationService);
 
-      worker = new DataMigrationWorker(dataMigrationService);
+          worker = new DataMigrationWorker(dataMigrationService);
+          break;
+        }
+      }
 
       process.once('SIGINT', async function (code) {
         await handleProcessKilled(code);
