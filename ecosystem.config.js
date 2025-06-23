@@ -67,7 +67,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         APP_TYPE: 'worker',
-        APP_TYPE: 'payment-migration',
+        WORKER_TYPE: 'payment-migration',
         RABBITMQ_QUEUE: 'lcm-sync',
       },
     },
