@@ -8,7 +8,9 @@
   },
   "changeRequests": {
     "pending": [],
-    "approved": [
+    "approved": [],
+    "inProgress": [],
+    "completed": [
       {
         "id": "CR-2025-01-17-001-repo-optimization",
         "title": "Repository Structure Optimization & Agent Collaboration Enhancement",
@@ -17,22 +19,22 @@
         "creator": "TranGPT LCM Agent",
         "createdDate": "2025-01-17",
         "approvedDate": "2025-01-17",
+        "completedDate": "2025-08-28",
         "estimatedEffort": "3-4 weeks",
+        "actualEffort": "4 phases completed",
         "businessCategories": ["dataIntegration", "compliance", "reporting"],
         "affectedModules": ["all-modules"],
         "filePath": "change-requests/approved/CR-2025-01-17-001-repo-optimization.md"
       }
     ],
-    "inProgress": [],
-    "completed": [],
     "rejected": []
   },
   "statistics": {
     "byStatus": {
       "pending": 0,
-      "approved": 1,
+      "approved": 0,
       "inProgress": 0,
-      "completed": 0,
+      "completed": 1,
       "rejected": 0
     },
     "byPriority": {
@@ -49,7 +51,7 @@
       "performance": 0,
       "compliance": 0
     },
-    "averageCompletionDays": 0
+    "averageCompletionDays": 224
   },
   "businessCategories": {
     "partnerManagement": 0,
