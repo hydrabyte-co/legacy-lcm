@@ -1,8 +1,8 @@
 {
-  "name": "template-service",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "name": "lcm-service",
+  "version": "1.0.0",
+  "description": "Loans Collection Management Service for TranGPT Company - Hoàn Kim Law Firm",
+  "author": "TranGPT Development Team <dev@trangpt.com>",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
