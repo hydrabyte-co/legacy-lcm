@@ -12,10 +12,51 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
-  }
+    
+    // Gradually enabled strict options for LCM service code quality
+    "strict": false,              // Master strict flag - will enable gradually
+    "strictNullChecks": true,     // Phase 3: Enabled for null safety in debt collection
+    "noImplicitAny": true,        // Phase 3: Enabled for better type safety
+    "strictBindCallApply": true,  // Phase 3: Enabled for function binding safety
+    "strictFunctionTypes": true,  // Phase 3: Enabled for function type safety
+    "strictPropertyInitialization": false, // Keep disabled for now (DTO classes)
+    
+    // Code quality options
+    "forceConsistentCasingInFileNames": true,  // Phase 3: Enabled for consistency
+    "noFallthroughCasesInSwitch": true,        // Phase 3: Enabled to prevent bugs
+    "noImplicitReturns": true,                 // Phase 3: Enabled for explicit returns
+    "noUnusedLocals": false,                   // Keep disabled for development flexibility
+    "noUnusedParameters": false,               // Keep disabled for callback patterns
+    
+    // Additional helpful options
+    "exactOptionalPropertyTypes": false,       // Keep disabled for DTO flexibility
+    "noImplicitOverride": true,               // Phase 3: Enabled for class inheritance safety
+    "noPropertyAccessFromIndexSignature": false, // Keep disabled for dynamic access
+    "noUncheckedIndexedAccess": false,        // Keep disabled for array/object access patterns
+    
+    // Import/Export options
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    
+    // Path mapping for clean imports
+    "paths": {
+      "@/*": ["src/*"],
+      "@/modules/*": ["src/modules/*"],
+      "@/common/*": ["src/common/*"],
+      "@/enums/*": ["src/enums/*"]
+    }
+  },
+  
+  // Include/Exclude patterns
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
 }
