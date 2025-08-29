@@ -12,6 +12,7 @@ import {
   Req,
   ValidationPipe,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/auth/roles.guard';
 import {
@@ -27,7 +28,10 @@ import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
 import { Resources } from 'src/common/enums/resources';
 import { Partner } from './entity/partner.entity';
+import { Request } from 'express';
 
+@ApiTags('Partners')
+@ApiBearerAuth('JWT-auth')
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_Partners)
 @Controller(Resources.LCM_Partners)
@@ -39,18 +43,18 @@ export class PartnersController extends BaseController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async createOne(
+  override async createOne(
     @Body() data: CreatePartnerData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<CreatePartnerResult> {
     return await super.createOne(data, req);
   }
 
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async findOne(
+  override async findOne(
     @Param('id') id: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindPartnerByIdResult> {
     return await super.findOne(id, req);
   }
@@ -59,7 +63,7 @@ export class PartnersController extends BaseController {
   @UseGuards(AuthGuard, RolesGuard)
   async findManyWithPaging(
     @Query() queries: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindAllResult<Partner>> {
     return await super.findManyWithPaging(queries, req);
   }
@@ -67,17 +71,17 @@ export class PartnersController extends BaseController {
   @Patch(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async updateOne(
+  override async updateOne(
     @Param('id') id: string,
     @Body() data: UpdatePartnerData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<UpdatePartnerResult> {
     return await super.updateOne(id, data, req);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteOne(@Param('id') id: string, @Req() req) {
+  override async deleteOne(@Param('id') id: string, @Req() req: Request) {
     return await super.deleteOne(id, req);
   }
 }

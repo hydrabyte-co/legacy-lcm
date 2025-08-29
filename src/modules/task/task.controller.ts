@@ -27,6 +27,7 @@ import { Services } from 'src/common/enums/services';
 import { Resources } from 'src/common/enums/resources';
 import { Task } from './entity/task.entity';
 import { DeleteOneResult } from 'src/common/types/controller-dto';
+import { Request } from 'express';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_Task)
@@ -39,13 +40,13 @@ export class TaskController extends BaseController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async createOne(@Body() data: CreateTaskData, @Req() req): Promise<Task> {
+  override async createOne(@Body() data: CreateTaskData, @Req() req: Request): Promise<Task> {
     return await super.createOne(data, req);
   }
 
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async findOne(@Param('id') id: string, @Req() req): Promise<Task> {
+  override async findOne(@Param('id') id: string, @Req() req: Request): Promise<Task> {
     return await super.findOne(id, req);
   }
 
@@ -53,7 +54,7 @@ export class TaskController extends BaseController {
   @UseGuards(AuthGuard, RolesGuard)
   async findManyWithPaging(
     @Query() queries: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindAllResult<Task>> {
     return await super.findManyWithPaging(queries, req);
   }
@@ -61,19 +62,19 @@ export class TaskController extends BaseController {
   @Patch(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async updateOne(
+  override async updateOne(
     @Param('id') id: string,
     @Body() data: UpdateTaskData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<Task> {
     return await super.updateOne(id, data, req);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteOne(
+  override async deleteOne(
     @Param('id') id: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<DeleteOneResult> {
     return await super.deleteOne(id, req);
   }

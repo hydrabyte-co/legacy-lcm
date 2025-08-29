@@ -1,0 +1,67 @@
+{
+  "metadata": {
+    "lastUpdated": "2025-01-17T10:30:00.000Z",
+    "totalCRs": 1,
+    "activeTracking": true,
+    "service": "lcm-service",
+    "description": "Change Request tracking for Loans Collection Management service"
+  },
+  "changeRequests": {
+    "pending": [],
+    "approved": [],
+    "inProgress": [],
+    "completed": [
+      {
+        "id": "CR-2025-01-17-001-repo-optimization",
+        "title": "Repository Structure Optimization & Agent Collaboration Enhancement",
+        "priority": "High",
+        "type": "enhancement",
+        "creator": "TranGPT LCM Agent",
+        "createdDate": "2025-01-17",
+        "approvedDate": "2025-01-17",
+        "completedDate": "2025-08-28",
+        "estimatedEffort": "3-4 weeks",
+        "actualEffort": "4 phases completed",
+        "businessCategories": ["dataIntegration", "compliance", "reporting"],
+        "affectedModules": ["all-modules"],
+        "filePath": "change-requests/completed/CR-2025-01-17-001-repo-optimization.md"
+      }
+    ],
+    "rejected": []
+  },
+  "statistics": {
+    "byStatus": {
+      "pending": 0,
+      "approved": 0,
+      "inProgress": 0,
+      "completed": 1,
+      "rejected": 0
+    },
+    "byPriority": {
+      "low": 0,
+      "medium": 0,
+      "high": 1,
+      "critical": 0
+    },
+    "byType": {
+      "feature": 0,
+      "bugfix": 0,
+      "enhancement": 1,
+      "security": 0,
+      "performance": 0,
+      "compliance": 0
+    },
+    "averageCompletionDays": 224
+  },
+  "businessCategories": {
+    "partnerManagement": 0,
+    "customerManagement": 0,
+    "contractManagement": 0,
+    "callSystem": 0,
+    "paymentProcessing": 0,
+    "reporting": 1,
+    "dataIntegration": 1,
+    "compliance": 1,
+    "security": 0
+  }
+}

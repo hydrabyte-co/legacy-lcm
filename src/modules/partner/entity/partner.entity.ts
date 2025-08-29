@@ -7,7 +7,7 @@ import {
   IsDate,
 } from 'class-validator';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Resources } from 'src/common/enums/resources';
+import { Resources } from '../../../common/enums/resources';
 
 @Entity(Resources.LCM_Partners)
 export class Partner extends Base {

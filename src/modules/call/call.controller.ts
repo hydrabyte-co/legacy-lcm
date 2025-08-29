@@ -27,6 +27,7 @@ import { Services } from 'src/common/enums/services';
 import { Resources } from 'src/common/enums/resources';
 import { Call } from './entity/call.entity';
 import { DeleteOneResult } from 'src/common/types/controller-dto';
+import { Request } from 'express';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.VSM_Calls)
@@ -39,7 +40,7 @@ export class CallController extends BaseController {
   @Get()
   async findManyWithPaging(
     @Query() queries: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindAllResult<Call>> {
     return await super.findManyWithPaging(queries, req);
   }

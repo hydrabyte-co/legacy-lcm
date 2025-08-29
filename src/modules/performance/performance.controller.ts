@@ -25,6 +25,7 @@ import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
 import { Resources } from 'src/common/enums/resources';
 import { Performance } from './entity/performance.entity';
+import { Request } from 'express';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_Performance)
@@ -36,9 +37,9 @@ export class PerformancesController extends BaseController {
 
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async findOne(
+  override async findOne(
     @Param('id') id: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindPerformanceByIdResult> {
     return await super.findOne(id, req);
   }
@@ -47,7 +48,7 @@ export class PerformancesController extends BaseController {
   @UseGuards(AuthGuard, RolesGuard)
   async findManyWithPaging(
     @Query() queries: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindAllResult<Performance>> {
     return await super.findManyWithPaging(queries, req);
   }

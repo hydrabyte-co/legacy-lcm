@@ -402,7 +402,7 @@ export class CustomerService extends BaseService<Customer> {
     return await super.findManyWithPaging(filter, handler);
   }
 
-  async createOne(
+  override async createOne(
     data: CreateCustomerData,
     handler: DataHandler,
   ): Promise<Customer> {
@@ -419,7 +419,7 @@ export class CustomerService extends BaseService<Customer> {
     }
   }
 
-  async updateOne(id: string, data: any, handler: DataHandler): Promise<any> {
+  override async updateOne(id: string, data: any, handler: DataHandler): Promise<any> {
     data.syncedAt = 0;
     data.queuedAt = 0;
     return super.updateOne(id, data, handler);

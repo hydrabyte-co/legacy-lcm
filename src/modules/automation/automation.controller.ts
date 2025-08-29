@@ -1,0 +1,106 @@
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+    Put,
+    Query,
+    Req,
+    UseGuards,
+} from '@nestjs/common';
+import { Request } from 'express';
+import { ControllerInfo, ServiceInfo } from 'src/common/decorators/service-info';
+import { Resources } from 'src/common/enums/resources';
+import { Services } from 'src/common/enums/services';
+import { AuthGuard } from 'src/common/guards/auth/auth.guard';
+import { RolesGuard } from 'src/common/guards/auth/roles.guard';
+import { BaseController } from 'src/common/modules/base/base.controller';
+import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
+import { DeleteOneResult } from 'src/common/types/controller-dto';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
+import { AutomationService } from './automation.service';
+import { CreateAutomationData, CreateAutomationResult } from './dto/create.dto';
+import { FindAutomationByIdResult, FindManyAutomationFilter } from './dto/find-one.dto';
+import { UpdateAutomationData, UpdateAutomationResult, UpdateAutomationStatusData, UpdateAutomationStatusResult } from './dto/update-one.dto';
+import { Automation } from './entity/automation.entity';
+
+@Controller('automations')
+@UseGuards(AuthGuard, RolesGuard)
+@ServiceInfo(Services.LCM)
+@ControllerInfo(Resources.LCM_Automations)
+export class AutomationController extends BaseController {
+  constructor(private readonly automationService: AutomationService) {
+    super(automationService);
+  }
+
+  /**
+   * Create new automation
+   */
+  @Post()
+  override async createOne(
+    @Body() data: CreateAutomationData,
+    @Req() req: Request,
+  ): Promise<CreateAutomationResult> {
+    return await this.automationService.createOne(data, req.user as DataHandler);
+  }
+
+  /**
+   * Get automation by ID
+   */
+  @Get(':id')
+  override async findOne(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<FindAutomationByIdResult> {
+    return await this.automationService.findAutomationById(id, req.user as DataHandler);
+  }
+
+  /**
+   * List automations with pagination and filtering
+   */
+  @Get()
+  async findManyWithPaging(
+    @Query() filter: FindManyAutomationFilter,
+    @Req() req: Request,
+  ): Promise<FindAllResult<Automation>> {
+    return await this.automationService.findMany(filter, req.user as DataHandler);
+  }
+
+  /**
+   * Update automation
+   */
+  @Put(':id')
+  override async updateOne(
+    @Param('id') id: string,
+    @Body() data: UpdateAutomationData,
+    @Req() req: Request,
+  ): Promise<UpdateAutomationResult> {
+    return await this.automationService.updateAutomation(id, data, req.user as DataHandler);
+  }
+
+  /**
+   * Delete automation
+   */
+  @Delete(':id')
+  override async deleteOne(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<DeleteOneResult> {
+    return await this.automationService.deleteOne(id, req.user as DataHandler);
+  }
+
+  /**
+   * Update automation status (start/stop/pause)
+   */
+  @Patch(':id/status')
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() data: UpdateAutomationStatusData,
+    @Req() req: Request,
+  ): Promise<UpdateAutomationStatusResult> {
+    return await this.automationService.updateStatus(id, data.status, data.reason, req.user as DataHandler);
+  }
+}

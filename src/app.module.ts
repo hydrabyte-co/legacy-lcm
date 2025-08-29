@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { BuildInfoService } from './build-info.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { JWTAuthStrategy } from './common/guards/auth/jwt-auth.strategy';
@@ -25,6 +26,7 @@ import { TaskModule } from './modules/task/task.module';
 import { TeamModule } from './modules/team/team.module';
 import { CallModule } from './modules/call/call.module';
 import { Call } from './modules/call/entity/call.entity';
+import { AutomationModule } from './modules/automation/automation.module';
 
 @Module({
   imports: [
@@ -69,8 +71,9 @@ import { Call } from './modules/call/entity/call.entity';
     EventModule,
     UtilModule,
     ReportModule,
+    AutomationModule,
   ],
   controllers: [AppController],
-  providers: [AppService, JWTAuthStrategy, BasicAuthStrategy],
+  providers: [AppService, BuildInfoService, JWTAuthStrategy, BasicAuthStrategy],
 })
 export class AppModule {}

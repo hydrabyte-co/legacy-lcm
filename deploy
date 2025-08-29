@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Quick LCM Deploy Command
+# Usage: ./deploy [branch] [host]
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEPLOY_SCRIPT="$SCRIPT_DIR/scripts/deploy-production.sh"
+
+# Default values
+BRANCH="main"
+HOST=""
+
+# Parse arguments
+if [[ -n "$1" ]]; then
+    if [[ "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        # First argument is an IP address
+        HOST="$1"
+    else
+        # First argument is a branch name
+        BRANCH="$1"
+        if [[ -n "$2" ]] && [[ "$2" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            HOST="$2"
+        fi
+    fi
+fi
+
+# Build command arguments
+ARGS=()
+if [[ "$BRANCH" != "main" ]]; then
+    ARGS+=("-b" "$BRANCH")
+fi
+if [[ -n "$HOST" ]]; then
+    ARGS+=("-h" "$HOST")
+fi
+
+echo "🚀 LCM Service Quick Deploy"
+echo "   Branch: $BRANCH"
+if [[ -n "$HOST" ]]; then
+    echo "   Host: $HOST"
+else
+    echo "   Hosts: All production VMs (10.10.0.70, 10.10.0.71, 10.10.0.72)"
+fi
+echo ""
+
+# Execute deployment
+exec "$DEPLOY_SCRIPT" "${ARGS[@]}"
