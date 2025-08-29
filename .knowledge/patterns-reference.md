@@ -1,6 +1,383 @@
 # Quick Patterns Reference
 
-## 🏗️ MODULE CREATION PATTERN
+## 🏗️ COMPLETE CRUD MODULE PATTERN (AUTOMATION EXAMPLE)
+
+### **📁 Module Directory Structure**
+```
+src/modules/automation/
+├── automation.controller.ts     # REST endpoints với full validation
+├── automation.service.ts        # Business logic với custom methods
+├── automation.module.ts         # NestJS module registration
+├── dto/
+│   ├── create.dto.ts            # Input validation cho tạo mới
+│   ├── update-one.dto.ts        # Input validation cho cập nhật
+│   ├── find-one.dto.ts          # Filter & response DTOs
+│   └── automation-config.dto.ts # Nested object validation
+├── entity/
+│   ├── automation.entity.ts     # Database schema
+│   └── automation-config.interface.ts # TypeScript interfaces
+├── enum/
+│   └── automation.enum.ts       # Domain enums
+├── examples/
+│   └── create-automation.example.ts # Usage examples
+└── README.md                    # Complete documentation
+```
+
+### **🔧 1. Entity Design Pattern**
+```typescript
+// entity/automation.entity.ts
+@Entity(Resources.LCM_Automations)
+export class Automation extends Base {
+  // Core business fields
+  @Column()
+  @IsEnum(AutomationType)
+  @IsNotEmpty()
+  type: AutomationType = AutomationType.AutoDialer;
+
+  @Column()
+  @IsNumber()
+  @Min(30) // Business rule validation
+  @Max(1800)
+  frequency: number = 300;
+
+  // Optional arrays với proper validation
+  @Column({ type: 'json', nullable: true })
+  @IsArray()
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  @ArrayMinSize(0)
+  @ArrayMaxSize(24)
+  workingHours?: number[];
+
+  // Complex JSON config
+  @Column({ type: 'json' })
+  @IsObject()
+  config: AutomationConfig;
+
+  // Enum status
+  @Column()
+  @IsEnum(AutomationStatus)
+  status: AutomationStatus = AutomationStatus.Inactive;
+
+  // Optional text fields
+  @Column({ nullable: true })
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  notes?: string;
+}
+```
+
+### **📝 2. DTO Pattern - Complete Validation**
+```typescript
+// dto/create.dto.ts - Input validation
+export class CreateAutomationData extends CreateData {
+  @IsEnum(AutomationType)
+  @IsNotEmpty()
+  type: AutomationType;
+
+  @IsNumber()
+  @Min(30)
+  @Max(1800)
+  frequency: number;
+
+  @IsArray()
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  @ArrayMinSize(0)
+  @ArrayMaxSize(24)
+  workingHours?: number[];
+
+  @IsObject()
+  @ValidateNested()
+  @Type(() => Object)
+  config: AutomationConfig;
+
+  // Default values
+  @IsEnum(AutomationStatus)
+  @IsOptional()
+  status?: AutomationStatus = AutomationStatus.Inactive;
+}
+
+// dto/create.dto.ts - Full response
+export class CreateAutomationResult {
+  id: string;
+  type: AutomationType;
+  frequency: number;
+  workingHours?: number[];
+  workingDays?: WeekDay[];
+  config: AutomationConfig;
+  status: AutomationStatus;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+### **🏢 3. Service Pattern - Business Logic Layer**
+```typescript
+// automation.service.ts
+@Injectable()
+export class AutomationService extends BaseService<Automation> {
+  constructor(
+    @InjectRepository(Automation)
+    private readonly automationRepository: MongoRepository<Automation>,
+  ) {
+    super(automationRepository);
+  }
+
+  // Create với business validation
+  async createOne(data: CreateAutomationData, handler: DataHandler): Promise<CreateAutomationResult> {
+    // Custom business validation
+    this.validateAutomationConfig(data.type, data.config);
+
+    // Entity creation pattern
+    const automation = new Automation();
+    Object.assign(automation, data);
+    automation.createdBy = handler;
+    automation.owner = { orgId: handler.orgId, userId: handler.userId };
+    automation.createdAt = new Date();
+    automation.isDeleted = false;
+
+    const result = await this.automationRepository.save(automation);
+    return this.mapToCreateResult(result);
+  }
+
+  // Custom find methods
+  async findAutomationById(id: string, handler: DataHandler): Promise<FindAutomationByIdResult> {
+    const automation = await super.findOne(id, handler);
+    if (!automation) {
+      throw new NotFoundException(`Automation with id ${id} not found`);
+    }
+    return this.mapToFindResult(automation);
+  }
+
+  // Advanced filtering
+  async findMany(filter: FindManyAutomationFilter, handler: DataHandler): Promise<FindAllResult<Automation>> {
+    const whereConditions: any = {};
+    
+    if (filter.type) whereConditions.type = filter.type;
+    if (filter.status) whereConditions.status = filter.status;
+    if (filter.activeOnly) whereConditions.status = AutomationStatus.Active;
+    
+    // Deep filtering trong JSON config
+    if (filter.partnerId) {
+      whereConditions['config.partner.id'] = filter.partnerId;
+    }
+
+    const modifiedFilter = { ...filter, where: whereConditions };
+    return await super.findManyWithPaging(modifiedFilter, handler);
+  }
+
+  // Private validation methods
+  private validateAutomationConfig(type: AutomationType, config: any): void {
+    switch (type) {
+      case AutomationType.AutoDialer:
+        this.validateAutoDialerConfig(config);
+        break;
+      default:
+        throw new BadRequestException(`Unsupported automation type: ${type}`);
+    }
+  }
+
+  private validateAutoDialerConfig(config: any): void {
+    const required = ['partner', 'staffs', 'phoneNumbers', 'retryAttempts', 'concurrentCallRatio'];
+    
+    for (const field of required) {
+      if (!config[field]) {
+        throw new BadRequestException(`Auto Dialer config missing required field: ${field}`);
+      }
+    }
+
+    // Business rules validation
+    if (config.concurrentCallRatio < 0.5 || config.concurrentCallRatio > 2.0) {
+      throw new BadRequestException('Concurrent call ratio must be between 0.5 and 2.0');
+    }
+  }
+
+  // Mapping methods cho consistent response
+  private mapToCreateResult(automation: Automation): CreateAutomationResult {
+    return {
+      id: automation.id.toString(),
+      type: automation.type,
+      frequency: automation.frequency,
+      workingHours: automation.workingHours,
+      workingDays: automation.workingDays,
+      config: automation.config,
+      status: automation.status,
+      notes: automation.notes,
+      createdAt: automation.createdAt.toISOString(),
+      updatedAt: automation.changedAt.toISOString(),
+    };
+  }
+}
+```
+
+### **🌐 4. Controller Pattern - REST API Layer**
+```typescript
+// automation.controller.ts
+@Controller('automations')
+@UseGuards(AuthGuard, RolesGuard)
+@ServiceInfo(Services.LCM)
+@ControllerInfo(Resources.LCM_Automations)
+export class AutomationController extends BaseController {
+  constructor(private readonly automationService: AutomationService) {
+    super(automationService);
+  }
+
+  // Override base methods với custom DTOs
+  @Post()
+  override async createOne(
+    @Body() data: CreateAutomationData,
+    @Req() req: Request,
+  ): Promise<CreateAutomationResult> {
+    return await this.automationService.createOne(data, req.user as DataHandler);
+  }
+
+  @Get(':id')
+  override async findOne(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<FindAutomationByIdResult> {
+    return await this.automationService.findAutomationById(id, req.user as DataHandler);
+  }
+
+  // Advanced filtering endpoint
+  @Get()
+  async findManyWithPaging(
+    @Query() filter: FindManyAutomationFilter,
+    @Req() req: Request,
+  ): Promise<FindAllResult<Automation>> {
+    return await this.automationService.findMany(filter, req.user as DataHandler);
+  }
+
+  // Custom business endpoints
+  @Patch(':id/status')
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() data: UpdateAutomationStatusData,
+    @Req() req: Request,
+  ): Promise<UpdateAutomationStatusResult> {
+    return await this.automationService.updateStatus(id, data.status, data.reason, req.user as DataHandler);
+  }
+}
+```
+
+### **🔗 5. Interface Pattern - Type Safety**
+```typescript
+// entity/automation-config.interface.ts
+export interface AutomationConfig {
+  type: AutomationType;
+}
+
+export interface PartnerInfo {
+  id: string;
+  name: string;
+  code: string;
+}
+
+export interface AutoDialerConfig extends AutomationConfig {
+  partner: PartnerInfo;
+  staffs: StaffInfo[];
+  phoneNumbers: string[];
+  retryAttempts: number;
+  concurrentCallRatio: number;
+}
+
+export type AutomationConfigTypes = AutoDialerConfig;
+```
+
+### **📦 6. Module Registration Pattern**
+```typescript
+// automation.module.ts
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([Automation]), // Entity registration
+  ],
+  controllers: [AutomationController],        // REST endpoints
+  providers: [AutomationService],             // Business logic
+  exports: [AutomationService],               // Service export for other modules
+})
+export class AutomationModule {}
+```
+
+### **✅ 7. Key Design Principles**
+
+#### **Validation Strategy**
+- **Entity Level**: Basic type & constraint validation
+- **DTO Level**: Input validation with business rules
+- **Service Level**: Complex business logic validation
+- **Custom Validators**: For domain-specific rules
+
+#### **Response Strategy**
+- **Full Data Return**: API responses contain complete entity data
+- **Consistent Mapping**: Private methods map entities to DTOs
+- **Type Safety**: Strong TypeScript typing throughout
+
+#### **Error Handling Strategy**
+- **BadRequestException**: Business rule violations
+- **NotFoundException**: Entity not found
+- **Validation Pipe**: Automatic DTO validation
+
+#### **Repository Strategy**
+- **Extend BaseService**: Inherit common CRUD operations
+- **Custom Methods**: Business-specific query methods
+- **Advanced Filtering**: Support complex where conditions
+
+### **🎯 8. Best Practices Summary**
+
+1. **Entity extends Base**: Inherit audit fields (createdAt, changedAt, etc.)
+2. **DTOs with validation**: Use class-validator decorators extensively
+3. **Service extends BaseService**: Leverage common operations
+4. **Controller extends BaseController**: Consistent API patterns
+5. **Type-safe interfaces**: Define complex JSON structures
+6. **Custom validation methods**: Encapsulate business rules
+7. **Proper error handling**: Use NestJS exception classes
+8. **Complete documentation**: README with examples
+9. **Mapping functions**: Consistent response formatting
+10. **Module exports**: Enable cross-module usage
+
+---
+
+### **Simplified Entity Design Pattern**
+```typescript
+// Example: Automation entity with essential fields only
+@Entity(Resources.LCM_Automations)
+export class Automation extends Base {
+  @Column()
+  @IsEnum(AutomationType)
+  @IsNotEmpty()
+  type: AutomationType = AutomationType.AutoDialer;
+
+  @Column()
+  @IsNumber()
+  @Min(30) // Minimum 30 seconds
+  @Max(1800) // Maximum 30 minutes
+  frequency: number = 300;
+
+  @Column({ type: 'json', nullable: true })
+  @IsArray()
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  @ArrayMinSize(0)
+  @ArrayMaxSize(24)
+  workingHours?: number[]; // 0-23 representing hours
+
+  @Column({ type: 'json' })
+  @IsObject()
+  config: AutomationConfig;
+
+  @Column()
+  @IsEnum(AutomationStatus)
+  status: AutomationStatus = AutomationStatus.Inactive;
+
+  @Column({ nullable: true })
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  notes?: string;
+}
+```
 
 ### **Complete Module Structure:**
 ```typescript

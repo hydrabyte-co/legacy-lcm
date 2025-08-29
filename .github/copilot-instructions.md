@@ -7,7 +7,7 @@
 2. **`.knowledge/current-implementation.md`** - Live codebase status and recent changes
 3. **`.knowledge/task-management.md`** - Current approved tasks and progress tracking
 4. **`.knowledge/deployment-guide.md`** - Build & deployment operations (PM2, multi-VM)
-5. **`.knowledge/patterns-reference.md`** - Quick code templates and NestJS examples
+5. **`.knowledge/patterns-reference.md`** - Complete CRUD module patterns & comprehensive code templates
 6. **`.knowledge/sync-protocols.md`** - Documentation update requirements
 7. **`docs/business-workflows.md`** - Business domain knowledge (if exists)
 

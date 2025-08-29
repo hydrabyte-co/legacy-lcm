@@ -1,17 +1,15 @@
 import {
-  IsString,
-  IsEnum,
-  IsOptional,
-  IsBoolean,
-  IsNumber,
-  IsObject,
-  IsArray,
-  IsDate,
+    IsArray,
+    IsBoolean,
+    IsEnum,
+    IsNumber,
+    IsObject,
+    IsOptional,
+    IsString
 } from 'class-validator';
-import { FindOneResult } from 'src/common/modules/base/dto/find-one.dto';
 import { FindManyFilter } from 'src/common/modules/base/dto/find-many.dto';
-import { AutomationType, AutomationStatus, WeekDay } from '../enum/automation.enum';
 import { AutomationConfig } from '../entity/automation-config.interface';
+import { AutomationStatus, AutomationType, WeekDay } from '../enum/automation.enum';
 
 export class FindAutomationData {
   @IsEnum(AutomationType)
@@ -33,10 +31,6 @@ export class FindAutomationData {
   @IsBoolean()
   @IsOptional()
   activeOnly?: boolean; // Only active automations
-
-  @IsString()
-  @IsOptional()
-  code?: string; // Search by automation code
 }
 
 export class FindManyAutomationFilter extends FindManyFilter {
@@ -59,25 +53,11 @@ export class FindManyAutomationFilter extends FindManyFilter {
   @IsBoolean()
   @IsOptional()
   activeOnly?: boolean;
-
-  @IsNumber()
-  @IsOptional()
-  priorityMin?: number;
-
-  @IsNumber()
-  @IsOptional()
-  priorityMax?: number;
 }
 
 export class FindAutomationByIdResult {
   @IsString()
   id: string;
-
-  @IsString()
-  code: string;
-
-  @IsString()
-  name: string;
 
   @IsEnum(AutomationType)
   type: AutomationType;
@@ -85,53 +65,23 @@ export class FindAutomationByIdResult {
   @IsNumber()
   frequency: number;
 
+  @IsArray()
+  @IsOptional()
+  workingHours?: number[];
+
+  @IsArray()
+  @IsOptional()
+  workingDays?: WeekDay[];
+
   @IsObject()
   config: AutomationConfig;
 
   @IsEnum(AutomationStatus)
   status: AutomationStatus;
 
-  @IsNumber()
-  priority: number;
-
   @IsString()
   @IsOptional()
   notes?: string;
-
-  // Execution tracking
-  @IsDate()
-  @IsOptional()
-  lastExecutedAt?: Date;
-
-  @IsDate()
-  @IsOptional()
-  nextExecutionAt?: Date;
-
-  @IsNumber()
-  executionCount: number;
-
-  @IsNumber()
-  successCount: number;
-
-  @IsNumber()
-  errorCount: number;
-
-  // Business constraints
-  @IsString()
-  @IsOptional()
-  startTime?: string;
-
-  @IsString()
-  @IsOptional()
-  endTime?: string;
-
-  @IsArray()
-  @IsOptional()
-  workingDays?: WeekDay[];
-
-  @IsNumber()
-  @IsOptional()
-  maxConcurrentJobs?: number;
 
   // Base entity fields
   @IsString()
@@ -139,9 +89,6 @@ export class FindAutomationByIdResult {
 
   @IsString()
   updatedAt: string;
-
-  @IsString()
-  createdBy: string;
 }
 
 export class FindManyAutomationResult {

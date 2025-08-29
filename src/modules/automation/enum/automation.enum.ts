@@ -14,9 +14,6 @@ export enum AutomationType {
 export enum AutomationStatus {
   Active = 'active',
   Inactive = 'inactive',
-  Paused = 'paused',
-  Error = 'error',
-  Maintenance = 'maintenance',
 }
 
 /**

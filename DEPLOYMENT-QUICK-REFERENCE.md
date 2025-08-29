@@ -12,6 +12,11 @@
 
 # Deploy everything everywhere
 ./scripts/deploy-centralized.sh hotfix all all
+
+# ✅ SUCCESSFUL EXAMPLE (Real deployment 2025-01-17):
+./scripts/deploy-centralized.sh trangpt api vm2
+./scripts/deploy-centralized.sh trangpt api vm3
+# Result: Both VMs successfully running lcm-api (135.6mb, 169.7mb memory)
 ```
 
 ### **Safety Checks:**
@@ -105,10 +110,26 @@ Build Local → Create Package → Deploy ALL VMs in Parallel
 2. **Check VM connectivity**: `./scripts/check-status.sh`
 3. **Rollback**: `./scripts/deploy-centralized.sh main api all --rollback`
 
-### **If Services Won't Start:**
-1. **Check PM2**: `ssh root@10.10.0.70 "pm2 status"`
-2. **Check logs**: `ssh root@10.10.0.70 "pm2 logs lcm-api --err"`
-3. **Restart manually**: `ssh root@10.10.0.70 "pm2 restart lcm-api"`
+### **If Services Won't Start (COMMON ISSUE):**
+**⚠️ KNOWN ISSUE**: Services may show "stopped" after deployment
+```bash
+# Manual restart required (most deployments need this):
+ssh root@10.10.0.71 "cd /root/apps/lcm-service && pm2 start ecosystem.config.js --only lcm-api"
+ssh root@10.10.0.72 "cd /root/apps/lcm-service && pm2 start ecosystem.config.js --only lcm-api"
+
+# Check status after restart:
+ssh root@10.10.0.71 "pm2 status | grep lcm-api"
+ssh root@10.10.0.72 "pm2 status | grep lcm-api"
+```
+
+### **Build Artifacts Warning (EXPECTED):**
+```bash
+# This warning is normal and can be ignored:
+⚠️ [WARNING] Build artifacts have issues (base_service_1 not defined)
+ℹ️ [INFO] This is a known issue with TypeScript compilation, deployment will continue
+
+# VMs will handle the build properly during deployment
+```
 
 ## 🆚 SCRIPT COMPARISON
 

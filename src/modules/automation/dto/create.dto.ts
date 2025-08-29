@@ -1,41 +1,44 @@
+import { Type } from 'class-transformer';
 import {
-  IsString,
-  IsNotEmpty,
-  MaxLength,
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
   IsEnum,
+  IsNotEmpty,
   IsNumber,
-  Min,
-  Max,
   IsObject,
   IsOptional,
-  IsArray,
-  Matches,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { CreateData } from 'src/common/modules/base/dto/create.dto';
-import { AutomationType, AutomationStatus, WeekDay } from '../enum/automation.enum';
 import { AutomationConfig } from '../entity/automation-config.interface';
+import { AutomationStatus, AutomationType, WeekDay } from '../enum/automation.enum';
 
 export class CreateAutomationData extends CreateData {
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(50)
-  code: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(200)
-  name: string;
-
   @IsEnum(AutomationType)
   @IsNotEmpty()
   type: AutomationType;
 
   @IsNumber()
-  @Min(60) // Minimum 1 minute
-  @Max(86400) // Maximum 24 hours
+  @Min(30) // Minimum 30 seconds
+  @Max(1800) // Maximum 30 minutes
   frequency: number;
+
+  @IsArray()
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  @ArrayMinSize(0)
+  @ArrayMaxSize(24)
+  workingHours?: number[]; // 0-23 representing hours of the day
+
+  @IsArray()
+  @IsOptional()
+  @IsEnum(WeekDay, { each: true })
+  workingDays?: WeekDay[];
 
   @IsObject()
   @ValidateNested()
@@ -46,55 +49,43 @@ export class CreateAutomationData extends CreateData {
   @IsOptional()
   status?: AutomationStatus = AutomationStatus.Inactive;
 
-  @IsNumber()
-  @Min(1)
-  @Max(10)
-  @IsOptional()
-  priority?: number = 5;
-
   @IsString()
   @IsOptional()
   @MaxLength(500)
   notes?: string;
-
-  @IsString()
-  @IsOptional()
-  @Matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/) // HH:MM format
-  startTime?: string;
-
-  @IsString()
-  @IsOptional()
-  @Matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
-  endTime?: string;
-
-  @IsArray()
-  @IsOptional()
-  @IsEnum(WeekDay, { each: true })
-  workingDays?: WeekDay[];
-
-  @IsNumber()
-  @Min(1)
-  @Max(50)
-  @IsOptional()
-  maxConcurrentJobs?: number;
 }
 
 export class CreateAutomationResult {
   @IsString()
   id: string;
 
-  @IsString()
-  code: string;
-
-  @IsString()
-  name: string;
-
   @IsEnum(AutomationType)
   type: AutomationType;
+
+  @IsNumber()
+  frequency: number;
+
+  @IsArray()
+  @IsOptional()
+  workingHours?: number[];
+
+  @IsArray()
+  @IsOptional()
+  workingDays?: WeekDay[];
+
+  @IsObject()
+  config: AutomationConfig;
 
   @IsEnum(AutomationStatus)
   status: AutomationStatus;
 
   @IsString()
+  @IsOptional()
+  notes?: string;
+
+  @IsString()
   createdAt: string;
+
+  @IsString()
+  updatedAt: string;
 }

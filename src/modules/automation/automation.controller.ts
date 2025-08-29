@@ -1,15 +1,15 @@
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Put,
-  Query,
-  Req,
-  UseGuards,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+    Put,
+    Query,
+    Req,
+    UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ControllerInfo, ServiceInfo } from 'src/common/decorators/service-info';
@@ -18,12 +18,14 @@ import { Services } from 'src/common/enums/services';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/auth/roles.guard';
 import { BaseController } from 'src/common/modules/base/base.controller';
+import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { DeleteOneResult } from 'src/common/types/controller-dto';
 import { DataHandler } from '../../common/modules/base/entity/data.class';
 import { AutomationService } from './automation.service';
 import { CreateAutomationData, CreateAutomationResult } from './dto/create.dto';
-import { FindAutomationByIdResult, FindManyAutomationFilter, FindManyAutomationResult } from './dto/find-one.dto';
+import { FindAutomationByIdResult, FindManyAutomationFilter } from './dto/find-one.dto';
 import { UpdateAutomationData, UpdateAutomationResult, UpdateAutomationStatusData, UpdateAutomationStatusResult } from './dto/update-one.dto';
+import { Automation } from './entity/automation.entity';
 
 @Controller('automations')
 @UseGuards(AuthGuard, RolesGuard)
@@ -63,8 +65,8 @@ export class AutomationController extends BaseController {
   async findManyWithPaging(
     @Query() filter: FindManyAutomationFilter,
     @Req() req: Request,
-  ): Promise<FindManyAutomationResult> {
-    return await this.automationService.findManyAutomations(filter, req.user as DataHandler);
+  ): Promise<FindAllResult<Automation>> {
+    return await this.automationService.findMany(filter, req.user as DataHandler);
   }
 
   /**
@@ -100,20 +102,5 @@ export class AutomationController extends BaseController {
     @Req() req: Request,
   ): Promise<UpdateAutomationStatusResult> {
     return await this.automationService.updateStatus(id, data.status, data.reason, req.user as DataHandler);
-  }
-
-  /**
-   * Get automation by code
-   */
-  @Get('by-code/:code')
-  async findByCode(
-    @Param('code') code: string,
-    @Req() req: Request,
-  ): Promise<FindAutomationByIdResult> {
-    const automation = await this.automationService.findOneByCode(code, req.user as DataHandler);
-    if (!automation) {
-      throw new Error(`Automation with code '${code}' not found`);
-    }
-    return this.automationService.findAutomationById(automation.id.toString(), req.user as DataHandler);
   }
 }

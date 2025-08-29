@@ -14,7 +14,6 @@ export interface PartnerInfo {
   id: string;
   name: string;
   code: string;
-  contractType?: string;
 }
 
 /**
@@ -25,12 +24,6 @@ export interface StaffInfo {
   name: string;
   email: string;
   staffCode: string;
-  skills?: string[];
-  maxConcurrentCalls?: number;
-  workingHours?: {
-    start: string;
-    end: string;
-  };
 }
 
 /**
@@ -40,57 +33,21 @@ export interface PhoneNumberInfo {
   id: string;
   number: string;
   description: string;
-  provider: string;
-  isActive: boolean;
-}
-
-/**
- * Customer filter criteria
- */
-export interface CustomerFilter {
-  field: string; // "contractAmount" | "overdueDays" | "lastCallDate"
-  operator: "gt" | "lt" | "eq" | "between" | "in";
-  value: any;
 }
 
 /**
  * Auto Dialer specific configuration
  */
 export interface AutoDialerConfig extends AutomationConfig {
-  type: AutomationType.AutoDialer;
+  partner: PartnerInfo;
   
-  // Partner selection
-  partners: PartnerInfo[];
-  
-  // Staff assignment
-  staffAssignment: {
-    mode: "round-robin" | "skill-based" | "availability-based";
-    staffs: StaffInfo[];
-    maxCallsPerStaff: number;
-  };
+  staffs: StaffInfo[];
 
-  // Phone system configuration  
-  phoneSystem: {
-    provider: "viettel" | "fpt" | "vnpt";
-    phoneNumbers: PhoneNumberInfo[];
-    callTimeout: number; // seconds
-  };
+  phoneNumbers: string[];
 
-  // Call logic
-  callRules: {
-    retryAttempts: number;
-    retryInterval: number; // minutes
-    concurrentCallRatio: number; // 0.5 - 2.0
-    customerFilters?: CustomerFilter[];
-  };
+  retryAttempts: number;
 
-  // Call outcomes
-  callHandling: {
-    onAnswer: "connect-to-staff" | "play-message" | "record-message";
-    onNoAnswer: "retry" | "sms-followup" | "mark-attempted";
-    onBusy: "retry-later" | "try-alternate-number";
-    onError: "retry" | "escalate" | "pause-automation";
-  };
+  concurrentCallRatio: number; // 0.5 - 2.0, multiplier for concurrent calls
 }
 
 /**

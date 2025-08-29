@@ -27,44 +27,38 @@ src/modules/automation/
 ├── dto/
 │   ├── create.dto.ts           # Create automation validation
 │   ├── update-one.dto.ts       # Update automation validation
-│   └── find-one.dto.ts         # Search & response DTOs
+│   ├── find-one.dto.ts         # Search & response DTOs
+│   └── automation-config.dto.ts # Config validation DTOs
 ├── entity/
 │   ├── automation.entity.ts    # MongoDB automation schema
 │   └── automation-config.interface.ts # Type-safe config interfaces
 ├── enum/
 │   └── automation.enum.ts      # Automation types and statuses
 └── README.md                   # Module documentation
+└── examples/
+    └── create-automation.example.ts # Usage examples
 ```
 
 ### Database Schema
 ```typescript
 Automation {
   id: ObjectId;
-  code: string;              // Unique identifier (AUTO_DIALER_001)
-  name: string;              // Human-readable name
-  type: AutomationType;      // "auto-dialer" | "auto-sms" | etc.
-  frequency: number;         // Execution interval (seconds)
-  config: AutomationConfig;  // Type-specific configuration
-  status: AutomationStatus;  // "active" | "inactive" | "paused" | "error"
-  priority: number;          // 1-10 execution priority
+  type: AutomationType;        // "auto-dialer" | "auto-sms" | etc.
+  frequency: number;           // Execution interval (30-1800 seconds)
+  workingHours?: number[];     // Working hours (0-23 array)
+  workingDays?: WeekDay[];     // Working days restriction
+  config: AutomationConfig;    // Type-specific configuration
+  status: AutomationStatus;    // "active" | "inactive" only
+  notes?: string;              // Optional notes
   
-  // Execution tracking
-  lastExecutedAt?: Date;
-  nextExecutionAt?: Date;
-  executionCount: number;
-  successCount: number;
-  errorCount: number;
-  
-  // Business constraints
-  startTime?: string;        // Daily start time (HH:MM)
-  endTime?: string;          // Daily end time (HH:MM)
-  workingDays?: WeekDay[];   // Working days restriction
-  maxConcurrentJobs?: number;
-  
-  // Base fields
+  // Base fields (inherited from Base entity)
   createdAt: Date;
-  updatedAt: Date;
-  createdBy: string;
+  changedAt: Date;
+  deletedAt?: Date;
+  owner: DataOwner;
+  createdBy: DataHandler;
+  changedBy: DataHandler;
+  deletedBy: DataHandler;
   isDeleted: boolean;
 }
 ```
@@ -74,23 +68,21 @@ Automation {
 ## 🎯 API Endpoints
 
 ### Core CRUD Operations
-- `POST /automations` - Create new automation
+- `POST /automations` - Create new automation (returns full automation data)
 - `GET /automations/:id` - Get automation by ID
-- `GET /automations` - List automations with filtering
-- `PUT /automations/:id` - Update automation
+- `GET /automations` - List automations with filtering (returns FindAllResult<Automation>)
+- `PUT /automations/:id` - Update automation (returns full automation data)
 - `DELETE /automations/:id` - Delete automation
 
 ### Automation Management
 - `PATCH /automations/:id/status` - Update automation status
-- `GET /automations/by-code/:code` - Find by automation code
 
 ### Query Parameters
 - `type`: Filter by automation type
 - `status`: Filter by status
-- `partnerId`: Filter by partner
-- `staffId`: Filter by assigned staff
+- `partnerId`: Filter by partner ID in config
+- `staffId`: Filter by assigned staff ID
 - `activeOnly`: Only active automations
-- `priorityMin/Max`: Priority range filtering
 
 ---
 
@@ -99,40 +91,27 @@ Automation {
 ### Config Structure
 ```typescript
 AutoDialerConfig {
-  type: "auto-dialer";
-  
-  // Target partners
-  partners: PartnerInfo[];
+  // Partner information
+  partner: {
+    id: string;
+    name: string;
+    code: string;
+  };
   
   // Staff assignment
-  staffAssignment: {
-    mode: "round-robin" | "skill-based" | "availability-based";
-    staffs: StaffInfo[];
-    maxCallsPerStaff: number;
-  };
+  staffs: Array<{
+    id: string;
+    name: string;
+    email: string;
+    staffCode: string;
+  }>;
   
-  // Phone system
-  phoneSystem: {
-    provider: "viettel" | "fpt" | "vnpt";
-    phoneNumbers: PhoneNumberInfo[];
-    callTimeout: number;
-  };
+  // Phone numbers for dialing
+  phoneNumbers: string[];  // Array of phone numbers
   
-  // Call rules
-  callRules: {
-    retryAttempts: number;
-    retryInterval: number;
-    concurrentCallRatio: number; // 0.5 - 2.0
-    customerFilters?: CustomerFilter[];
-  };
-  
-  // Call handling
-  callHandling: {
-    onAnswer: "connect-to-staff" | "play-message" | "record-message";
-    onNoAnswer: "retry" | "sms-followup" | "mark-attempted";
-    onBusy: "retry-later" | "try-alternate-number";
-    onError: "retry" | "escalate" | "pause-automation";
-  };
+  // Call configuration
+  retryAttempts: number;       // 1-10 retry attempts
+  concurrentCallRatio: number; // 0.5-2.0 multiplier for concurrent calls
 }
 ```
 
@@ -156,17 +135,20 @@ AutoDialerConfig {
 ## 📊 Business Rules
 
 ### Validation Rules
-1. **Unique Code:** Each automation must have unique code
-2. **Config Validation:** Config must match automation type
-3. **Active Deletion:** Cannot delete active automations
-4. **Concurrent Limits:** ConcurrentCallRatio between 0.1-5.0
-5. **Required Fields:** Partners, staffs, phone numbers required
+1. **Config Validation:** Config must match automation type (no type field in config)
+2. **Active Deletion:** Cannot delete active automations
+3. **Concurrent Limits:** ConcurrentCallRatio between 0.5-2.0
+4. **Frequency Range:** Frequency between 30-1800 seconds (30s - 30 minutes)
+5. **Required Fields:** Partner, staffs, phoneNumbers required for auto-dialer
+6. **Working Hours:** WorkingHours array values between 0-23
+7. **Retry Attempts:** Between 1-10 attempts
+8. **Phone Numbers:** Must be array with at least one phone number
 
 ### Execution Rules
-1. **Business Hours:** Respect startTime/endTime constraints
+1. **Working Hours:** Respect workingHours array constraints (0-23)
 2. **Working Days:** Only execute on specified days
-3. **Priority Order:** Higher priority automations execute first
-4. **Resource Limits:** Respect maxConcurrentJobs setting
+3. **Simple Status:** Only active/inactive status management
+4. **Resource Limits:** Respect concurrentCallRatio setting
 
 ---
 
@@ -198,39 +180,67 @@ AutoDialerConfig {
 ### Create Auto Dialer Automation
 ```typescript
 const createData: CreateAutomationData = {
-  code: "AUTO_DIALER_001",
-  name: "Auto Dialer - Partner ABC",
   type: AutomationType.AutoDialer,
-  frequency: 300, // 5 minutes
+  frequency: 300, // 5 minutes (30-1800 seconds)
+  workingHours: [8, 9, 10, 11, 13, 14, 15, 16, 17], // 8AM-6PM excluding lunch
+  workingDays: [WeekDay.Monday, WeekDay.Tuesday, WeekDay.Wednesday, WeekDay.Thursday, WeekDay.Friday],
   config: {
-    type: AutomationType.AutoDialer,
-    partners: [{ id: "partner1", name: "Partner ABC", code: "ABC" }],
-    staffAssignment: {
-      mode: "round-robin",
-      staffs: [{ id: "staff1", name: "John Doe", email: "john@company.com", staffCode: "JD001" }],
-      maxCallsPerStaff: 5
+    partner: {
+      id: "partner_123",
+      name: "Hoàn Kim Law Firm", 
+      code: "HKLF_001"
     },
-    phoneSystem: {
-      provider: "viettel",
-      phoneNumbers: [{ id: "phone1", number: "1900123456", description: "Main line", provider: "viettel", isActive: true }],
-      callTimeout: 30
-    },
-    callRules: {
-      retryAttempts: 3,
-      retryInterval: 60,
-      concurrentCallRatio: 1.5
-    },
-    callHandling: {
-      onAnswer: "connect-to-staff",
-      onNoAnswer: "retry",
-      onBusy: "retry-later",
-      onError: "retry"
-    }
+    staffs: [
+      {
+        id: "staff_456",
+        name: "Nguyễn Văn A",
+        email: "nguyenvana@hoankimlaw.com",
+        staffCode: "NVA001"
+      },
+      {
+        id: "staff_789", 
+        name: "Trần Thị B",
+        email: "tranthib@hoankimlaw.com",
+        staffCode: "TTB002"
+      }
+    ],
+    phoneNumbers: ["+84901234567", "+84901234568"], // Array of phone numbers
+    retryAttempts: 3,
+    concurrentCallRatio: 1.5 // 1.5x multiplier for concurrent calls
   },
   status: AutomationStatus.Inactive,
-  startTime: "09:00",
-  endTime: "17:00",
-  workingDays: [WeekDay.Monday, WeekDay.Tuesday, WeekDay.Wednesday, WeekDay.Thursday, WeekDay.Friday]
+  notes: "Auto dialer for debt collection calls during business hours"
+};
+
+// Response example - now returns full automation data
+const response: CreateAutomationResult = {
+  id: "64f7b1234567890abcdef123",
+  type: "auto-dialer",
+  frequency: 300,
+  workingHours: [8, 9, 10, 11, 13, 14, 15, 16, 17],
+  workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+  config: {
+    partner: {
+      id: "partner_123",
+      name: "Hoàn Kim Law Firm",
+      code: "HKLF_001"
+    },
+    staffs: [
+      {
+        id: "staff_456",
+        name: "Nguyễn Văn A", 
+        email: "nguyenvana@hoankimlaw.com",
+        staffCode: "NVA001"
+      }
+    ],
+    phoneNumbers: ["+84901234567", "+84901234568"],
+    retryAttempts: 3,
+    concurrentCallRatio: 1.5
+  },
+  status: "inactive",
+  notes: "Auto dialer for debt collection calls during business hours",
+  createdAt: "2025-08-29T10:30:00.000Z",
+  updatedAt: "2025-08-29T10:30:00.000Z"
 };
 ```
 

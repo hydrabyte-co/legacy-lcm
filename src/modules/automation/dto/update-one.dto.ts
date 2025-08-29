@@ -1,34 +1,41 @@
-import {
-  IsString,
-  IsNotEmpty,
-  MaxLength,
-  IsEnum,
-  IsNumber,
-  Min,
-  Max,
-  IsObject,
-  IsOptional,
-  IsArray,
-  Matches,
-  ValidateNested,
-} from 'class-validator';
 import { Type } from 'class-transformer';
-import { UpdateData } from 'src/common/modules/base/dto/update-one.dto';
-import { UpdateOneResult } from 'src/common/modules/base/dto/update-one.dto';
-import { AutomationType, AutomationStatus, WeekDay } from '../enum/automation.enum';
+import {
+    ArrayMaxSize,
+    ArrayMinSize,
+    IsArray,
+    IsEnum,
+    IsNotEmpty,
+    IsNumber,
+    IsObject,
+    IsOptional,
+    IsString,
+    Max,
+    MaxLength,
+    Min,
+    ValidateNested,
+} from 'class-validator';
+import { UpdateData, UpdateOneResult } from 'src/common/modules/base/dto/update-one.dto';
 import { AutomationConfig } from '../entity/automation-config.interface';
+import { AutomationStatus, AutomationType, WeekDay } from '../enum/automation.enum';
 
 export class UpdateAutomationData extends UpdateData {
-  @IsString()
-  @IsOptional()
-  @MaxLength(200)
-  name?: string;
-
   @IsNumber()
-  @Min(60)
-  @Max(86400)
+  @Min(30)
+  @Max(1800)
   @IsOptional()
   frequency?: number;
+
+  @IsArray()
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  @ArrayMinSize(0)
+  @ArrayMaxSize(24)
+  workingHours?: number[];
+
+  @IsArray()
+  @IsOptional()
+  @IsEnum(WeekDay, { each: true })
+  workingDays?: WeekDay[];
 
   @IsObject()
   @ValidateNested()
@@ -40,51 +47,36 @@ export class UpdateAutomationData extends UpdateData {
   @IsOptional()
   status?: AutomationStatus;
 
-  @IsNumber()
-  @Min(1)
-  @Max(10)
-  @IsOptional()
-  priority?: number;
-
   @IsString()
   @IsOptional()
   @MaxLength(500)
   notes?: string;
-
-  @IsString()
-  @IsOptional()
-  @Matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
-  startTime?: string;
-
-  @IsString()
-  @IsOptional()
-  @Matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
-  endTime?: string;
-
-  @IsArray()
-  @IsOptional()
-  @IsEnum(WeekDay, { each: true })
-  workingDays?: WeekDay[];
-
-  @IsNumber()
-  @Min(1)
-  @Max(50)
-  @IsOptional()
-  maxConcurrentJobs?: number;
 }
 
 export class UpdateAutomationResult extends UpdateOneResult {
-  @IsString()
-  code: string;
-
-  @IsString()
-  name: string;
-
   @IsEnum(AutomationType)
   type: AutomationType;
 
+  @IsNumber()
+  frequency: number;
+
+  @IsArray()
+  @IsOptional()
+  workingHours?: number[];
+
+  @IsArray()
+  @IsOptional()
+  workingDays?: WeekDay[];
+
+  @IsObject()
+  config: AutomationConfig;
+
   @IsEnum(AutomationStatus)
   status: AutomationStatus;
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
 }
 
 export class UpdateAutomationStatusData {

@@ -4,9 +4,10 @@
 1. This file - Main agent instructions
 2. current-implementation.md - Live codebase status  
 3. task-management.md - Approved tasks
-4. deployment-guide.md - Build & deployment operations
-5. docs/agent-guide.md - Architecture patterns
-6. docs/business-workflows.md - Business domain knowledge
+4. patterns-reference.md - Complete CRUD module patterns & code templates
+5. deployment-guide.md - Build & deployment operations
+6. docs/agent-guide.md - Architecture patterns
+7. docs/business-workflows.md - Business domain knowledge
 
 ## 🤖 AGENT COORDINATION
 ### Roles:
@@ -16,9 +17,9 @@
 
 ### Workflow:
 1. **Pre-work**: Check task-management.md for approved tasks
-2. **Execution**: Follow NestJS/TypeScript patterns from architecture guide
+2. **Execution**: Follow NestJS/TypeScript patterns from patterns-reference.md and architecture guide
 3. **Post-work**: Update current-implementation.md
-4. **Quality**: Validate against established patterns
+4. **Quality**: Validate against established patterns from patterns-reference.md
 5. **Deployment**: Follow deployment-guide.md for build & deploy operations
 
 ## 🎯 PROJECT-SPECIFIC CONTEXT
