@@ -2,30 +2,23 @@ import {
   Body,
   Controller,
   Get,
-  Param,
-  Post,
-  Query,
   Req,
-  Header,
   UseGuards,
-  Patch,
   UsePipes,
-  ValidationPipe,
-  BadRequestException,
+  ValidationPipe
 } from '@nestjs/common';
+import { Request } from 'express';
+import {
+  ControllerInfo,
+  ServiceInfo,
+} from 'src/common/decorators/service-info';
+import { Resources } from 'src/common/enums/resources';
+import { Services } from 'src/common/enums/services';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/auth/roles.guard';
-import {
-  ServiceInfo,
-  ControllerInfo,
-} from 'src/common/decorators/service-info';
-import { ReportService } from './report.service';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { Services } from 'src/common/enums/services';
-import { Resources } from 'src/common/enums/resources';
-import { UpdateTransactionResult } from '../transaction/dto/update-one.dto';
 import { CustomerData } from './dto/report';
-import { Request } from 'express';
+import { ReportService } from './report.service';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.Report)
@@ -40,8 +33,8 @@ export class ReportController {
     @Body() data: CustomerData[],
     @Req() req: Request,
   ): Promise<any> {
-    const handler = req.user || new DataHandler();
-    return this.reportService.customerSummaryReport(handler);
+    
+    return this.reportService.customerSummaryReport(req.user as DataHandler);
   }
 
   @Get('/debt-collection-by-bank')
@@ -51,8 +44,8 @@ export class ReportController {
     @Body() data: CustomerData[],
     @Req() req: Request,
   ): Promise<any> {
-    const handler = req.user || new DataHandler();
-    return this.reportService.debtCollectionByBank(handler);
+    
+    return this.reportService.debtCollectionByBank(req.user as DataHandler);
   }
 
   @Get('/debt-collection-by-staff')
@@ -62,8 +55,8 @@ export class ReportController {
     @Body() data: CustomerData[],
     @Req() req: Request,
   ): Promise<any> {
-    const handler = req.user || new DataHandler();
-    return this.reportService.debtCollectionByStaff(handler);
+    
+    return this.reportService.debtCollectionByStaff(req.user as DataHandler);
   }
 
   @Get('/tasks-summary')
@@ -73,7 +66,7 @@ export class ReportController {
     @Body() data: CustomerData[],
     @Req() req: Request,
   ): Promise<any> {
-    const handler = req.user || new DataHandler();
-    return this.reportService.tasksSummaryReport(handler);
+    
+    return this.reportService.tasksSummaryReport(req.user as DataHandler);
   }
 }
