@@ -105,7 +105,7 @@ src/
 │   ├── event/         # Sự kiện hệ thống
 │   └── utils/         # Tiện ích
 ├── workers/           # Background workers
-├── common/           # Shared utilities
+├── common/           # 📦 Git Submodule: Shared utilities (service-common.git)
 ├── constants/        # Application constants
 └── test-utils/       # Testing infrastructure ✅ NEW
 ```
@@ -145,13 +145,29 @@ src/test-utils/
 - RabbitMQ (Message queue)
 
 ### Installation
+
+⚠️ **IMPORTANT: This repository contains a submodule at `src/common`**
+
 ```bash
+# Clone repository with submodule
+git clone --recursive https://gitlab.com/bitthing.io/lcm-service.git
+
+# Or if already cloned without recursive, initialize submodule
+git submodule init
+git submodule update
+
 # Install dependencies
 npm install
 
 # Build project
 npm run build
 ```
+
+### 📦 Submodule Information
+- **Path:** `src/common`
+- **Repository:** `git@gitlab.com:bitthing.io/service-common.git`
+- **Current Commit:** `62ed02e` (heads/main)
+- **Contains:** Shared utilities, base classes, enums, guards, and common functionality across TranGPT microservices
 
 ## 🏃‍♂️ Running the Application
 
@@ -222,6 +238,56 @@ npm run test:debug
 - **ServiceTestTemplate**: Consistent CRUD testing patterns
 - **DebtCollectionScenarios**: Complete business workflow testing
 - **PerformanceTestSuite**: Bulk operation testing
+
+## 📦 Working with Submodules
+
+### 🚨 Important Submodule Workflow
+
+**This repository uses `src/common` as a Git submodule pointing to shared TranGPT utilities.**
+
+#### Initial Setup:
+```bash
+# Always clone with recursive to get submodules
+git clone --recursive https://gitlab.com/bitthing.io/lcm-service.git
+
+# If already cloned without recursive
+git submodule update --init --recursive
+```
+
+#### Development Workflow:
+```bash
+# Check submodule status
+git submodule status
+
+# Update submodule to latest commit
+cd src/common
+git pull origin main
+cd ../..
+git add src/common
+git commit -m "Update common submodule to latest version"
+
+# Push submodule changes to service-common repo
+cd src/common  
+git push origin main
+cd ../..
+
+# Update main repo with new submodule commit
+git add src/common
+git commit -m "Update common submodule reference"
+git push origin <branch>
+```
+
+#### ⚠️ Critical Notes:
+- **Never modify files in `src/common`** directly in this repo
+- **Always make changes in the `service-common` repository** first
+- **Test thoroughly** after submodule updates để ensure compatibility
+- **Coordinate with team** before pushing submodule changes to production
+
+#### Current Submodule Status:
+- **Repository:** `service-common.git` 
+- **Branch:** `main`
+- **Commit:** `62ed02e` - LCM service build fixes & automation support
+- **Last Updated:** Contains authentication fixes, new automation resources, error handling framework
 
 ## 🔧 Development Guidelines
 
