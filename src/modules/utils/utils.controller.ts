@@ -1,34 +1,28 @@
 import {
+  BadRequestException,
   Body,
   Controller,
-  Get,
-  Param,
   Post,
-  Query,
   Req,
-  Header,
   UseGuards,
-  Patch,
   UsePipes,
-  ValidationPipe,
-  BadRequestException,
+  ValidationPipe
 } from '@nestjs/common';
+import { Request } from 'express';
+import {
+  ControllerInfo,
+  ServiceInfo,
+} from 'src/common/decorators/service-info';
+import { Resources } from 'src/common/enums/resources';
+import { Services } from 'src/common/enums/services';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/auth/roles.guard';
-import {
-  ServiceInfo,
-  ControllerInfo,
-} from 'src/common/decorators/service-info';
-import { UtilService } from './utils.service';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { Services } from 'src/common/enums/services';
-import { Resources } from 'src/common/enums/resources';
 import {
-  UpdateTransactionData,
-  UpdateTransactionResult,
+  UpdateTransactionResult
 } from '../transaction/dto/update-one.dto';
 import { CustomerData, OriginateAutoCallData } from './dto/util';
-import { Request } from 'express';
+import { UtilService } from './utils.service';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.Util)
@@ -43,9 +37,8 @@ export class UtilController {
     @Body() data: CustomerData[],
     @Req() req: Request,
   ): Promise<UpdateTransactionResult> {
-    const handler = req.user || new DataHandler();
     if (Array.isArray(data)) {
-      return this.utilService.updateCustomers(data, handler);
+      return this.utilService.updateCustomers(data, req.user as DataHandler);
     } else {
       throw new BadRequestException({ messages: ['invalid customers data'] });
     }
@@ -58,7 +51,6 @@ export class UtilController {
     @Body() data: OriginateAutoCallData,
     @Req() req: Request,
   ): Promise<any> {
-    const handler = req.user || new DataHandler();
-    return this.utilService.originateAutoCall(data, handler);
+    return this.utilService.originateAutoCall(data, req.user as DataHandler);
   }
 }
