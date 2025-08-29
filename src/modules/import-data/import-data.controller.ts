@@ -1,39 +1,39 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
-  UsePipes,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
   Query,
   Req,
+  UseGuards,
+  UsePipes,
   ValidationPipe,
-  Put,
 } from '@nestjs/common';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import { Request } from 'express';
+import {
+  ControllerInfo,
+  ServiceInfo,
+} from 'src/common/decorators/service-info';
+import { Resources } from 'src/common/enums/resources';
+import { Services } from 'src/common/enums/services';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/auth/roles.guard';
-import {
-  ServiceInfo,
-  ControllerInfo,
-} from 'src/common/decorators/service-info';
-import { ImportDataService } from './import-data.service';
+import { BaseController } from 'src/common/modules/base/base.controller';
+import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
+import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { CreateImportDataData, CreateImportDataResult } from './dto/create.dto';
+import { FindImportDataByIdResult } from './dto/find-one.dto';
 import {
   UpdateImportDataData,
   UpdateImportDataResult,
 } from './dto/update-one.dto';
-import { FindImportDataByIdResult } from './dto/find-one.dto';
-import { BaseController } from 'src/common/modules/base/base.controller';
-import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
-import { Services } from 'src/common/enums/services';
-import { Resources } from 'src/common/enums/resources';
 import { ImportData } from './entity/import-data.entity';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { EventPattern, Ctx, Payload, RmqContext } from '@nestjs/microservices';
-import { Request } from 'express';
+import { ImportDataService } from './import-data.service';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_ImportData)
@@ -88,8 +88,7 @@ export class ImportDatasController extends BaseController {
     @Param('id') id: string,
     @Req() req: Request,
   ): Promise<UpdateImportDataResult> {
-    const handler = req.user || new DataHandler();
-    return await this.importDatasService.processImportData(id, handler);
+    return await this.importDatasService.processImportData(id, req.user as DataHandler);
   }
 
   @Delete(':id')

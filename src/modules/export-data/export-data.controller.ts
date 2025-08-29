@@ -1,36 +1,33 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
-  Delete,
-  UseGuards,
-  UsePipes,
+  Post,
+  Put,
   Query,
   Req,
-  ValidationPipe,
-  Put,
+  UseGuards,
+  UsePipes,
+  ValidationPipe
 } from '@nestjs/common';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import { Request } from 'express';
+import {
+  ControllerInfo,
+  ServiceInfo,
+} from 'src/common/decorators/service-info';
+import { Resources } from 'src/common/enums/resources';
+import { Services } from 'src/common/enums/services';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/auth/roles.guard';
-import {
-  ServiceInfo,
-  ControllerInfo,
-} from 'src/common/decorators/service-info';
-import { ExportDataService } from './export-data.service';
-import { CreateExportDataData, CreateExportDataResult } from './dto/create.dto';
-import { FindExportDataByIdResult } from './dto/find-one.dto';
 import { BaseController } from 'src/common/modules/base/base.controller';
 import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
-import { Services } from 'src/common/enums/services';
-import { Resources } from 'src/common/enums/resources';
-import { ExportData } from './entity/export-data.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { EventPattern, Ctx, Payload, RmqContext } from '@nestjs/microservices';
-import { getTypeOf } from 'src/common/utils/object-helper';
-import { Request } from 'express';
+import { CreateExportDataData, CreateExportDataResult } from './dto/create.dto';
+import { FindExportDataByIdResult } from './dto/find-one.dto';
+import { ExportData } from './entity/export-data.entity';
+import { ExportDataService } from './export-data.service';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_ExportData)
@@ -71,8 +68,7 @@ export class ExportDatasController extends BaseController {
   @Put(':id/process')
   @UseGuards(AuthGuard, RolesGuard)
   async requestProcess(@Param('id') id: string, @Req() req: Request): Promise<any> {
-    const handler = req.user || new DataHandler();
-    return await this.exportDatasService.requestProcess(id, handler);
+    return await this.exportDatasService.requestProcess(id, req.user as DataHandler);
   }
 
   @EventPattern('process-export-data')
