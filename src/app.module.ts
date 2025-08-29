@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { BuildInfoService } from './build-info.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { JWTAuthStrategy } from './common/guards/auth/jwt-auth.strategy';
@@ -73,6 +74,6 @@ import { AutomationModule } from './modules/automation/automation.module';
     AutomationModule,
   ],
   controllers: [AppController],
-  providers: [AppService, JWTAuthStrategy, BasicAuthStrategy],
+  providers: [AppService, BuildInfoService, JWTAuthStrategy, BasicAuthStrategy],
 })
 export class AppModule {}
