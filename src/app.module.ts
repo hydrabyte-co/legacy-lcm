@@ -25,6 +25,7 @@ import { TaskModule } from './modules/task/task.module';
 import { TeamModule } from './modules/team/team.module';
 import { CallModule } from './modules/call/call.module';
 import { Call } from './modules/call/entity/call.entity';
+import { AutomationModule } from './modules/automation/automation.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { Call } from './modules/call/entity/call.entity';
     EventModule,
     UtilModule,
     ReportModule,
+    AutomationModule,
   ],
   controllers: [AppController],
   providers: [AppService, JWTAuthStrategy, BasicAuthStrategy],

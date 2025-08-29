@@ -39,7 +39,7 @@ export class ReferenceService extends BaseService<Reference> {
     return await super.findManyWithPaging(filter, handler);
   }
 
-  async createOne(
+  override async createOne(
     data: CreateReferenceData,
     handler: DataHandler,
   ): Promise<Reference> {
@@ -56,7 +56,7 @@ export class ReferenceService extends BaseService<Reference> {
     }
   }
 
-  async updateOne(id: string, data: any, handler: DataHandler): Promise<any> {
+  override async updateOne(id: string, data: any, handler: DataHandler): Promise<any> {
     data.syncedAt = 0;
     data.queuedAt = 0;
     return super.updateOne(id, data, handler);

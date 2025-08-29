@@ -28,6 +28,7 @@ import {
   UpdateTransactionResult,
 } from '../transaction/dto/update-one.dto';
 import { CustomerData, OriginateAutoCallData } from './dto/util';
+import { Request } from 'express';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.Util)
@@ -40,7 +41,7 @@ export class UtilController {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async updateCustomers(
     @Body() data: CustomerData[],
-    @Req() req,
+    @Req() req: Request,
   ): Promise<UpdateTransactionResult> {
     const handler = req.user || new DataHandler();
     if (Array.isArray(data)) {
@@ -55,7 +56,7 @@ export class UtilController {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async originateAutoCall(
     @Body() data: OriginateAutoCallData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<any> {
     const handler = req.user || new DataHandler();
     return this.utilService.originateAutoCall(data, handler);

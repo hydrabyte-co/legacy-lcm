@@ -33,6 +33,7 @@ import { Resources } from 'src/common/enums/resources';
 import { ImportData } from './entity/import-data.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { EventPattern, Ctx, Payload, RmqContext } from '@nestjs/microservices';
+import { Request } from 'express';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_ImportData)
@@ -45,18 +46,18 @@ export class ImportDatasController extends BaseController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async createOne(
+  override async createOne(
     @Body() data: CreateImportDataData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<CreateImportDataResult> {
     return await super.createOne(data, req);
   }
 
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async findOne(
+  override async findOne(
     @Param('id') id: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindImportDataByIdResult> {
     return await super.findOne(id, req);
   }
@@ -65,7 +66,7 @@ export class ImportDatasController extends BaseController {
   @UseGuards(AuthGuard, RolesGuard)
   async findManyWithPaging(
     @Query() queries: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindAllResult<ImportData>> {
     return await super.findManyWithPaging(queries, req);
   }
@@ -73,10 +74,10 @@ export class ImportDatasController extends BaseController {
   @Patch(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async updateOne(
+  override async updateOne(
     @Param('id') id: string,
     @Body() data: UpdateImportDataData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<UpdateImportDataResult> {
     return await super.updateOne(id, data, req);
   }
@@ -85,7 +86,7 @@ export class ImportDatasController extends BaseController {
   @UseGuards(AuthGuard, RolesGuard)
   async process(
     @Param('id') id: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<UpdateImportDataResult> {
     const handler = req.user || new DataHandler();
     return await this.importDatasService.processImportData(id, handler);
@@ -93,7 +94,7 @@ export class ImportDatasController extends BaseController {
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteOne(@Param('id') id: string, @Req() req) {
+  override async deleteOne(@Param('id') id: string, @Req() req: Request) {
     return await super.deleteOne(id, req);
   }
 

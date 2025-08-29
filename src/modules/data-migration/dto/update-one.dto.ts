@@ -1,6 +1,6 @@
 import { IsOptional, IsString, MaxLength, IsEnum } from 'class-validator';
 import { UpdateData as BaseUpdateData } from '../../../common/modules/base/dto/update-one.dto';
-import { DataMigrationStatus, DataMigrationType } from '../enum/data-migration.enum';
+import { DataMigration_Status, DataMigration_Collections } from '../enum/data-migration.enum';
 
 export class UpdateDataMigrationData extends BaseUpdateData {
   @IsOptional()
@@ -14,12 +14,12 @@ export class UpdateDataMigrationData extends BaseUpdateData {
   description?: string;
 
   @IsOptional()
-  @IsEnum(DataMigrationType)
-  type?: DataMigrationType;
+  @IsEnum(DataMigration_Collections)
+  type?: DataMigration_Collections;
 
   @IsOptional()
-  @IsEnum(DataMigrationStatus)
-  status?: DataMigrationStatus;
+  @IsEnum(DataMigration_Status)
+  status?: DataMigration_Status;
 
   @IsOptional()
   @IsString()

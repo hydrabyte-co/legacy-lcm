@@ -29,6 +29,7 @@ import { Services } from 'src/common/enums/services';
 import { Resources } from 'src/common/enums/resources';
 import { Activity } from './entity/activity.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
+import { Request } from 'express';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_Activities)
@@ -41,18 +42,18 @@ export class ActivitiesController extends BaseController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async createOne(
+  override async createOne(
     @Body() data: CreateActivityData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<CreateActivityResult> {
     return await super.createOne(data, req);
   }
 
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async findOne(
+  override async findOne(
     @Param('id') id: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindActivityByIdActivity> {
     return await super.findOne(id, req);
   }
@@ -61,7 +62,7 @@ export class ActivitiesController extends BaseController {
   @UseGuards(AuthGuard, RolesGuard)
   async findManyWithPaging(
     @Query() queries: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindAllResult<Activity>> {
     return await super.findManyWithPaging(queries, req);
   }
@@ -69,10 +70,10 @@ export class ActivitiesController extends BaseController {
   @Patch(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async updateOne(
+  override async updateOne(
     @Param('id') id: string,
     @Body() data: UpdateActivityData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<UpdateActivityResult> {
     if (data.ptpDate) {
       data.ptpDate = new Date(data.ptpDate);
@@ -82,7 +83,7 @@ export class ActivitiesController extends BaseController {
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteOne(@Param('id') id: string, @Req() req) {
+  override async deleteOne(@Param('id') id: string, @Req() req: Request) {
     return await super.deleteOne(id, req);
   }
 }

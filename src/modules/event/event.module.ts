@@ -42,7 +42,7 @@ import { Call } from '../call/entity/call.entity';
         options: {
           urls: [
             process.env.RABBITMQ_URL ||
-              'amqp://admin:SecurePassword@rmq.hbx?heartbeat=30',
+              'amqp://guest:guest@localhost:5672?heartbeat=30',
           ],
           queue: `${process.env.RABBITMQ_QUEUE || 'lcm-sync'}`,
           queueOptions: {

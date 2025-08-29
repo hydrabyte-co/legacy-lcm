@@ -1,6 +1,6 @@
 import { IsOptional, IsString, MaxLength, IsEnum } from 'class-validator';
 import { UpdateData as BaseUpdateData } from '../../../common/modules/base/dto/update-one.dto';
-import { ExportDataStatus, ExportDataType } from '../enum/export-data.enum';
+import { ExportData_Status, ExportData_FromDocuments } from '../enum/export-data.enum';
 
 export class UpdateExportDataData extends BaseUpdateData {
   @IsOptional()
@@ -14,12 +14,12 @@ export class UpdateExportDataData extends BaseUpdateData {
   description?: string;
 
   @IsOptional()
-  @IsEnum(ExportDataType)
-  type?: ExportDataType;
+  @IsEnum(ExportData_FromDocuments)
+  type?: ExportData_FromDocuments;
 
   @IsOptional()
-  @IsEnum(ExportDataStatus)
-  status?: ExportDataStatus;
+  @IsEnum(ExportData_Status)
+  status?: ExportData_Status;
 
   @IsOptional()
   @IsString()

@@ -96,10 +96,10 @@ export class HealthService {
         environment: process.env.NODE_ENV || 'development',
         nodeVersion: process.version,
         components: {
-          database: databaseHealth.status === 'fulfilled' ? databaseHealth.value : { status: 'unhealthy', error: 'Check failed' },
-          messageQueue: queueHealth.status === 'fulfilled' ? queueHealth.value : { status: 'unhealthy', error: 'Check failed' },
-          callSystem: callSystemHealth.status === 'fulfilled' ? callSystemHealth.value : { status: 'unhealthy', error: 'Check failed' },
-          externalServices: externalServicesHealth.status === 'fulfilled' ? externalServicesHealth.value : { status: 'unhealthy', error: 'Check failed' },
+          database: databaseHealth.status === 'fulfilled' ? databaseHealth.value : { status: 'unhealthy' as const, timestamp: new Date().toISOString(), error: 'Check failed' },
+          messageQueue: queueHealth.status === 'fulfilled' ? queueHealth.value : { status: 'unhealthy' as const, timestamp: new Date().toISOString(), connection: 'unknown', queues: [], error: 'Check failed' },
+          callSystem: callSystemHealth.status === 'fulfilled' ? callSystemHealth.value : { status: 'unhealthy' as const, timestamp: new Date().toISOString(), error: 'Check failed' },
+          externalServices: externalServicesHealth.status === 'fulfilled' ? externalServicesHealth.value : { status: 'unhealthy' as const, timestamp: new Date().toISOString(), services: [], error: 'Check failed' },
         },
         resources: await this.getResourceUsage(),
       };

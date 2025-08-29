@@ -91,7 +91,7 @@ export class DataMigrationService extends BaseService<DataMigration> {
     return await super.findManyWithPaging(filter, handler);
   }
 
-  async createOne(
+  override async createOne(
     data: CreateDataMigrationData,
     handler: DataHandler,
   ): Promise<any> {

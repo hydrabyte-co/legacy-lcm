@@ -32,6 +32,7 @@ import { Resources } from 'src/common/enums/resources';
 import { DataMigration } from './entity/data-migration.entity';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { EventPattern } from '@nestjs/microservices';
+import { Request } from 'express';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_DataMigration)
@@ -44,18 +45,18 @@ export class DataMigrationsController extends BaseController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async createOne(
+  override async createOne(
     @Body() data: CreateDataMigrationData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<CreateDataMigrationResult> {
     return await super.createOne(data, req);
   }
 
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async findOne(
+  override async findOne(
     @Param('id') id: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindDataMigrationByIdResult> {
     return await super.findOne(id, req);
   }
@@ -64,7 +65,7 @@ export class DataMigrationsController extends BaseController {
   @UseGuards(AuthGuard, RolesGuard)
   async findManyWithPaging(
     @Query() queries: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindAllResult<DataMigration>> {
     return await super.findManyWithPaging(queries, req);
   }

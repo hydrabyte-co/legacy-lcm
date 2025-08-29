@@ -24,7 +24,7 @@
         "actualEffort": "4 phases completed",
         "businessCategories": ["dataIntegration", "compliance", "reporting"],
         "affectedModules": ["all-modules"],
-        "filePath": "change-requests/approved/CR-2025-01-17-001-repo-optimization.md"
+        "filePath": "change-requests/completed/CR-2025-01-17-001-repo-optimization.md"
       }
     ],
     "rejected": []

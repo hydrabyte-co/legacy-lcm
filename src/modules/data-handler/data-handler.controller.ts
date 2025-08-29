@@ -17,6 +17,7 @@ import { DataHandlerService } from './data-handler.service';
 import { DataHandler } from 'src/common/modules/base/entity/data.class';
 import { Services } from 'src/common/enums/services';
 import { Resources } from 'src/common/enums/resources';
+import { Request } from 'express';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_DataHandler)
@@ -28,7 +29,7 @@ export class DataHandlerController {
   //@UseGuards(AuthGuard, RolesGuard)
   async processCustomerData(
     //@Body() data: CreateCustomerData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<any> {
     const handler = req.user || new DataHandler();
     return await this.dataHandlerService.processCustomerData(handler);
@@ -36,7 +37,7 @@ export class DataHandlerController {
 
   @Post('/query-contacts')
   @UseGuards(AuthGuard, RolesGuard)
-  async findContacts(@Query() query, @Req() req): Promise<any[]> {
+  async findContacts(@Query() query, @Req() req: Request): Promise<any[]> {
     const handler = req.user || new DataHandler();
     console.log(query);
 

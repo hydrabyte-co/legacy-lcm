@@ -33,6 +33,7 @@ import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
 import { Services } from 'src/common/enums/services';
 import { Resources } from 'src/common/enums/resources';
 import { Transaction } from './entity/transaction.entity';
+import { Request } from 'express';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_Transactions)
@@ -45,9 +46,9 @@ export class TransactionsController extends BaseController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async createOne(
+  override async createOne(
     @Body() data: CreateTransactionData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<CreateTransactionResult> {
     data.date = new Date(data.date);
     return await super.createOne(data, req);
@@ -55,9 +56,9 @@ export class TransactionsController extends BaseController {
 
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async findOne(
+  override async findOne(
     @Param('id') id: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindTransactionByIdResult> {
     return await super.findOne(id, req);
   }
@@ -66,7 +67,7 @@ export class TransactionsController extends BaseController {
   @UseGuards(AuthGuard, RolesGuard)
   async findManyWithPaging(
     @Query() queries: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindAllResult<Transaction>> {
     return await super.findManyWithPaging(queries, req);
   }
@@ -74,17 +75,17 @@ export class TransactionsController extends BaseController {
   @Patch(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async updateOne(
+  override async updateOne(
     @Param('id') id: string,
     @Body() data: UpdateTransactionData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<UpdateTransactionResult> {
     return await super.updateOne(id, data, req);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteOne(@Param('id') id: string, @Req() req) {
+  override async deleteOne(@Param('id') id: string, @Req() req: Request) {
     return await super.deleteOne(id, req);
   }
 }

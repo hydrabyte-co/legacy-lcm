@@ -25,6 +25,7 @@ import { Services } from 'src/common/enums/services';
 import { Resources } from 'src/common/enums/resources';
 import { UpdateTransactionResult } from '../transaction/dto/update-one.dto';
 import { CustomerData } from './dto/report';
+import { Request } from 'express';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.Report)
@@ -37,7 +38,7 @@ export class ReportController {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async customerSummaryReport(
     @Body() data: CustomerData[],
-    @Req() req,
+    @Req() req: Request,
   ): Promise<any> {
     const handler = req.user || new DataHandler();
     return this.reportService.customerSummaryReport(handler);
@@ -48,7 +49,7 @@ export class ReportController {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async debtCollectionByBankReport(
     @Body() data: CustomerData[],
-    @Req() req,
+    @Req() req: Request,
   ): Promise<any> {
     const handler = req.user || new DataHandler();
     return this.reportService.debtCollectionByBank(handler);
@@ -59,7 +60,7 @@ export class ReportController {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async debtCollectionByStaffReport(
     @Body() data: CustomerData[],
-    @Req() req,
+    @Req() req: Request,
   ): Promise<any> {
     const handler = req.user || new DataHandler();
     return this.reportService.debtCollectionByStaff(handler);
@@ -70,7 +71,7 @@ export class ReportController {
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async tasksSummaryReport(
     @Body() data: CustomerData[],
-    @Req() req,
+    @Req() req: Request,
   ): Promise<any> {
     const handler = req.user || new DataHandler();
     return this.reportService.tasksSummaryReport(handler);

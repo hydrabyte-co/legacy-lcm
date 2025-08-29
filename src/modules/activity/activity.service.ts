@@ -82,7 +82,7 @@ export class ActivityService extends BaseService<Activity> {
     return await super.findManyWithPaging(filter, handler);
   }
 
-  async createOne(
+  override async createOne(
     data: CreateActivityData,
     handler: DataHandler,
   ): Promise<Activity> {
@@ -188,7 +188,7 @@ export class ActivityService extends BaseService<Activity> {
       });
     }
   }
-  async updateOne(
+  override async updateOne(
     id: string,
     data: any,
     handler: DataHandler,

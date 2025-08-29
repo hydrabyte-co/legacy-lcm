@@ -99,7 +99,7 @@ export class ExportDataService extends BaseService<ExportData> {
     return await super.findManyWithPaging(filter, handler);
   }
 
-  async createOne(
+  override async createOne(
     data: CreateExportDataData,
     handler: DataHandler,
   ): Promise<any> {
