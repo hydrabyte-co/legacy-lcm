@@ -134,7 +134,7 @@ check_production_endpoint() {
     fi
     
     # Health check
-    info "Checking https://api.hydrabyte.co/lcm/health"
+    info "Checking https://api.hydrabyte.co/lcm/health
     response=$(curl -s -o /dev/null -w "%{http_code};%{time_total}" https://api.hydrabyte.co/lcm/health 2>/dev/null || echo "000;0")
     http_code=$(echo $response | cut -d';' -f1)
     response_time=$(echo $response | cut -d';' -f2)
