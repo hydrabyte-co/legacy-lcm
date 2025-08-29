@@ -2,6 +2,7 @@
 /dist
 /node_modules
 /src/common
+package-lock.json
 # ENV
 .env
 
