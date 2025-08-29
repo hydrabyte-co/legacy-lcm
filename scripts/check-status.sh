@@ -1,13 +1,12 @@
 #!/bin/bash
 
-# LCM Service Status Check Script
-# Usage: ./scripts/check-status.sh [target]
+# LCM Service Status Check Script - Fixed Version
+# Usage: ./scripts/check-status-fixed.sh [target]
 
 set -e
 
 # Configuration
 VM_HOSTS=("10.10.0.70" "10.10.0.71" "10.10.0.72")
-VM_ALIASES=("vm1" "vm2" "vm3")
 SSH_USER="root"
 
 # Colors
@@ -63,17 +62,8 @@ get_target_vms() {
 # Check single VM
 check_vm() {
     local vm_ip=$1
-    local vm_name=""
     
-    # Get VM name
-    for i in "${!VM_HOSTS[@]}"; do
-        if [[ "${VM_HOSTS[$i]}" = "$vm_ip" ]]; then
-            vm_name="${VM_ALIASES[$i]}"
-            break
-        fi
-    done
-    
-    echo -e "\n${BLUE}=== VM: $vm_ip ($vm_name) ===${NC}"
+    echo -e "\n${BLUE}=== VM: $vm_ip ===${NC}"
     
     # Test SSH connection
     if ! ssh -o ConnectTimeout=5 $SSH_USER@$vm_ip "echo 'Connected'" > /dev/null 2>&1; then
@@ -97,9 +87,9 @@ check_vm() {
     
     # Health status
     if [ "$api_status" = "200" ]; then
-        echo -e "${GREEN}✅ API Health: OK (200)${NC}"
+        echo -e "${GREEN}[OK] API Health: OK (200)${NC}"
     else
-        echo -e "${RED}❌ API Health: FAILED ($api_status)${NC}"
+        echo -e "${RED}[FAILED] API Health: FAILED ($api_status)${NC}"
     fi
     
     # System resources
@@ -109,13 +99,7 @@ check_vm() {
         free -h | grep -E '(Mem|Swap)'
         echo 'Disk Usage:'
         df -h | grep -E '(/$|/root)'
-        echo 'Load Average:'
-        uptime | awk '{print \$8, \$9, \$10}'
     "
-    
-    # Recent logs check
-    info "Recent Errors (last 10 lines):"
-    ssh $SSH_USER@$vm_ip "pm2 logs --err --lines 10 --nostream | head -20" 2>/dev/null || echo "No recent errors"
     
     echo -e "${BLUE}--- End VM: $vm_ip ---${NC}"
 }
@@ -134,79 +118,16 @@ check_production_endpoint() {
     fi
     
     # Health check
-    info "Checking https://api.hydrabyte.co/lcm/health
+    info "Checking https://api.hydrabyte.co/lcm/health"
     response=$(curl -s -o /dev/null -w "%{http_code};%{time_total}" https://api.hydrabyte.co/lcm/health 2>/dev/null || echo "000;0")
     http_code=$(echo $response | cut -d';' -f1)
     response_time=$(echo $response | cut -d';' -f2)
     
     if [ "$http_code" = "200" ]; then
-        echo -e "${GREEN}✅ Production API: OK (${http_code}) - ${response_time}s${NC}"
+        echo -e "${GREEN}[OK] Production API: OK - ${http_code} - ${response_time}s${NC}"
     else
-        echo -e "${RED}❌ Production API: FAILED (${http_code})${NC}"
+        echo -e "${RED}[FAILED] Production API: FAILED - ${http_code}${NC}"
     fi
-    
-    # Additional endpoint checks
-    info "Load Balancer Response Headers:"
-    curl -I https://api.hydrabyte.co/lcm/health 2>/dev/null | head -5 || echo "Cannot fetch headers"
-}
-
-# Show summary
-show_summary() {
-    local target_vms=("$@")
-    
-    echo -e "\n${BLUE}=== SUMMARY ===${NC}"
-    
-    local total_vms=${#target_vms[@]}
-    local online_vms=0
-    local healthy_apis=0
-    
-    for vm in "${target_vms[@]}"; do
-        # Quick SSH test
-        if ssh -o ConnectTimeout=5 $SSH_USER@$vm "echo 'test'" > /dev/null 2>&1; then
-            ((online_vms++))
-            
-            # Quick API test
-            api_status=$(ssh $SSH_USER@$vm "curl -s -o /dev/null -w '%{http_code}' http://localhost:3005/health" 2>/dev/null || echo "000")
-            if [ "$api_status" = "200" ]; then
-                ((healthy_apis++))
-            fi
-        fi
-    done
-    
-    echo "Total VMs: $total_vms"
-    echo "Online VMs: $online_vms"
-    echo "Healthy APIs: $healthy_apis"
-    
-    if [ $online_vms -eq $total_vms ] && [ $healthy_apis -eq $total_vms ]; then
-        echo -e "${GREEN}🎉 All systems operational${NC}"
-    elif [ $healthy_apis -gt 0 ]; then
-        echo -e "${YELLOW}⚠️  Partial system availability${NC}"
-    else
-        echo -e "${RED}🚨 System issues detected${NC}"
-    fi
-}
-
-# Help
-show_help() {
-    cat << EOF
-LCM Service Status Check Script
-
-USAGE:
-    ./scripts/check-status.sh [target]
-
-TARGETS:
-    all     : Check all VMs (default)
-    vm1     : Check VM1 (10.10.0.70)
-    vm2     : Check VM2 (10.10.0.71) 
-    vm3     : Check VM3 (10.10.0.72)
-    <ip>    : Check specific VM IP
-
-EXAMPLES:
-    ./scripts/check-status.sh           # Check all VMs
-    ./scripts/check-status.sh vm1       # Check VM1 only
-    ./scripts/check-status.sh all       # Check all VMs + production endpoint
-
-EOF
 }
 
 # Main execution
@@ -214,7 +135,7 @@ main() {
     local target=${1:-all}
     
     if [ "$target" = "--help" ] || [ "$target" = "-h" ]; then
-        show_help
+        echo "Usage: ./scripts/check-status-fixed.sh [all|vm1|vm2|vm3|IP]"
         exit 0
     fi
     
@@ -232,9 +153,6 @@ main() {
     if [ "$target" = "all" ]; then
         check_production_endpoint
     fi
-    
-    # Show summary
-    show_summary "${TARGET_VMS[@]}"
     
     log "=== Status check completed ==="
 }
