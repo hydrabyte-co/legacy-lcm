@@ -1,6 +1,6 @@
 // Example of creating AutoDialer automation with new design
 
-const createAutomationExample = {
+export const createAutomationExample = {
   type: "auto-dialer",
   frequency: 300, // 5 minutes (30-1800 seconds range)
   workingHours: [8, 9, 10, 11, 13, 14, 15, 16, 17], // 8AM-6PM excluding lunch 12-1PM
