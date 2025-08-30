@@ -1,45 +1,21 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { DataMigration } from './entity/data-migration.entity';
-import { BaseService } from 'src/common/modules/base/base.service';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { CreateDataMigrationData } from './dto/create.dto';
-import { DataMigration_Status } from './enum/data-migration.enum';
-import { readSheetNames } from 'read-excel-file/node';
-import readXlsxFile from 'read-excel-file/node';
-import { getTypeOf } from 'src/common/utils/object-helper';
-import { Customer } from '../customer/entity/customer.entity';
-import { replaceRegexPatternFromString } from 'src/common/utils/string-helper';
-import { Contract } from '../contract/entity/contract.entity';
-import { Transaction } from '../transaction/entity/transaction.entity';
-import { Reference } from '../reference/entity/reference.entity';
-import { Investigation } from '../investigation/entity/investigation.entity';
-import { Activity } from '../activity/entity/activity.entity';
-import { downloadFile } from 'src/common/utils/web-helper';
-import { Services } from 'src/common/enums/services';
-import { ClientProxy } from '@nestjs/microservices';
-import { CustomerStatus } from '../customer/enum/customer.enum';
-import { ContractStatus } from '../contract/enum/contract.enum';
-import { ActivityTypeCode, RelationCode } from '../activity/enum/activity.enum';
+import { Roles } from '../../common/enums/roles';
+import { Services } from '../../common/enums/services';
+import { BaseService } from '../../common/modules/base/base.service';
 import {
-  activityTypes,
-  investigationTypes,
-  relations,
-} from 'src/constants/service';
-import {
-  FindManyFilter,
-  FindAllResult,
-} from 'src/common/modules/base/dto/find-many.dto';
-import {
-  ActivitiesToExcelSchema,
-  CustomersToExcelSchema,
-  OutboundCallsToExcelSchema,
-} from './constant/data-migration.constant';
-import { Roles } from 'src/common/enums/roles';
-import { logInfo } from 'src/common/utils/log-helper';
+    FindAllResult,
+    FindManyFilter,
+} from '../../common/modules/base/dto/find-many.dto';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
+import { logInfo } from '../../common/utils/log-helper';
 import { MessagePattern } from '../event/enum/event.enum';
+import { CreateDataMigrationData } from './dto/create.dto';
+import { DataMigration } from './entity/data-migration.entity';
+import { DataMigration_Status } from './enum/data-migration.enum';
 
 @Injectable()
 export class DataMigrationService extends BaseService<DataMigration> {

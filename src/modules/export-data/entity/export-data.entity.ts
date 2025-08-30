@@ -1,18 +1,17 @@
-import { Entity, Column } from 'typeorm';
 import {
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-  IsObject,
-  IsEnum,
-  IsArray,
+    IsArray,
+    IsEnum,
+    IsNotEmpty,
+    IsObject,
+    IsString
 } from 'class-validator';
+import { Column, Entity } from 'typeorm';
+import { Resources } from '../../../common/enums/resources';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Resources } from 'src/common/enums/resources';
 import {
-  ExportData_FromDocuments,
-  ExportData_OutputFileType,
-  ExportData_Status,
+    ExportData_FromDocuments,
+    ExportData_OutputFileType,
+    ExportData_Status,
 } from '../enum/export-data.enum';
 
 export type ExportData_Datasource = {

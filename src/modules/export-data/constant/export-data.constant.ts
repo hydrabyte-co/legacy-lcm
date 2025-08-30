@@ -1,5 +1,3 @@
-import { getTypeOf } from 'src/common/utils/object-helper';
-import { replaceRegexPatternFromString } from 'src/common/utils/string-helper';
 
 export const ActivitiesToExcelSchema = [
   {

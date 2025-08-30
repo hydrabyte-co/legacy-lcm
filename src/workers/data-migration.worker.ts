@@ -1,12 +1,11 @@
 // import axios from 'axios';
 // import * as _ from 'lodash';
 
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { logInfo } from 'src/common/utils/log-helper';
-import { DataMigrationService } from 'src/modules/data-migration/data-migration.service';
-import { CreateDataMigrationData } from 'src/modules/data-migration/dto/create.dto';
-import { DataMigration } from 'src/modules/data-migration/entity/data-migration.entity';
-import { DataMigration_Collections } from 'src/modules/data-migration/enum/data-migration.enum';
+import { DataHandler } from '../common/modules/base/entity/data.class';
+import { logInfo } from '../common/utils/log-helper';
+import { DataMigrationService } from '../modules/data-migration/data-migration.service';
+import { CreateDataMigrationData } from '../modules/data-migration/dto/create.dto';
+import { DataMigration_Collections } from '../modules/data-migration/enum/data-migration.enum';
 
 export class DataMigrationWorker {
   private intervalDuration = parseInt(process.env.WORKER_INTERVAL || '10000');

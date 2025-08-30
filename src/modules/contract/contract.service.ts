@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { Contract } from './entity/contract.entity';
-import { BaseService } from 'src/common/modules/base/base.service';
-import { CreateContractData } from './dto/create.dto';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { Partner } from '../partner/entity/partner.entity';
+import { BaseService } from '../../common/modules/base/base.service';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
 import { Customer } from '../customer/entity/customer.entity';
+import { Partner } from '../partner/entity/partner.entity';
+import { CreateContractData } from './dto/create.dto';
+import { Contract } from './entity/contract.entity';
 
 @Injectable()
 export class ContractService extends BaseService<Contract> {

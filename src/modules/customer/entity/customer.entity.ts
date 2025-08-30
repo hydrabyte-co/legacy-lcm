@@ -1,18 +1,16 @@
-import { Entity, Column, Index } from 'typeorm';
 import {
-  IsBoolean,
-  IsNotEmpty,
-  IsString,
-  MaxLength,
+  IsArray,
   IsDate,
-  IsDateString,
+  IsEnum,
+  IsNotEmpty,
   IsNumber,
   IsObject,
-  IsEnum,
-  IsArray,
+  IsString,
+  MaxLength
 } from 'class-validator';
+import { Column, Entity } from 'typeorm';
+import { Resources } from '../../../common/enums/resources';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Resources } from 'src/common/enums/resources';
 import { CustomerStatus } from '../enum/customer.enum';
 
 @Entity(Resources.LCM_Customers)

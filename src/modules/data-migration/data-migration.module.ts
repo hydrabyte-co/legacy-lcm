@@ -1,22 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { DataMigrationService } from './data-migration.service';
-import { DataMigrationsController } from './data-migration.controller';
-import { DataMigration } from './entity/data-migration.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Customer } from '../customer/entity/customer.entity';
-import { CustomerModule } from '../customer/customer.module';
-import { Contract } from '../contract/entity/contract.entity';
-import { ContractModule } from '../contract/contract.module';
-import { Transaction } from '../transaction/entity/transaction.entity';
-import { TransactionModule } from '../transaction/transaction.module';
-import { Reference } from '../reference/entity/reference.entity';
-import { Investigation } from '../investigation/entity/investigation.entity';
-import { ReferenceModule } from '../reference/reference.module';
-import { InvestigationModule } from '../investigation/investigation.module';
-import { Activity } from '../activity/entity/activity.entity';
-import { ActivityModule } from '../activity/activity.module';
-import { Services } from 'src/common/enums/services';
+import { Services } from '../../common/enums/services';
+import { DataMigrationsController } from './data-migration.controller';
+import { DataMigrationService } from './data-migration.service';
+import { DataMigration } from './entity/data-migration.entity';
 
 @Module({
   imports: [

@@ -1,33 +1,17 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  UsePipes,
   Query,
-  Req,
-  ValidationPipe,
+  Req
 } from '@nestjs/common';
-import { AuthGuard } from 'src/common/guards/auth/auth.guard';
-import { RolesGuard } from 'src/common/guards/auth/roles.guard';
-import {
-  ServiceInfo,
-  ControllerInfo,
-} from 'src/common/decorators/service-info';
-import { CallService } from './call.service';
-import { CreateCallData } from './dto/create.dto';
-import { UpdateCallData } from './dto/update-one.dto';
-import { BaseController } from 'src/common/modules/base/base.controller';
-import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
-import { Services } from 'src/common/enums/services';
-import { Resources } from 'src/common/enums/resources';
-import { Call } from './entity/call.entity';
-import { DeleteOneResult } from 'src/common/types/controller-dto';
 import { Request } from 'express';
+import { ControllerInfo, ServiceInfo } from '../../common/decorators/service-info';
+import { Resources } from '../../common/enums/resources';
+import { Services } from '../../common/enums/services';
+import { BaseController } from '../../common/modules/base/base.controller';
+import { FindAllResult } from '../../common/modules/base/dto/find-many.dto';
+import { CallService } from './call.service';
+import { Call } from './entity/call.entity';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.VSM_Calls)

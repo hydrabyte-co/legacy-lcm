@@ -1,20 +1,20 @@
 import { Type } from 'class-transformer';
 import {
-    ArrayMaxSize,
-    ArrayMinSize,
-    IsArray,
-    IsEnum,
-    IsNotEmpty,
-    IsNumber,
-    IsObject,
-    IsOptional,
-    IsString,
-    Max,
-    MaxLength,
-    Min,
-    ValidateNested,
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  ValidateNested,
 } from 'class-validator';
-import { UpdateData, UpdateOneResult } from 'src/common/modules/base/dto/update-one.dto';
+import { UpdateData, UpdateOneResult } from '../../../common/modules/base/dto/update-one.dto';
 import { AutomationConfig } from '../entity/automation-config.interface';
 import { AutomationStatus, AutomationType, WeekDay } from '../enum/automation.enum';
 

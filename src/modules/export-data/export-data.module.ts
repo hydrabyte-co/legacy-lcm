@@ -1,22 +1,22 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ExportDataService } from './export-data.service';
-import { ExportDatasController } from './export-data.controller';
-import { ExportData } from './entity/export-data.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Customer } from '../customer/entity/customer.entity';
-import { CustomerModule } from '../customer/customer.module';
-import { Contract } from '../contract/entity/contract.entity';
+import { Services } from '../../common/enums/services';
+import { ActivityModule } from '../activity/activity.module';
+import { Activity } from '../activity/entity/activity.entity';
 import { ContractModule } from '../contract/contract.module';
+import { Contract } from '../contract/entity/contract.entity';
+import { CustomerModule } from '../customer/customer.module';
+import { Customer } from '../customer/entity/customer.entity';
+import { Investigation } from '../investigation/entity/investigation.entity';
+import { InvestigationModule } from '../investigation/investigation.module';
+import { Reference } from '../reference/entity/reference.entity';
+import { ReferenceModule } from '../reference/reference.module';
 import { Transaction } from '../transaction/entity/transaction.entity';
 import { TransactionModule } from '../transaction/transaction.module';
-import { Reference } from '../reference/entity/reference.entity';
-import { Investigation } from '../investigation/entity/investigation.entity';
-import { ReferenceModule } from '../reference/reference.module';
-import { InvestigationModule } from '../investigation/investigation.module';
-import { Activity } from '../activity/entity/activity.entity';
-import { ActivityModule } from '../activity/activity.module';
-import { Services } from 'src/common/enums/services';
+import { ExportData } from './entity/export-data.entity';
+import { ExportDatasController } from './export-data.controller';
+import { ExportDataService } from './export-data.service';
 
 @Module({
   imports: [

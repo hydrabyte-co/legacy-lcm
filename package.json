@@ -15,6 +15,7 @@
     "api": "export APP_TYPE=api && nest start --watch",
     "ms:dev": "export APP_TYPE=microservice && nest start --watch",
     "wrk:dev": "export APP_TYPE=worker && nest start --watch",
+    "wrk-file:dev": "export APP_TYPE=worker && nest start --watch",
     "wrk-payment:dev": "export APP_TYPE=worker WORKER_TYPE=payment-migration && nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",

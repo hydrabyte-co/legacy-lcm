@@ -1,16 +1,15 @@
-import { Entity, Column, Index } from 'typeorm';
 import {
-  IsBoolean,
-  IsNotEmpty,
-  IsString,
-  MaxLength,
   IsDate,
-  IsNumber,
   IsEnum,
+  IsNotEmpty,
+  IsNumber,
   IsObject,
+  IsString,
+  MaxLength
 } from 'class-validator';
+import { Column, Entity } from 'typeorm';
+import { Resources } from '../../../common/enums/resources';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Resources } from 'src/common/enums/resources';
 import { ActivityTypeCode } from '../enum/activity.enum';
 
 @Entity(Resources.LCM_Activities)

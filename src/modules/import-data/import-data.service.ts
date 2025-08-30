@@ -1,53 +1,51 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { ObjectId } from 'mongodb';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { MongoRepository } from 'typeorm';
-import { ImportData } from './entity/import-data.entity';
-import { BaseService } from 'src/common/modules/base/base.service';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { CreateImportDataData } from './dto/create.dto';
-import {
-  ImportData_Status,
-  ImportData_ImportRule,
-  ImportData_ToTable,
-} from './enum/import-data.enum';
-import { readSheetNames } from 'read-excel-file/node';
-import readXlsxFile from 'read-excel-file/node';
-import { getTypeOf } from 'src/common/utils/object-helper';
-import { Customer } from '../customer/entity/customer.entity';
-import { replaceRegexPatternFromString } from 'src/common/utils/string-helper';
-import { ExcelRowData } from './interfaces/excel-row.interface';
-import { Contract } from '../contract/entity/contract.entity';
-import { Transaction } from '../transaction/entity/transaction.entity';
-import { Reference } from '../reference/entity/reference.entity';
-import { Investigation } from '../investigation/entity/investigation.entity';
-import { Activity } from '../activity/entity/activity.entity';
-import { downloadFile } from 'src/common/utils/web-helper';
-import { UpdateImportDataData } from './dto/update-one.dto';
-import { Services } from 'src/common/enums/services';
 import { ClientProxy } from '@nestjs/microservices';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as fs from 'fs';
+import { ObjectId } from 'mongodb';
+import readXlsxFile, { readSheetNames } from 'read-excel-file/node';
 import {
-  ActivityXlsxSchema,
-  ContractXlsxSchema,
-  CustomerXlsxSchema,
-  InvestigationXlsxSchema,
-  ReferenceXlsxSchema,
-  TransactionXlsxSchema,
-} from './constant/import-data.constant';
-import { CustomerStatus } from '../customer/enum/customer.enum';
-import { ContractStatus } from '../contract/enum/contract.enum';
-import { ActivityTypeCode, RelationCode } from '../activity/enum/activity.enum';
-import {
-  activityTypes,
-  investigationTypes,
-  relations,
+    activityTypes,
+    investigationTypes,
+    relations,
 } from 'src/constants/service';
+import { MongoRepository } from 'typeorm';
+import { Services } from '../../common/enums/services';
+import { BaseService } from '../../common/modules/base/base.service';
 import {
-  FindManyFilter,
-  FindAllResult,
-} from 'src/common/modules/base/dto/find-many.dto';
+    FindAllResult,
+    FindManyFilter,
+} from '../../common/modules/base/dto/find-many.dto';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
+import { getTypeOf } from '../../common/utils/object-helper';
+import { replaceRegexPatternFromString } from '../../common/utils/string-helper';
+import { downloadFile } from '../../common/utils/web-helper';
+import { Activity } from '../activity/entity/activity.entity';
+import { ActivityTypeCode, RelationCode } from '../activity/enum/activity.enum';
+import { Contract } from '../contract/entity/contract.entity';
+import { ContractStatus } from '../contract/enum/contract.enum';
+import { Customer } from '../customer/entity/customer.entity';
+import { CustomerStatus } from '../customer/enum/customer.enum';
+import { Investigation } from '../investigation/entity/investigation.entity';
+import { Reference } from '../reference/entity/reference.entity';
+import { Transaction } from '../transaction/entity/transaction.entity';
+import {
+    ActivityXlsxSchema,
+    ContractXlsxSchema,
+    CustomerXlsxSchema,
+    InvestigationXlsxSchema,
+    ReferenceXlsxSchema,
+    TransactionXlsxSchema,
+} from './constant/import-data.constant';
+import { CreateImportDataData } from './dto/create.dto';
+import { UpdateImportDataData } from './dto/update-one.dto';
+import { ImportData } from './entity/import-data.entity';
+import {
+    ImportData_ImportRule,
+    ImportData_Status,
+    ImportData_ToTable,
+} from './enum/import-data.enum';
+import { ExcelRowData } from './interfaces/excel-row.interface';
 
 @Injectable()
 export class ImportDataService extends BaseService<ImportData> {

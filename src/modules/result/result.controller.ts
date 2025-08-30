@@ -1,33 +1,30 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
-  UsePipes,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
   Req,
+  UseGuards,
+  UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/common/guards/auth/auth.guard';
-import { RolesGuard } from 'src/common/guards/auth/roles.guard';
-import {
-  ServiceInfo,
-  ControllerInfo,
-} from 'src/common/decorators/service-info';
-import { ResultService } from './result.service';
-import { CreateResultData, CreateResultResult } from './dto/create.dto';
-import { UpdateResultData, UpdateResultResult } from './dto/update-one.dto';
-import { FindResultByIdResult } from './dto/find-one.dto';
-import { BaseController } from 'src/common/modules/base/base.controller';
-import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
-import { Services } from 'src/common/enums/services';
-import { Resources } from 'src/common/enums/resources';
-import { Result } from './entity/result.entity';
+import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
+import { ControllerInfo, ServiceInfo } from '../../common/decorators/service-info';
+import { Resources } from '../../common/enums/resources';
+import { Services } from '../../common/enums/services';
+import { RolesGuard } from '../../common/guards/auth/roles.guard';
+import { BaseController } from '../../common/modules/base/base.controller';
+import { FindAllResult } from '../../common/modules/base/dto/find-many.dto';
+import { CreateResultData, CreateResultResult } from './dto/create.dto';
+import { FindResultByIdResult } from './dto/find-one.dto';
+import { UpdateResultData, UpdateResultResult } from './dto/update-one.dto';
+import { Result } from './entity/result.entity';
+import { ResultService } from './result.service';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_Results)

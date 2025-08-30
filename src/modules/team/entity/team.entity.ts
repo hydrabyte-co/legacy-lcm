@@ -1,8 +1,8 @@
-import { Entity, Column } from 'typeorm';
+import { Column, Entity } from 'typeorm';
+import { Resources } from '../../../common/enums/resources';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Resources } from 'src/common/enums/resources';
-import { BasicObject } from 'src/common/types/data';
-import { TeamStatuses } from 'src/enums';
+import { BasicObject } from '../../../common/types/data';
+import { TeamStatuses } from '../../../enums';
 
 @Entity(Resources.LCM_Team)
 export class Team extends Base {

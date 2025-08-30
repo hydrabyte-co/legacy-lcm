@@ -4,16 +4,15 @@ import {
   VersioningType,
 } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import * as bodyParser from 'body-parser';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import * as bodyParser from 'body-parser';
+import { MongoRepository } from 'typeorm';
 import { AppModule } from './app.module';
 import { logInfo, logWarning } from './common/utils/log-helper';
 import { DataMigrationService } from './modules/data-migration/data-migration.service';
-import { DataMigrationWorker } from './workers/data-migration.worker';
 import { Transaction } from './modules/transaction/entity/transaction.entity';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { MongoRepository } from 'typeorm';
+import { DataMigrationWorker } from './workers/data-migration.worker';
 import { PaymentMigrationWorker } from './workers/payment-migration.worker';
 // import { SampleWorker } from './workers/sample.worker';
 
@@ -112,7 +111,7 @@ async function bootstrap() {
       app.useGlobalPipes(new ValidationPipe());
 
       // Setup Swagger API Documentation
-      const config = new DocumentBuilder()
+      /* const config = new DocumentBuilder()
         .setTitle('LCM Service API')
         .setDescription('Loans Collection Management API Documentation - Debt Collection System for Financial Institutions')
         .setVersion('1.0.0')
@@ -156,7 +155,7 @@ async function bootstrap() {
         });
       });
 
-      logInfo('*', `LCM Service API Documentation available at /docs`);
+      logInfo('*', `LCM Service API Documentation available at /docs`); */
       await app.listen(apiPort);
       break;
     }

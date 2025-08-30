@@ -1,7 +1,7 @@
-import { Entity, Column } from 'typeorm';
-import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Resources } from 'src/common/enums/resources';
 import { IsObject } from 'class-validator';
+import { Column, Entity } from 'typeorm';
+import { Resources } from '../../../common/enums/resources';
+import { Base } from '../../../common/modules/base/entity/base.entity';
 
 @Entity(Resources.VSM_Calls, { database: 'voice', engine: 'voice' })
 export class Call extends Base {

@@ -1,5 +1,3 @@
-import { SetMetadata } from '@nestjs/common';
-import { ControllerInfo } from 'src/common/decorators/service-info';
 
 export class MSSQLActivity {
   refId = '';

@@ -1,18 +1,17 @@
-import { ObjectId } from 'mongodb';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { Activity } from './entity/activity.entity';
-import { BaseService } from 'src/common/modules/base/base.service';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
+import { BaseService } from '../../common/modules/base/base.service';
+import {
+    FindAllResult,
+    FindManyFilter,
+} from '../../common/modules/base/dto/find-many.dto';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
+import { Contract } from '../contract/entity/contract.entity';
 import { Customer } from '../customer/entity/customer.entity';
 import { Result } from '../result/entity/result.entity';
 import { CreateActivityData } from './dto/create.dto';
-import { Contract } from '../contract/entity/contract.entity';
-import {
-  FindManyFilter,
-  FindAllResult,
-} from 'src/common/modules/base/dto/find-many.dto';
+import { Activity } from './entity/activity.entity';
 
 @Injectable()
 export class ActivityService extends BaseService<Activity> {

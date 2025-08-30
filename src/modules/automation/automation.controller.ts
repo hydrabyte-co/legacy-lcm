@@ -1,30 +1,28 @@
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Patch,
-    Post,
-    Put,
-    Query,
-    Req,
-    UseGuards,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+  UseGuards
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import { ControllerInfo, ServiceInfo } from 'src/common/decorators/service-info';
-import { Resources } from 'src/common/enums/resources';
-import { Services } from 'src/common/enums/services';
-import { AuthGuard } from 'src/common/guards/auth/auth.guard';
-import { RolesGuard } from 'src/common/guards/auth/roles.guard';
-import { BaseController } from 'src/common/modules/base/base.controller';
-import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
-import { DeleteOneResult } from 'src/common/types/controller-dto';
+import { ControllerInfo, ServiceInfo } from '../../common/decorators/service-info';
+import { Resources } from '../../common/enums/resources';
+import { Services } from '../../common/enums/services';
+import { RolesGuard } from '../../common/guards/auth/roles.guard';
+import { BaseController } from '../../common/modules/base/base.controller';
+import { FindAllResult } from '../../common/modules/base/dto/find-many.dto';
 import { DataHandler } from '../../common/modules/base/entity/data.class';
+import { DeleteOneResult } from '../../common/types/controller-dto';
 import { AutomationService } from './automation.service';
-import { CreateAutomationData, CreateAutomationResult } from './dto/create.dto';
-import { FindAutomationByIdResult, FindManyAutomationFilter } from './dto/find-one.dto';
-import { UpdateAutomationData, UpdateAutomationResult, UpdateAutomationStatusData, UpdateAutomationStatusResult } from './dto/update-one.dto';
+import { CreateAutomationData } from './dto/create.dto';
+import { UpdateAutomationData, UpdateAutomationResult } from './dto/update-one.dto';
 import { Automation } from './entity/automation.entity';
 
 @Controller('automations')
@@ -43,7 +41,7 @@ export class AutomationController extends BaseController {
   override async createOne(
     @Body() data: CreateAutomationData,
     @Req() req: Request,
-  ): Promise<CreateAutomationResult> {
+  ): Promise<Automation> {
     return await this.automationService.createOne(data, req.user as DataHandler);
   }
 
@@ -54,8 +52,8 @@ export class AutomationController extends BaseController {
   override async findOne(
     @Param('id') id: string,
     @Req() req: Request,
-  ): Promise<FindAutomationByIdResult> {
-    return await this.automationService.findAutomationById(id, req.user as DataHandler);
+  ): Promise<Automation> {
+    return await this.automationService.findOne(id, req.user as DataHandler);
   }
 
   /**
@@ -63,10 +61,10 @@ export class AutomationController extends BaseController {
    */
   @Get()
   async findManyWithPaging(
-    @Query() filter: FindManyAutomationFilter,
+    @Query() queries: string,
     @Req() req: Request,
   ): Promise<FindAllResult<Automation>> {
-    return await this.automationService.findMany(filter, req.user as DataHandler);
+    return await super.findManyWithPaging(queries, req.user as DataHandler);
   }
 
   /**
@@ -78,7 +76,7 @@ export class AutomationController extends BaseController {
     @Body() data: UpdateAutomationData,
     @Req() req: Request,
   ): Promise<UpdateAutomationResult> {
-    return await this.automationService.updateAutomation(id, data, req.user as DataHandler);
+    return await super.updateOne(id, data, req.user as DataHandler);
   }
 
   /**
@@ -89,18 +87,18 @@ export class AutomationController extends BaseController {
     @Param('id') id: string,
     @Req() req: Request,
   ): Promise<DeleteOneResult> {
-    return await this.automationService.deleteOne(id, req.user as DataHandler);
+    return await super.deleteOne(id, req.user as DataHandler);
   }
 
   /**
    * Update automation status (start/stop/pause)
    */
-  @Patch(':id/status')
+  /* @Patch(':id/status')
   async updateStatus(
     @Param('id') id: string,
     @Body() data: UpdateAutomationStatusData,
     @Req() req: Request,
   ): Promise<UpdateAutomationStatusResult> {
-    return await this.automationService.updateStatus(id, data.status, data.reason, req.user as DataHandler);
-  }
+    return await super.updatePartial(id, data, req.user as DataHandler);
+  } */
 }

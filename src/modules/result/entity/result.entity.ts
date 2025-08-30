@@ -1,14 +1,14 @@
-import { Entity, Column, Index } from 'typeorm';
 import {
   IsBoolean,
   IsNotEmpty,
-  IsString,
-  MaxLength,
-  IsDate,
   IsNumber,
+  IsString,
+  MaxLength
 } from 'class-validator';
+import { Column, Entity } from 'typeorm';
+import { Resources } from '../../../common/enums/resources';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Resources } from 'src/common/enums/resources';
+
 
 @Entity(Resources.LCM_Results)
 export class Result extends Base {

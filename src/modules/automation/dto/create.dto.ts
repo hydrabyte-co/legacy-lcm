@@ -14,7 +14,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { CreateData } from 'src/common/modules/base/dto/create.dto';
+import { CreateData } from '../../../common/modules/base/dto/create.dto';
 import { AutomationConfig } from '../entity/automation-config.interface';
 import { AutomationStatus, AutomationType, WeekDay } from '../enum/automation.enum';
 

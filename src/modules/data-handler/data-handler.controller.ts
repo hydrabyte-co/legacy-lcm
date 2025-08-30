@@ -5,16 +5,13 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import {
-  ControllerInfo,
-  ServiceInfo,
-} from 'src/common/decorators/service-info';
-import { Resources } from 'src/common/enums/resources';
-import { Services } from 'src/common/enums/services';
-import { AuthGuard } from 'src/common/guards/auth/auth.guard';
-import { RolesGuard } from 'src/common/guards/auth/roles.guard';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
+import { ControllerInfo, ServiceInfo } from '../../common/decorators/service-info';
+import { Resources } from '../../common/enums/resources';
+import { Services } from '../../common/enums/services';
+import { RolesGuard } from '../../common/guards/auth/roles.guard';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
 import { DataHandlerService } from './data-handler.service';
 
 @ServiceInfo(Services.LCM)

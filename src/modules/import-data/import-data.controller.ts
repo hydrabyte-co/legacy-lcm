@@ -18,14 +18,14 @@ import { Request } from 'express';
 import {
   ControllerInfo,
   ServiceInfo,
-} from 'src/common/decorators/service-info';
-import { Resources } from 'src/common/enums/resources';
-import { Services } from 'src/common/enums/services';
-import { AuthGuard } from 'src/common/guards/auth/auth.guard';
-import { RolesGuard } from 'src/common/guards/auth/roles.guard';
-import { BaseController } from 'src/common/modules/base/base.controller';
-import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
+} from '../../common/decorators/service-info';
+import { Resources } from '../../common/enums/resources';
+import { Services } from '../../common/enums/services';
+import { AuthGuard } from '../../common/guards/auth/auth.guard';
+import { RolesGuard } from '../../common/guards/auth/roles.guard';
+import { BaseController } from '../../common/modules/base/base.controller';
+import { FindAllResult } from '../../common/modules/base/dto/find-many.dto';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
 import { CreateImportDataData, CreateImportDataResult } from './dto/create.dto';
 import { FindImportDataByIdResult } from './dto/find-one.dto';
 import {

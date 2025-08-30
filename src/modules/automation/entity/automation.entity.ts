@@ -1,19 +1,19 @@
 import {
-  ArrayMaxSize,
-  ArrayMinSize,
-  IsArray,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsObject,
-  IsOptional,
-  IsString,
-  Max,
-  MaxLength,
-  Min,
+    ArrayMaxSize,
+    ArrayMinSize,
+    IsArray,
+    IsEnum,
+    IsNotEmpty,
+    IsNumber,
+    IsObject,
+    IsOptional,
+    IsString,
+    Max,
+    MaxLength,
+    Min,
 } from 'class-validator';
-import { Resources } from 'src/common/enums/resources';
 import { Column, Entity } from 'typeorm';
+import { Resources } from '../../../common/enums/resources';
 import { Base } from '../../../common/modules/base/entity/base.entity';
 import { AutomationStatus, AutomationType, WeekDay } from '../enum/automation.enum';
 import { AutomationConfig } from './automation-config.interface';

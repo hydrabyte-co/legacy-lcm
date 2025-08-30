@@ -1,34 +1,31 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
-  UsePipes,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
   Req,
+  UseGuards,
+  UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthGuard } from 'src/common/guards/auth/auth.guard';
-import { RolesGuard } from 'src/common/guards/auth/roles.guard';
-import {
-  ServiceInfo,
-  ControllerInfo,
-} from 'src/common/decorators/service-info';
-import { PartnerService } from './partner.service';
-import { CreatePartnerData, CreatePartnerResult } from './dto/create.dto';
-import { UpdatePartnerData, UpdatePartnerResult } from './dto/update-one.dto';
-import { FindPartnerByIdResult } from './dto/find-one.dto';
-import { BaseController } from 'src/common/modules/base/base.controller';
-import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
-import { Services } from 'src/common/enums/services';
-import { Resources } from 'src/common/enums/resources';
-import { Partner } from './entity/partner.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { ControllerInfo } from '../../common/decorators/service-info';
+import { Resources } from '../../common/enums/resources';
+import { Services } from '../../common/enums/services';
+import { RolesGuard } from '../../common/guards/auth/roles.guard';
+import { BaseController } from '../../common/modules/base/base.controller';
+import { FindAllResult } from '../../common/modules/base/dto/find-many.dto';
+import { CreatePartnerData, CreatePartnerResult } from './dto/create.dto';
+import { FindPartnerByIdResult } from './dto/find-one.dto';
+import { UpdatePartnerData, UpdatePartnerResult } from './dto/update-one.dto';
+import { Partner } from './entity/partner.entity';
+import { PartnerService } from './partner.service';
 
 @ApiTags('Partners')
 @ApiBearerAuth('JWT-auth')
@@ -85,3 +82,12 @@ export class PartnersController extends BaseController {
     return await super.deleteOne(id, req);
   }
 }
+
+function ServiceInfo(LCM: Services): (target: typeof PartnersController) => void | typeof PartnersController {
+  return (target: typeof PartnersController) => {
+    console.log(`ServiceInfo decorator applied with LCM: ${LCM}`);
+    // Implement the logic for the ServiceInfo decorator
+    // You can use the LCM parameter as needed
+  };
+}
+

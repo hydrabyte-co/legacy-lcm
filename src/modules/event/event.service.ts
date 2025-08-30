@@ -1,38 +1,35 @@
+import {
+    Inject,
+    Injectable
+} from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { InjectRepository } from '@nestjs/typeorm';
 import { ObjectId } from 'mongodb';
+import { MongoRepository } from 'typeorm';
+import { Services } from '../../common/enums/services';
+import { logInfo, logWarning } from '../../common/utils/log-helper';
+import { Activity } from '../activity/entity/activity.entity';
+import { Call } from '../call/entity/call.entity';
+import { Contract } from '../contract/entity/contract.entity';
+import { Customer } from '../customer/entity/customer.entity';
+import { DataMigration } from '../data-migration/entity/data-migration.entity';
+import {
+    MSSQLActivity,
+    MSSQLCalls,
+    MSSQLContract,
+    MSSQLCustomer,
+    MSSQLInvestigation,
+    MSSQLReference,
+} from '../data-migration/entity/sql-table';
+import {
+    DataMigration_Collections,
+    DataMigration_Status,
+} from '../data-migration/enum/data-migration.enum';
+import { Investigation } from '../investigation/entity/investigation.entity';
+import { Reference } from '../reference/entity/reference.entity';
+import { MessagePattern } from './enum/event.enum';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mssql = require('mssql');
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { MongoRepository } from 'typeorm';
-import { DataMigration } from '../data-migration/entity/data-migration.entity';
-import { logInfo, logWarning } from 'src/common/utils/log-helper';
-import {
-  DataMigration_Collections,
-  DataMigration_Status,
-} from '../data-migration/enum/data-migration.enum';
-import { Customer } from '../customer/entity/customer.entity';
-import { Contract } from '../contract/entity/contract.entity';
-import { Activity } from '../activity/entity/activity.entity';
-import { Reference } from '../reference/entity/reference.entity';
-import { Investigation } from '../investigation/entity/investigation.entity';
-import { ClientProxy } from '@nestjs/microservices';
-import { Services } from 'src/common/enums/services';
-import { MessagePattern } from './enum/event.enum';
-import {
-  MSSQLActivity,
-  MSSQLCalls,
-  MSSQLContract,
-  MSSQLCustomer,
-  MSSQLInvestigation,
-  MSSQLReference,
-} from '../data-migration/entity/sql-table';
-import { Call } from '../call/entity/call.entity';
 
 const getCurrentTimeUTC7 = (date) => {
   console.log(`getCurrentTimeUTC7`, date, typeof date);

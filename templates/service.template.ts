@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 import { {{EntityName}} } from './entity/{{kebab-case}}.entity';
-import { BaseService } from 'src/common/modules/base/base.service';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
+import { BaseService } from '../../common/modules/base/base.service';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
 import {
   FindManyFilter,
   FindAllResult,
-} from 'src/common/modules/base/dto/find-many.dto';
+} from '../../common/modules/base/dto/find-many.dto';
 
 @Injectable()
 export class {{EntityName}}Service extends BaseService<{{EntityName}}> {

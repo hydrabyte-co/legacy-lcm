@@ -1,15 +1,14 @@
-import { Controller, Param, Post, Req } from '@nestjs/common';
-import { EventService } from './event.service';
+import { Controller } from '@nestjs/common';
 import {
   Ctx,
   EventPattern,
-  NatsContext,
   Payload,
-  RmqContext,
+  RmqContext
 } from '@nestjs/microservices';
+import { Resources } from '../../common/enums/resources';
+import { logInfo } from '../../common/utils/log-helper';
 import { MessagePattern as EventPatterns } from './enum/event.enum';
-import { Resources } from 'src/common/enums/resources';
-import { logInfo } from 'src/common/utils/log-helper';
+import { EventService } from './event.service';
 
 @Controller(Resources.Event)
 export class EventController {

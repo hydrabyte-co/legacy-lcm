@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { Customer } from '../customer/entity/customer.entity';
-import { Contract } from '../contract/entity/contract.entity';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { logInfo } from 'src/common/utils/log-helper';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
+import { logInfo } from '../../common/utils/log-helper';
 import { Activity } from '../activity/entity/activity.entity';
+import { Contract } from '../contract/entity/contract.entity';
+import { Customer } from '../customer/entity/customer.entity';
 import { Transaction } from '../transaction/entity/transaction.entity';
 @Injectable()
 export class ReportService {
