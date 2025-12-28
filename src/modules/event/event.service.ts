@@ -1,6 +1,6 @@
 import {
-    Inject,
-    Injectable
+  Inject,
+  Injectable
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,16 +14,16 @@ import { Contract } from '../contract/entity/contract.entity';
 import { Customer } from '../customer/entity/customer.entity';
 import { DataMigration } from '../data-migration/entity/data-migration.entity';
 import {
-    MSSQLActivity,
-    MSSQLCalls,
-    MSSQLContract,
-    MSSQLCustomer,
-    MSSQLInvestigation,
-    MSSQLReference,
+  MSSQLActivity,
+  MSSQLCalls,
+  MSSQLContract,
+  MSSQLCustomer,
+  MSSQLInvestigation,
+  MSSQLReference,
 } from '../data-migration/entity/sql-table';
 import {
-    DataMigration_Collections,
-    DataMigration_Status,
+  DataMigration_Collections,
+  DataMigration_Status,
 } from '../data-migration/enum/data-migration.enum';
 import { Investigation } from '../investigation/entity/investigation.entity';
 import { Reference } from '../reference/entity/reference.entity';
@@ -885,6 +885,7 @@ VALUES
                 break;
               }
               case DataMigration_Collections.Calls: {
+                // eslint-disable-next-line no-case-declarations
                 updateDocumentResult = await this.callRepo.updateMany(
                   updateDocumentQuery,
                   updateDocumentFilter,
