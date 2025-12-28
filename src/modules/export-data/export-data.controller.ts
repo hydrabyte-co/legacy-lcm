@@ -1,35 +1,30 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
-  Delete,
-  UseGuards,
-  UsePipes,
+  Post,
+  Put,
   Query,
   Req,
-  ValidationPipe,
-  Put,
+  UseGuards,
+  UsePipes,
+  ValidationPipe
 } from '@nestjs/common';
-import { AuthGuard } from 'src/common/guards/auth/auth.guard';
-import { RolesGuard } from 'src/common/guards/auth/roles.guard';
-import {
-  ServiceInfo,
-  ControllerInfo,
-} from 'src/common/decorators/service-info';
-import { ExportDataService } from './export-data.service';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
+import { ControllerInfo, ServiceInfo } from '../../common/decorators/service-info';
+import { Resources } from '../../common/enums/resources';
+import { Services } from '../../common/enums/services';
+import { RolesGuard } from '../../common/guards/auth/roles.guard';
+import { BaseController } from '../../common/modules/base/base.controller';
+import { FindAllResult } from '../../common/modules/base/dto/find-many.dto';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
 import { CreateExportDataData, CreateExportDataResult } from './dto/create.dto';
 import { FindExportDataByIdResult } from './dto/find-one.dto';
-import { BaseController } from 'src/common/modules/base/base.controller';
-import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
-import { Services } from 'src/common/enums/services';
-import { Resources } from 'src/common/enums/resources';
 import { ExportData } from './entity/export-data.entity';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { EventPattern, Ctx, Payload, RmqContext } from '@nestjs/microservices';
-import { getTypeOf } from 'src/common/utils/object-helper';
+import { ExportDataService } from './export-data.service';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_ExportData)
@@ -42,18 +37,18 @@ export class ExportDatasController extends BaseController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async createOne(
+  override async createOne(
     @Body() data: CreateExportDataData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<CreateExportDataResult> {
     return await super.createOne(data, req);
   }
 
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async findOne(
+  override async findOne(
     @Param('id') id: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindExportDataByIdResult> {
     return await super.findOne(id, req);
   }
@@ -62,16 +57,15 @@ export class ExportDatasController extends BaseController {
   @UseGuards(AuthGuard, RolesGuard)
   async findManyWithPaging(
     @Query() queries: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindAllResult<ExportData>> {
     return await super.findManyWithPaging(queries, req);
   }
 
   @Put(':id/process')
   @UseGuards(AuthGuard, RolesGuard)
-  async requestProcess(@Param('id') id: string, @Req() req): Promise<any> {
-    const handler = req.user || new DataHandler();
-    return await this.exportDatasService.requestProcess(id, handler);
+  async requestProcess(@Param('id') id: string, @Req() req: Request): Promise<any> {
+    return await this.exportDatasService.requestProcess(id, req.user as DataHandler);
   }
 
   @EventPattern('process-export-data')

@@ -1,15 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { Reference } from './entity/reference.entity';
-import { BaseService } from 'src/common/modules/base/base.service';
-import { CreateReferenceData } from './dto/create.dto';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { Customer } from '../customer/entity/customer.entity';
+import { BaseService } from '../../common/modules/base/base.service';
 import {
-  FindManyFilter,
-  FindAllResult,
-} from 'src/common/modules/base/dto/find-many.dto';
+    FindAllResult,
+    FindManyFilter,
+} from '../../common/modules/base/dto/find-many.dto';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
+import { Customer } from '../customer/entity/customer.entity';
+import { CreateReferenceData } from './dto/create.dto';
+import { Reference } from './entity/reference.entity';
 
 @Injectable()
 export class ReferenceService extends BaseService<Reference> {
@@ -39,7 +39,7 @@ export class ReferenceService extends BaseService<Reference> {
     return await super.findManyWithPaging(filter, handler);
   }
 
-  async createOne(
+  override async createOne(
     data: CreateReferenceData,
     handler: DataHandler,
   ): Promise<Reference> {
@@ -56,7 +56,7 @@ export class ReferenceService extends BaseService<Reference> {
     }
   }
 
-  async updateOne(id: string, data: any, handler: DataHandler): Promise<any> {
+  override async updateOne(id: string, data: any, handler: DataHandler): Promise<any> {
     data.syncedAt = 0;
     data.queuedAt = 0;
     return super.updateOne(id, data, handler);

@@ -1,52 +1,51 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { ObjectId } from 'mongodb';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { MongoRepository } from 'typeorm';
-import { ImportData } from './entity/import-data.entity';
-import { BaseService } from 'src/common/modules/base/base.service';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { CreateImportDataData } from './dto/create.dto';
-import {
-  ImportData_Status,
-  ImportData_ImportRule,
-  ImportData_ToTable,
-} from './enum/import-data.enum';
-import { readSheetNames } from 'read-excel-file/node';
-import readXlsxFile from 'read-excel-file/node';
-import { getTypeOf } from 'src/common/utils/object-helper';
-import { Customer } from '../customer/entity/customer.entity';
-import { replaceRegexPatternFromString } from 'src/common/utils/string-helper';
-import { Contract } from '../contract/entity/contract.entity';
-import { Transaction } from '../transaction/entity/transaction.entity';
-import { Reference } from '../reference/entity/reference.entity';
-import { Investigation } from '../investigation/entity/investigation.entity';
-import { Activity } from '../activity/entity/activity.entity';
-import { downloadFile } from 'src/common/utils/web-helper';
-import { UpdateImportDataData } from './dto/update-one.dto';
-import { Services } from 'src/common/enums/services';
 import { ClientProxy } from '@nestjs/microservices';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as fs from 'fs';
+import { ObjectId } from 'mongodb';
+import readXlsxFile, { readSheetNames } from 'read-excel-file/node';
 import {
-  ActivityXlsxSchema,
-  ContractXlsxSchema,
-  CustomerXlsxSchema,
-  InvestigationXlsxSchema,
-  ReferenceXlsxSchema,
-  TransactionXlsxSchema,
-} from './constant/import-data.constant';
-import { CustomerStatus } from '../customer/enum/customer.enum';
-import { ContractStatus } from '../contract/enum/contract.enum';
-import { ActivityTypeCode, RelationCode } from '../activity/enum/activity.enum';
-import {
-  activityTypes,
-  investigationTypes,
-  relations,
+    activityTypes,
+    investigationTypes,
+    relations,
 } from 'src/constants/service';
+import { MongoRepository } from 'typeorm';
+import { Services } from '../../common/enums/services';
+import { BaseService } from '../../common/modules/base/base.service';
 import {
-  FindManyFilter,
-  FindAllResult,
-} from 'src/common/modules/base/dto/find-many.dto';
+    FindAllResult,
+    FindManyFilter,
+} from '../../common/modules/base/dto/find-many.dto';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
+import { getTypeOf } from '../../common/utils/object-helper';
+import { replaceRegexPatternFromString } from '../../common/utils/string-helper';
+import { downloadFile } from '../../common/utils/web-helper';
+import { Activity } from '../activity/entity/activity.entity';
+import { ActivityTypeCode, RelationCode } from '../activity/enum/activity.enum';
+import { Contract } from '../contract/entity/contract.entity';
+import { ContractStatus } from '../contract/enum/contract.enum';
+import { Customer } from '../customer/entity/customer.entity';
+import { CustomerStatus } from '../customer/enum/customer.enum';
+import { Investigation } from '../investigation/entity/investigation.entity';
+import { Reference } from '../reference/entity/reference.entity';
+import { Transaction } from '../transaction/entity/transaction.entity';
+import {
+    ActivityXlsxSchema,
+    ContractXlsxSchema,
+    CustomerXlsxSchema,
+    InvestigationXlsxSchema,
+    ReferenceXlsxSchema,
+    TransactionXlsxSchema,
+} from './constant/import-data.constant';
+import { CreateImportDataData } from './dto/create.dto';
+import { UpdateImportDataData } from './dto/update-one.dto';
+import { ImportData } from './entity/import-data.entity';
+import {
+    ImportData_ImportRule,
+    ImportData_Status,
+    ImportData_ToTable,
+} from './enum/import-data.enum';
+import { ExcelRowData } from './interfaces/excel-row.interface';
 
 @Injectable()
 export class ImportDataService extends BaseService<ImportData> {
@@ -104,7 +103,7 @@ export class ImportDataService extends BaseService<ImportData> {
     return await super.findManyWithPaging(filter, handler);
   }
 
-  async createOne(
+  override async createOne(
     data: CreateImportDataData,
     handler: DataHandler,
   ): Promise<any> {
@@ -197,7 +196,7 @@ export class ImportDataService extends BaseService<ImportData> {
     }
   }
 
-  async updateOne(
+  override async updateOne(
     id: string,
     data: UpdateImportDataData,
     handler: DataHandler,
@@ -461,7 +460,7 @@ export class ImportDataService extends BaseService<ImportData> {
                   break;
               }
               for (let j = 0; j < readResult.rows.length; j++) {
-                const row = readResult.rows[j];
+                const row = readResult.rows[j] as ExcelRowData;
                 console.log(
                   `------ Row(${j}/${readResult.rows.length}) raw data`,
                   row,
@@ -497,7 +496,15 @@ export class ImportDataService extends BaseService<ImportData> {
                     if (row.status.toLowerCase().indexOf('a') === 0) {
                       row.status = 'active';
                     }
-                    if (row.dob) row.dob = row.dob.toISOString().split('T')[0];
+                    if (row.dob) {
+                      if (typeof row.dob === 'string') {
+                        // Keep string as is if already string
+                        row.dob = row.dob;
+                      } else if (row.dob instanceof Date) {
+                        // Convert Date to string
+                        row.dob = row.dob.toISOString().split('T')[0];
+                      }
+                    }
                     if (!row.callStaffCode) row.callStaffCode = '_';
                     row.fromFile = importData.fileName;
                     row.queuedAt = 0;
@@ -512,7 +519,7 @@ export class ImportDataService extends BaseService<ImportData> {
 
                     if (foundCustomer) {
                       const updateCustomerResult =
-                        await this._customersRepo.update(foundCustomer.id, row);
+                        await this._customersRepo.update(foundCustomer.id, row as any);
                       console.log(
                         `------ Find customer by code '${row.code}'`,
                         foundCustomer,
@@ -531,7 +538,7 @@ export class ImportDataService extends BaseService<ImportData> {
                         userId: '',
                       };
                       const createCustomerResult =
-                        await this._customersRepo.save(row);
+                        await this._customersRepo.save(row as any);
                       console.log(
                         `------ Create customer:`,
                         createCustomerResult,
@@ -559,7 +566,7 @@ export class ImportDataService extends BaseService<ImportData> {
 
                     if (foundContract) {
                       const updateContractResult =
-                        await this._contractsRepo.update(foundContract.id, row);
+                        await this._contractsRepo.update(foundContract.id, row as any);
                       console.log(
                         `------ Find contract by code '${row.code}'`,
                         foundContract,
@@ -577,8 +584,20 @@ export class ImportDataService extends BaseService<ImportData> {
                         orgId: data.handler.orgId,
                         userId: '',
                       };
+                      
+                      // Convert string status to ContractStatus enum
+                      if (row.status && typeof row.status === 'string') {
+                        const statusMap: { [key: string]: ContractStatus } = {
+                          'draft': ContractStatus.Draft,
+                          'active': ContractStatus.Active,
+                          'closed': ContractStatus.Closed,
+                          'inactive': ContractStatus.Inactive,
+                        };
+                        row.status = statusMap[row.status.toLowerCase()] || ContractStatus.Active;
+                      }
+                      
                       const createContractResult =
-                        await this._contractsRepo.save(row);
+                        await this._contractsRepo.save(row as any);
                       console.log(
                         `------ Create contract:`,
                         createContractResult,
@@ -667,7 +686,15 @@ export class ImportDataService extends BaseService<ImportData> {
                     if (['đàn ông', 'nam', 'trai'].indexOf(row.gender) >= 0) {
                       row.gender = 'male';
                     }
-                    if (row.dob) row.dob = row.dob.toISOString().split('T')[0];
+                    if (row.dob) {
+                      if (typeof row.dob === 'string') {
+                        // Keep string as is if already string
+                        row.dob = row.dob;
+                      } else if (row.dob instanceof Date) {
+                        // Convert Date to string
+                        row.dob = row.dob.toISOString().split('T')[0];
+                      }
+                    }
                     row.fromFile = importData.fileName;
                     row.queuedAt = 0;
                     row.syncedAt = 0;
@@ -696,7 +723,7 @@ export class ImportDataService extends BaseService<ImportData> {
 
                     if (foundRefence) {
                       const updateReferenceResult =
-                        await this._referencesRepo.update(foundRefence.id, row);
+                        await this._referencesRepo.update(foundRefence.id, row as any);
                       console.log(`------ Find Reference`, foundRefence);
                       console.log(
                         `------ Update Reference:`,
@@ -712,7 +739,7 @@ export class ImportDataService extends BaseService<ImportData> {
                         userId: '',
                       };
                       const createReferenceResult =
-                        await this._referencesRepo.save(row);
+                        await this._referencesRepo.save(row as any);
                       console.log(
                         `------ Create Reference:`,
                         createReferenceResult,
@@ -761,7 +788,7 @@ export class ImportDataService extends BaseService<ImportData> {
                         userId: '',
                       };
                       const createReferenceResult =
-                        await this._investigationsRepo.save(row);
+                        await this._investigationsRepo.save(row as any);
                       console.log(
                         `------ Create Investigation:`,
                         createReferenceResult,

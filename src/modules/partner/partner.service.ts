@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
+import { BaseService } from '../../common/modules/base/base.service';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
 import { Partner } from './entity/partner.entity';
-import { BaseService } from 'src/common/modules/base/base.service';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
 
 @Injectable()
 export class PartnerService extends BaseService<Partner> {

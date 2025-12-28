@@ -1,16 +1,6 @@
-import { Entity, Column, Index } from 'typeorm';
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-  IsDate,
-  IsEnum,
-  IsObject,
-  IsArray,
-} from 'class-validator';
+import { Column, Entity } from 'typeorm';
+import { Resources } from '../../../common/enums/resources';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Resources } from 'src/common/enums/resources';
 import { StaffStatus, StaffType } from '../enum/staff.enum';
 
 @Entity(Resources.LCM_Staff)

@@ -6,7 +6,7 @@ import {
   IsString,
 } from 'class-validator';
 import { UpdateOneData } from '../../../common/modules/base/dto/update-one.dto';
-import { TeamStatuses } from 'src/enums';
+import { TeamStatuses } from '../../../enums';
 
 export class UpdateTeamData extends UpdateOneData {
   @IsString()

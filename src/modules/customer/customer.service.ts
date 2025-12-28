@@ -1,19 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { Customer } from './entity/customer.entity';
-import { BaseService } from 'src/common/modules/base/base.service';
-import { CreateCustomerData } from './dto/create.dto';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
+import { BaseService } from '../../common/modules/base/base.service';
+import { FindAllResult, FindManyFilter } from '../../common/modules/base/dto/find-many.dto';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
 import { Partner } from '../partner/entity/partner.entity';
-import {
-  FindManyFilter,
-  FindAllResult,
-} from 'src/common/modules/base/dto/find-many.dto';
-import { Contract } from '../contract/entity/contract.entity';
-import { Activity } from '../activity/entity/activity.entity';
-import { Reference } from '../reference/entity/reference.entity';
-import { Investigation } from '../investigation/entity/investigation.entity';
+import { CreateCustomerData } from './dto/create.dto';
+import { Customer } from './entity/customer.entity';
 
 @Injectable()
 export class CustomerService extends BaseService<Customer> {
@@ -402,7 +395,7 @@ export class CustomerService extends BaseService<Customer> {
     return await super.findManyWithPaging(filter, handler);
   }
 
-  async createOne(
+  override async createOne(
     data: CreateCustomerData,
     handler: DataHandler,
   ): Promise<Customer> {
@@ -419,7 +412,7 @@ export class CustomerService extends BaseService<Customer> {
     }
   }
 
-  async updateOne(id: string, data: any, handler: DataHandler): Promise<any> {
+  override async updateOne(id: string, data: any, handler: DataHandler): Promise<any> {
     data.syncedAt = 0;
     data.queuedAt = 0;
     return super.updateOne(id, data, handler);

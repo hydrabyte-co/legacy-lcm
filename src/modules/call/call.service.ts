@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { Call } from './entity/call.entity';
-import { BaseService } from 'src/common/modules/base/base.service';
+import { BaseService } from '../../common/modules/base/base.service';
 import {
-  FindManyFilter,
-  FindAllResult,
-} from 'src/common/modules/base/dto/find-many.dto';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
+    FindAllResult,
+    FindManyFilter,
+} from '../../common/modules/base/dto/find-many.dto';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
+import { Call } from './entity/call.entity';
 
 @Injectable()
 export class CallService extends BaseService<Call> {

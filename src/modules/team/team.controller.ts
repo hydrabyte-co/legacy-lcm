@@ -1,32 +1,33 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  UsePipes,
-  Query,
-  Req,
-  ValidationPipe,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+    Query,
+    Req,
+    UseGuards,
+    UsePipes,
+    ValidationPipe,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/common/guards/auth/auth.guard';
-import { RolesGuard } from 'src/common/guards/auth/roles.guard';
+import { Request } from 'express';
 import {
-  ServiceInfo,
-  ControllerInfo,
-} from 'src/common/decorators/service-info';
-import { TeamService } from './team.service';
+    ControllerInfo,
+    ServiceInfo,
+} from '../../common/decorators/service-info';
+import { Resources } from '../../common/enums/resources';
+import { Services } from '../../common/enums/services';
+import { AuthGuard } from '../../common/guards/auth/auth.guard';
+import { RolesGuard } from '../../common/guards/auth/roles.guard';
+import { BaseController } from '../../common/modules/base/base.controller';
+import { FindAllResult } from '../../common/modules/base/dto/find-many.dto';
+import { DeleteOneResult } from '../../common/types/controller-dto';
 import { CreateTeamData } from './dto/create.dto';
 import { UpdateTeamData } from './dto/update-one.dto';
-import { BaseController } from 'src/common/modules/base/base.controller';
-import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
-import { Services } from 'src/common/enums/services';
-import { Resources } from 'src/common/enums/resources';
 import { Team } from './entity/team.entity';
-import { DeleteOneResult } from 'src/common/types/controller-dto';
+import { TeamService } from './team.service';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_Team)
@@ -39,20 +40,20 @@ export class TeamController extends BaseController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async createOne(@Body() data: CreateTeamData, @Req() req): Promise<Team> {
+  override async createOne(@Body() data: CreateTeamData, @Req() req: Request): Promise<Team> {
     return await super.createOne(data, req);
   }
 
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async findOne(@Param('id') id: string, @Req() req): Promise<Team> {
+  override async findOne(@Param('id') id: string, @Req() req: Request): Promise<Team> {
     return await super.findOne(id, req);
   }
 
   @Get()
   async findManyWithPaging(
     @Query() queries: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindAllResult<Team>> {
     return await super.findManyWithPaging(queries, req);
   }
@@ -60,19 +61,19 @@ export class TeamController extends BaseController {
   @Patch(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async updateOne(
+  override async updateOne(
     @Param('id') id: string,
     @Body() data: UpdateTeamData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<Team> {
     return await super.updateOne(id, data, req);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteOne(
+  override async deleteOne(
     @Param('id') id: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<DeleteOneResult> {
     return await super.deleteOne(id, req);
   }

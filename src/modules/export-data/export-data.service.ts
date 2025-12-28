@@ -1,53 +1,39 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const FormData = require('form-data');
-import writeXlsxFile from 'write-excel-file/node';
-import * as fs from 'fs';
-import * as path from 'path';
-import axios, { AxiosRequestConfig } from 'axios';
-import { ObjectId } from 'mongodb';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { MongoRepository } from 'typeorm';
-import { ExportData } from './entity/export-data.entity';
-import { BaseService } from 'src/common/modules/base/base.service';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { CreateExportDataData } from './dto/create.dto';
-import {
-  ExportData_FromDocuments,
-  ExportData_OutputFileType,
-  ExportData_Status,
-} from './enum/export-data.enum';
-import { readSheetNames } from 'read-excel-file/node';
-import readXlsxFile from 'read-excel-file/node';
-import { getTypeOf } from 'src/common/utils/object-helper';
-import { Customer } from '../customer/entity/customer.entity';
-import { replaceRegexPatternFromString } from 'src/common/utils/string-helper';
-import { Contract } from '../contract/entity/contract.entity';
-import { Transaction } from '../transaction/entity/transaction.entity';
-import { Reference } from '../reference/entity/reference.entity';
-import { Investigation } from '../investigation/entity/investigation.entity';
-import { Activity } from '../activity/entity/activity.entity';
-import { downloadFile } from 'src/common/utils/web-helper';
-import { Services } from 'src/common/enums/services';
+import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { CustomerStatus } from '../customer/enum/customer.enum';
-import { ContractStatus } from '../contract/enum/contract.enum';
-import { ActivityTypeCode, RelationCode } from '../activity/enum/activity.enum';
+import { InjectRepository } from '@nestjs/typeorm';
+import axios, { AxiosRequestConfig } from 'axios';
+import * as fs from 'fs';
+import { ObjectId } from 'mongodb';
+import { MongoRepository } from 'typeorm';
+import writeXlsxFile from 'write-excel-file/node';
+import { Roles } from '../../common/enums/roles';
+import { Services } from '../../common/enums/services';
+import { BaseService } from '../../common/modules/base/base.service';
 import {
-  activityTypes,
-  investigationTypes,
-  relations,
-} from 'src/constants/service';
+    FindAllResult,
+    FindManyFilter,
+} from '../../common/modules/base/dto/find-many.dto';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
+import { Activity } from '../activity/entity/activity.entity';
+import { Contract } from '../contract/entity/contract.entity';
+import { Customer } from '../customer/entity/customer.entity';
+import { Investigation } from '../investigation/entity/investigation.entity';
+import { Reference } from '../reference/entity/reference.entity';
+import { Transaction } from '../transaction/entity/transaction.entity';
 import {
-  FindManyFilter,
-  FindAllResult,
-} from 'src/common/modules/base/dto/find-many.dto';
-import {
-  ActivitiesToExcelSchema,
-  CustomersToExcelSchema,
-  OutboundCallsToExcelSchema,
+    ActivitiesToExcelSchema,
+    CustomersToExcelSchema,
+    OutboundCallsToExcelSchema,
 } from './constant/export-data.constant';
-import { Roles } from 'src/common/enums/roles';
+import { CreateExportDataData } from './dto/create.dto';
+import { ExportData } from './entity/export-data.entity';
+import {
+    ExportData_FromDocuments,
+    ExportData_OutputFileType,
+    ExportData_Status,
+} from './enum/export-data.enum';
 
 @Injectable()
 export class ExportDataService extends BaseService<ExportData> {
@@ -99,7 +85,7 @@ export class ExportDataService extends BaseService<ExportData> {
     return await super.findManyWithPaging(filter, handler);
   }
 
-  async createOne(
+  override async createOne(
     data: CreateExportDataData,
     handler: DataHandler,
   ): Promise<any> {

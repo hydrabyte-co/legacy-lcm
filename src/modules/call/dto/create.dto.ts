@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsMongoId, IsObject } from 'class-validator';
+import { IsNotEmpty, IsObject } from 'class-validator';
 import { CreateData as BaseCreateData } from '../../../common/modules/base/dto/create.dto';
-import { BasicObject } from 'src/common/types/data';
+import { BasicObject } from '../../../common/types/data';
 
 export class CreateCallData extends BaseCreateData {
   @IsObject()

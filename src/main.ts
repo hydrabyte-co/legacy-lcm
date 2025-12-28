@@ -4,15 +4,15 @@ import {
   VersioningType,
 } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import * as bodyParser from 'body-parser';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import * as bodyParser from 'body-parser';
+import { MongoRepository } from 'typeorm';
 import { AppModule } from './app.module';
 import { logInfo, logWarning } from './common/utils/log-helper';
 import { DataMigrationService } from './modules/data-migration/data-migration.service';
-import { DataMigrationWorker } from './workers/data-migration.worker';
 import { Transaction } from './modules/transaction/entity/transaction.entity';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { MongoRepository } from 'typeorm';
+import { DataMigrationWorker } from './workers/data-migration.worker';
 import { PaymentMigrationWorker } from './workers/payment-migration.worker';
 // import { SampleWorker } from './workers/sample.worker';
 
@@ -110,6 +110,52 @@ async function bootstrap() {
       app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
       app.useGlobalPipes(new ValidationPipe());
 
+      // Setup Swagger API Documentation
+      /* const config = new DocumentBuilder()
+        .setTitle('LCM Service API')
+        .setDescription('Loans Collection Management API Documentation - Debt Collection System for Financial Institutions')
+        .setVersion('1.0.0')
+        .addBearerAuth(
+          {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+            name: 'JWT',
+            description: 'Enter JWT token for authentication',
+            in: 'header',
+          },
+          'JWT-auth',
+        )
+        .addTag('LCM', 'Loans Collection Management')
+        .addTag('Partners', 'Financial Institution Partners')
+        .addTag('Customers', 'Debt Customers Management')
+        .addTag('Contracts', 'Debt Contracts & Terms')
+        .addTag('Calls', 'Call Management (Manual/Auto/Dialer)')
+        .addTag('Activities', 'Collection Activities Tracking')
+        .addTag('Transactions', 'Payment Transactions')
+        .addTag('Reports', 'Collection Performance Reports')
+        .addTag('Health', 'System Health Monitoring')
+        .build();
+
+      const document = SwaggerModule.createDocument(app, config);
+      
+      // Setup /docs endpoint returning JSON only (no UI)
+      app.getHttpAdapter().get('/docs', (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(document, null, 2));
+      });
+      
+      // Health check endpoint
+      app.getHttpAdapter().get('/health', (req, res) => {
+        res.json({ 
+          status: 'ok', 
+          timestamp: new Date().toISOString(),
+          service: 'LCM Service',
+          version: '1.0.0'
+        });
+      });
+
+      logInfo('*', `LCM Service API Documentation available at /docs`); */
       await app.listen(apiPort);
       break;
     }

@@ -1,17 +1,17 @@
-import { Entity, Column } from 'typeorm';
 import {
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-  IsObject,
-  IsEnum,
+    IsEnum,
+    IsNotEmpty,
+    IsObject,
+    IsString,
+    MaxLength,
 } from 'class-validator';
+import { Column, Entity } from 'typeorm';
+import { Resources } from '../../../common/enums/resources';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Resources } from 'src/common/enums/resources';
 import {
-  ImportData_ImportRule,
-  ImportData_Status,
-  ImportData_ToTable,
+    ImportData_ImportRule,
+    ImportData_Status,
+    ImportData_ToTable,
 } from '../enum/import-data.enum';
 
 @Entity(Resources.LCM_ImportData)

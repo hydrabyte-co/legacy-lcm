@@ -2,10 +2,9 @@
 // import * as _ from 'lodash';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mssql = require('mssql');
-import { logInfo } from 'src/common/utils/log-helper';
 import { MongoRepository } from 'typeorm';
-import { Transaction } from 'src/modules/transaction/entity/transaction.entity';
-import { log } from 'console';
+import { logInfo } from '../common/utils/log-helper';
+import { Transaction } from '../modules/transaction/entity/transaction.entity';
 
 export class PaymentMigrationWorker {
   private intervalDuration = parseInt(process.env.WORKER_INTERVAL || '30000');

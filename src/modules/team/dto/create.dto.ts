@@ -1,13 +1,13 @@
 import {
-  IsString,
-  IsNotEmpty,
   IsArray,
   IsEnum,
+  IsNotEmpty,
   IsNumberString,
   IsOptional,
+  IsString,
 } from 'class-validator';
 import { CreateData as BaseCreateData } from '../../../common/modules/base/dto/create.dto';
-import { TeamStatuses } from 'src/enums';
+import { TeamStatuses } from '../../../enums';
 
 export class CreateTeamData extends BaseCreateData {
   @IsString()

@@ -1,20 +1,13 @@
-import { ObjectId } from 'mongodb';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { BaseService } from 'src/common/modules/base/base.service';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
 import { Activity } from '../activity/entity/activity.entity';
-import { Customer } from '../customer/entity/customer.entity';
-import { Result } from '../result/entity/result.entity';
 import { Contract } from '../contract/entity/contract.entity';
-import {
-  FindManyFilter,
-  FindAllResult,
-} from 'src/common/modules/base/dto/find-many.dto';
-import { Transaction } from '../transaction/entity/transaction.entity';
-import { Reference } from '../reference/entity/reference.entity';
+import { Customer } from '../customer/entity/customer.entity';
 import { Investigation } from '../investigation/entity/investigation.entity';
+import { Reference } from '../reference/entity/reference.entity';
+import { Transaction } from '../transaction/entity/transaction.entity';
 
 @Injectable()
 export class DataHandlerService {

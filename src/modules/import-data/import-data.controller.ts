@@ -1,38 +1,39 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
-  UsePipes,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
   Query,
   Req,
+  UseGuards,
+  UsePipes,
   ValidationPipe,
-  Put,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/common/guards/auth/auth.guard';
-import { RolesGuard } from 'src/common/guards/auth/roles.guard';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import { Request } from 'express';
 import {
-  ServiceInfo,
   ControllerInfo,
-} from 'src/common/decorators/service-info';
-import { ImportDataService } from './import-data.service';
+  ServiceInfo,
+} from '../../common/decorators/service-info';
+import { Resources } from '../../common/enums/resources';
+import { Services } from '../../common/enums/services';
+import { AuthGuard } from '../../common/guards/auth/auth.guard';
+import { RolesGuard } from '../../common/guards/auth/roles.guard';
+import { BaseController } from '../../common/modules/base/base.controller';
+import { FindAllResult } from '../../common/modules/base/dto/find-many.dto';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
 import { CreateImportDataData, CreateImportDataResult } from './dto/create.dto';
+import { FindImportDataByIdResult } from './dto/find-one.dto';
 import {
   UpdateImportDataData,
   UpdateImportDataResult,
 } from './dto/update-one.dto';
-import { FindImportDataByIdResult } from './dto/find-one.dto';
-import { BaseController } from 'src/common/modules/base/base.controller';
-import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
-import { Services } from 'src/common/enums/services';
-import { Resources } from 'src/common/enums/resources';
 import { ImportData } from './entity/import-data.entity';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { EventPattern, Ctx, Payload, RmqContext } from '@nestjs/microservices';
+import { ImportDataService } from './import-data.service';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_ImportData)
@@ -45,18 +46,18 @@ export class ImportDatasController extends BaseController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async createOne(
+  override async createOne(
     @Body() data: CreateImportDataData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<CreateImportDataResult> {
     return await super.createOne(data, req);
   }
 
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async findOne(
+  override async findOne(
     @Param('id') id: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindImportDataByIdResult> {
     return await super.findOne(id, req);
   }
@@ -65,7 +66,7 @@ export class ImportDatasController extends BaseController {
   @UseGuards(AuthGuard, RolesGuard)
   async findManyWithPaging(
     @Query() queries: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindAllResult<ImportData>> {
     return await super.findManyWithPaging(queries, req);
   }
@@ -73,10 +74,10 @@ export class ImportDatasController extends BaseController {
   @Patch(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async updateOne(
+  override async updateOne(
     @Param('id') id: string,
     @Body() data: UpdateImportDataData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<UpdateImportDataResult> {
     return await super.updateOne(id, data, req);
   }
@@ -85,15 +86,14 @@ export class ImportDatasController extends BaseController {
   @UseGuards(AuthGuard, RolesGuard)
   async process(
     @Param('id') id: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<UpdateImportDataResult> {
-    const handler = req.user || new DataHandler();
-    return await this.importDatasService.processImportData(id, handler);
+    return await this.importDatasService.processImportData(id, req.user as DataHandler);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteOne(@Param('id') id: string, @Req() req) {
+  override async deleteOne(@Param('id') id: string, @Req() req: Request) {
     return await super.deleteOne(id, req);
   }
 

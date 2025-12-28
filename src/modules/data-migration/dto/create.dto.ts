@@ -1,21 +1,19 @@
 import { Exclude, Expose } from 'class-transformer';
 import {
-  IsString,
-  IsNotEmpty,
-  MaxLength,
-  IsOptional,
-  IsObject,
-  IsArray,
-  IsEnum,
-  IsNumber,
+    IsEnum,
+    IsNotEmpty,
+    IsNumber,
+    IsObject,
+    IsOptional,
+    IsString,
+    MaxLength
 } from 'class-validator';
 import {
-  CreateData as BaseCreateData,
-  CreateResult as BaseCreateResult,
+    CreateData as BaseCreateData,
+    CreateResult as BaseCreateResult,
 } from '../../../common/modules/base/dto/create.dto';
-import { DataMigration_Datasource } from '../entity/data-migration.entity';
+import { MixedObject } from '../../../common/types/data';
 import { DataMigration_Collections } from '../enum/data-migration.enum';
-import { MixedObject } from 'src/common/types/data';
 
 export class CreateDataMigrationData extends BaseCreateData {
   @IsEnum(DataMigration_Collections)

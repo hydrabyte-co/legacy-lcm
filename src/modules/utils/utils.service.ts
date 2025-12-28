@@ -1,19 +1,16 @@
-import { ObjectId } from 'mongodb';
 import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-  UnauthorizedException,
+    BadRequestException,
+    Injectable,
+    InternalServerErrorException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MongoRepository } from 'typeorm';
-import { DataHandler } from 'src/common/modules/base/entity/data.class';
-import { CustomerData, OriginateAutoCallData } from './dto/util';
-import { logInfo } from 'src/common/utils/log-helper';
-import { Customer } from '../customer/entity/customer.entity';
-import { Contract } from '../contract/entity/contract.entity';
 import axios from 'axios';
+import { MongoRepository } from 'typeorm';
+import { DataHandler } from '../../common/modules/base/entity/data.class';
+import { logInfo } from '../../common/utils/log-helper';
+import { Contract } from '../contract/entity/contract.entity';
+import { Customer } from '../customer/entity/customer.entity';
+import { CustomerData, OriginateAutoCallData } from './dto/util';
 
 @Injectable()
 export class UtilService {

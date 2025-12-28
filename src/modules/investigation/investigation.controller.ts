@@ -1,38 +1,39 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  UsePipes,
-  Query,
-  Req,
-  ValidationPipe,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+    Query,
+    Req,
+    UseGuards,
+    UsePipes,
+    ValidationPipe,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/common/guards/auth/auth.guard';
-import { RolesGuard } from 'src/common/guards/auth/roles.guard';
+import { Request } from 'express';
 import {
-  ServiceInfo,
-  ControllerInfo,
-} from 'src/common/decorators/service-info';
-import { InvestigationService } from './investigation.service';
+    ControllerInfo,
+    ServiceInfo,
+} from '../../common/decorators/service-info';
+import { Resources } from '../../common/enums/resources';
+import { Services } from '../../common/enums/services';
+import { AuthGuard } from '../../common/guards/auth/auth.guard';
+import { RolesGuard } from '../../common/guards/auth/roles.guard';
+import { BaseController } from '../../common/modules/base/base.controller';
+import { FindAllResult } from '../../common/modules/base/dto/find-many.dto';
 import {
-  CreateInvestigationData,
-  CreateInvestigationResult,
+    CreateInvestigationData,
+    CreateInvestigationResult,
 } from './dto/create.dto';
-import {
-  UpdateInvestigationData,
-  UpdateInvestigationResult,
-} from './dto/update-one.dto';
 import { FindInvestigationByIdResult } from './dto/find-one.dto';
-import { BaseController } from 'src/common/modules/base/base.controller';
-import { FindAllResult } from 'src/common/modules/base/dto/find-many.dto';
-import { Services } from 'src/common/enums/services';
-import { Resources } from 'src/common/enums/resources';
+import {
+    UpdateInvestigationData,
+    UpdateInvestigationResult,
+} from './dto/update-one.dto';
 import { Investigation } from './entity/investigation.entity';
+import { InvestigationService } from './investigation.service';
 
 @ServiceInfo(Services.LCM)
 @ControllerInfo(Resources.LCM_Investigations)
@@ -45,9 +46,9 @@ export class InvestigationsController extends BaseController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async createOne(
+  override async createOne(
     @Body() data: CreateInvestigationData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<CreateInvestigationResult> {
     data.date = new Date(data.date);
     return await super.createOne(data, req);
@@ -55,9 +56,9 @@ export class InvestigationsController extends BaseController {
 
   @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async findOne(
+  override async findOne(
     @Param('id') id: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindInvestigationByIdResult> {
     return await super.findOne(id, req);
   }
@@ -66,7 +67,7 @@ export class InvestigationsController extends BaseController {
   @UseGuards(AuthGuard, RolesGuard)
   async findManyWithPaging(
     @Query() queries: string,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<FindAllResult<Investigation>> {
     return await super.findManyWithPaging(queries, req);
   }
@@ -74,17 +75,17 @@ export class InvestigationsController extends BaseController {
   @Patch(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
-  async updateOne(
+  override async updateOne(
     @Param('id') id: string,
     @Body() data: UpdateInvestigationData,
-    @Req() req,
+    @Req() req: Request,
   ): Promise<UpdateInvestigationResult> {
     return await super.updateOne(id, data, req);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
-  async deleteOne(@Param('id') id: string, @Req() req) {
+  override async deleteOne(@Param('id') id: string, @Req() req: Request) {
     return await super.deleteOne(id, req);
   }
 }

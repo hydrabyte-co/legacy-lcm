@@ -1,3 +1,4 @@
 [submodule "src/common"]
 	path = src/common
 	url = git@gitlab.com:bitthing.io/service-common.git
+	ignore = dirty

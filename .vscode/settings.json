@@ -1,0 +1,92 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.git": true,
+    "**/coverage": true,
+    "**/.nyc_output": true
+  },
+  
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/coverage": true,
+    "**/*.map": true
+  },
+  
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/coverage/**": true
+  },
+  
+  "emmet.includeLanguages": {
+    "typescript": "html"
+  },
+  
+  "jest.jestCommandLine": "npm run test --",
+  "jest.autoRun": "off",
+  "jest.showCoverageOnLoad": false,
+  
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.wordWrap": "on"
+  },
+  
+  "eslint.validate": [
+    "javascript",
+    "typescript"
+  ],
+  
+  "debug.node.autoAttach": "on",
+  
+  "npm.enableScriptExplorer": true,
+  
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#2D5B69",
+    "activityBar.foreground": "#ffffff",
+    "statusBar.background": "#2D5B69",
+    "statusBar.foreground": "#ffffff"
+  },
+  
+  "lcm.customSettings": {
+    "projectName": "LCM Service - Debt Collection Management",
+    "testDataPath": "src/test-utils",
+    "mockDataGenerator": "MockDataGenerator",
+    "businessModules": [
+      "partner", "customer", "contract", "call", "activity", 
+      "transaction", "staff", "team", "task", "investigation",
+      "reference", "performance", "report", "result"
+    ],
+    "integrationModules": [
+      "data-migration", "import-data", "export-data", 
+      "data-handler", "event", "utils"
+    ]
+  }
+}

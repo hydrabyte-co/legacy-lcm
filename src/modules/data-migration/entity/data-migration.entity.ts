@@ -1,17 +1,15 @@
-import { Entity, Column } from 'typeorm';
 import {
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-  IsObject,
-  IsEnum,
-  IsArray,
+    IsArray,
+    IsEnum,
+    IsNotEmpty,
+    IsString
 } from 'class-validator';
+import { Column, Entity } from 'typeorm';
+import { Resources } from '../../../common/enums/resources';
 import { Base } from '../../../common/modules/base/entity/base.entity';
-import { Resources } from 'src/common/enums/resources';
 import {
-  DataMigration_Collections,
-  DataMigration_Status,
+    DataMigration_Collections,
+    DataMigration_Status,
 } from '../enum/data-migration.enum';
 
 export type DataMigration_Datasource = {
