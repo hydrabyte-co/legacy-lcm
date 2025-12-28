@@ -885,11 +885,16 @@ VALUES
                 break;
               }
               case DataMigration_Collections.Calls: {
-                // eslint-disable-next-line no-case-declarations
+                
                 updateDocumentResult = await this.callRepo.updateMany(
                   updateDocumentQuery,
                   updateDocumentFilter,
                 );
+                logInfo(`*`, `EventService.handleSQLTableImport -> Calls update`, {
+                  updateDocumentQuery,
+                  updateDocumentFilter,
+                  updateDocumentResult,
+                });
                 break;
               }
               default:
