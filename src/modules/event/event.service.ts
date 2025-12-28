@@ -887,6 +887,13 @@ VALUES
                 );
                 break;
               }
+              case DataMigration_Collections.Calls: {
+                updateDocumentResult = await this.callRepo.updateMany(
+                  updateDocumentQuery,
+                  updateDocumentFilter,
+                );
+                break;
+              }
               default:
                 break;
             }
