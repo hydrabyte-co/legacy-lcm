@@ -307,6 +307,11 @@ export class ExportDataService extends BaseService<ExportData> {
                 if (datasource.where.from && datasource.where.to) {
                   const fromDate = new Date(datasource.where.from);
                   const toDate = new Date(datasource.where.to);
+                  if (fromDate.getFullYear() < 2000 || toDate.getFullYear() < 2000) {
+                    throw new Error(
+                      `Invalid date range: from=${datasource.where.from}, to=${datasource.where.to}`,
+                    );
+                  }
                   filter.where = {
                     $and: [
                       { performAt: { $gte: fromDate } },
