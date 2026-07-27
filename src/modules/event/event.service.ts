@@ -738,6 +738,8 @@ VALUES
             importData.result = sourceData.result;
             importData.staffCode = sourceData.data?.staffCode;
             importData.toNumber = sourceData.toNumber;
+            importData.duration = sourceData.duration || 0;
+            importData.answeredDuration = sourceData.answeredDuration || 0;
 
             for (const key in importData) {
               if (typeof importData[key] === 'string') {
@@ -759,7 +761,9 @@ VALUES
             ,[customerFullname]
             ,[staffCode]
             ,[customerCode]
-            ,[createdAt])
+            ,[createdAt]
+            ,[duration]
+            ,[answeredDuration])
      VALUES
            ('${importData.refId}'
            ,'${importData.direction}'
@@ -774,7 +778,28 @@ VALUES
            ,N'${importData.customerFullname}'
            ,'${importData.staffCode}'
            ,'${importData.customerCode}'
-           ,'${importData.createdAt}')
+           ,'${importData.createdAt}'
+           ,${importData.duration}
+           ,${importData.answeredDuration})
+            `;
+            updateQuery = `
+            UPDATE [dbo].[calls]
+   SET
+      [direction] = '${importData.direction}'
+      ,[campaignId] = '${importData.campaignId}'
+      ,[campaignName] = '${importData.campaignName}'
+      ,[fromSIPAccountId] = '${importData.fromSIPAccountId}'
+      ,[result] = '${importData.result}'
+      ,[recordFile] = '${importData.recordFile}'
+      ,[fromNumber] = '${importData.fromNumber}'
+      ,[toNumber] = '${importData.toNumber}'
+      ,[activityId] = '${importData.activityId}'
+      ,[customerFullname] = N'${importData.customerFullname}'
+      ,[staffCode] = '${importData.staffCode}'
+      ,[customerCode] = '${importData.customerCode}'
+      ,[duration] = ${importData.duration}
+      ,[answeredDuration] = ${importData.answeredDuration}
+ WHERE [refId] = '${importData.refId}'
             `;
             break;
           }

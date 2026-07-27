@@ -116,4 +116,6 @@ export class MSSQLCalls {
   staffCode = '';
   customerCode = '';
   createdAt: Date | null | undefined;
+  duration = 0;
+  answeredDuration = 0;
 }
