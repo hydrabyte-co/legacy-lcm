@@ -1,15 +1,11 @@
 # compiled output
 /dist
 /node_modules
-/src/common
 # ENV
 .env
 
 # OPS
 hosts
-
-# Git
-common
 
 # Logs
 logs
