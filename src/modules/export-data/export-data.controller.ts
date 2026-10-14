@@ -77,7 +77,11 @@ export class ExportDatasController extends BaseController {
         data = JSON.parse(data);
       } catch (error) {}
     }
-    await this.exportDatasService.handleProcessExportData(data);
+    try {
+      await this.exportDatasService.handleProcessExportData(data);
+    } catch (error) {
+      console.error(`[process-export-data] Failed to process exportDataId=${data?.exportDataId}:`, error?.message);
+    }
     channel.ack(originalMsg);
     return 'ack';
   }
