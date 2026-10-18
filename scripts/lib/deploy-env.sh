@@ -1,10 +1,10 @@
 #!/bin/bash
-# Load DEPLOY_* variables from <repo>/.env (only DEPLOY_* lines, so app secrets are not sourced).
+# Load DEPLOY_* variables from <repo>/.env.deploy (only DEPLOY_* lines are read).
 # Values already set in the environment win, e.g.: DEPLOY_HOSTS=10.10.0.70 ./deploy-prod.sh
 # Usage: source scripts/lib/deploy-env.sh
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-ENV_FILE="${ENV_FILE:-$REPO_DIR/.env}"
+ENV_FILE="${ENV_FILE:-$REPO_DIR/.env.deploy}"
 
 if [[ -f "$ENV_FILE" ]]; then
   while IFS= read -r line; do
@@ -21,7 +21,7 @@ for v in DEPLOY_HOSTS DEPLOY_SSH_USER DEPLOY_APP_DIR DEPLOY_PM2_PROCESSES DEPLOY
   [[ -z "${!v}" ]] && missing+=("$v")
 done
 if (( ${#missing[@]} )); then
-  echo "Missing in $ENV_FILE: ${missing[*]} (see .env.example)" >&2
+  echo "Missing in $ENV_FILE: ${missing[*]} (copy .env.deploy.example to .env.deploy)" >&2
   exit 1
 fi
 

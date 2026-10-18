@@ -1,6 +1,6 @@
 #!/bin/bash
 # Build locally, then on each host (one by one): backup current dist, rsync new dist, restart pm2, verify.
-# Host/user/path/process config comes from DEPLOY_* in .env (see .env.example).
+# Host/user/path/process config comes from DEPLOY_* in .env.deploy (see .env.deploy.example).
 #
 # Usage:
 #   ./deploy-prod.sh                     deploy main to all DEPLOY_HOSTS

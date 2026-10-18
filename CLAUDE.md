@@ -28,11 +28,17 @@ npm run wrk:dev          # worker data-migration
 npm run wrk-payment:dev  # worker payment-migration
 ```
 
-## Môi trường (.env)
+## Môi trường (.env, .env.deploy)
 
-- `.env` ở gốc repo, **gitignored**. Mẫu đầy đủ: [.env.example](.env.example). Không bao giờ commit `.env` hay in giá trị secret ra log/chat.
-- Nhóm biến app: `NODE_ENV`, `APP_TYPE`, `API_PORT`, `WORKER_*`, `MONGODB_URL`, `MONGODB_VOICE_URL`, `MSSQLDB_URL`, `RABBITMQ_URL`, `RABBITMQ_QUEUE`, `JWT_*`, `APP_ID/SECRET/ROLE`, `SIMEDGE_APP_*`, `*_API_ROOT_URL`.
-- Nhóm biến deploy (chỉ script đọc, app bỏ qua):
+2 file ở gốc repo, đều **gitignored**. Không bao giờ commit hay in giá trị secret ra log/chat.
+
+| File | Ai đọc | Mẫu |
+|---|---|---|
+| `.env` | App (NestJS `ConfigModule`) | [.env.example](.env.example) |
+| `.env.deploy` | Chỉ `deploy-prod.sh`, `scripts/check-status.sh` | [.env.deploy.example](.env.deploy.example) |
+
+- Biến app (`.env`): `NODE_ENV`, `APP_TYPE`, `API_PORT`, `WORKER_*`, `MONGODB_URL`, `MONGODB_VOICE_URL`, `MSSQLDB_URL`, `RABBITMQ_URL`, `RABBITMQ_QUEUE`, `JWT_*`, `APP_ID/SECRET/ROLE`, `SIMEDGE_APP_*`, `*_API_ROOT_URL`.
+- Biến deploy (`.env.deploy`):
 
 | Biến | Giá trị hiện tại | Ý nghĩa |
 |---|---|---|
@@ -46,7 +52,7 @@ npm run wrk-payment:dev  # worker payment-migration
 | `DEPLOY_PUBLIC_URL` | `https://api.hydrabyte.co/lcm` | Endpoint public qua load balancer |
 | `DEPLOY_BACKUP_KEEP` | `5` | Số bản `dist.bak-*` giữ lại trên mỗi host |
 
-Biến môi trường shell ghi đè `.env`, ví dụ `DEPLOY_HOSTS=10.10.0.70 ./scripts/check-status.sh`.
+Biến môi trường shell ghi đè `.env.deploy`, ví dụ `DEPLOY_HOSTS=10.10.0.70 ./scripts/check-status.sh`.
 
 ⚠️ `.env` local có thể trỏ vào DB/queue **thật**. Trước khi chạy worker, migration, import hoặc `ms:dev` ở local, kiểm tra `MONGODB_URL`, `MSSQLDB_URL`, `RABBITMQ_URL`, `RABBITMQ_QUEUE` - chạy consumer local trên queue prod sẽ **giành message của prod**.
 
@@ -77,7 +83,7 @@ curl -s localhost:3005/                              # API trên host (3105, 320
 
 ## Deploy production
 
-Chỉ deploy từ **checkout chính** (thư mục chứa `.env`), nhánh `main`, đã push. Script: [deploy-prod.sh](deploy-prod.sh).
+Chỉ deploy từ **checkout chính** (thư mục chứa `.env.deploy`), nhánh `main`, đã push. Script: [deploy-prod.sh](deploy-prod.sh).
 
 ```bash
 ./deploy-prod.sh                      # mọi host, lần lượt từng host
@@ -117,7 +123,7 @@ Tạo `docs/change-requests/CR-YYYYMMDD-<slug>/` từ [docs/change-requests/_tem
 git fetch origin && git checkout main && git pull
 git worktree add -b cr/<slug> ../lcm-service-wt/<slug> main      # hotfix: hotfix/<slug>
 cd ../lcm-service-wt/<slug>
-ln -s ../../lcm-service/.env .env                                 # dùng chung .env
+ln -s ../../lcm-service/.env .env                                 # dùng chung .env (không cần .env.deploy - không deploy từ worktree)
 ln -s ../../lcm-service/node_modules node_modules                 # hoặc npm ci nếu package.json đổi
 ```
 Thư mục CR (bước 2) tạo và commit ngay trong worktree này.

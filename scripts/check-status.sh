@@ -1,6 +1,6 @@
 #!/bin/bash
 # LCM production status: pm2 processes, deployed commit, API ports, resources, public endpoint.
-# Config from DEPLOY_* in .env (see .env.example).
+# Config from DEPLOY_* in .env.deploy (see .env.deploy.example).
 # Usage: ./scripts/check-status.sh [all|vm1|vm2|vm3|<host>]
 
 source "$(dirname "$0")/lib/deploy-env.sh"

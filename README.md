@@ -148,7 +148,8 @@ src/test-utils/
 ```bash
 git clone https://github.com/hydrabyte-co/legacy-lcm.git lcm-service
 cd lcm-service
-cp .env.example .env   # điền giá trị thật
+cp .env.example .env                 # cấu hình app, điền giá trị thật
+cp .env.deploy.example .env.deploy   # chỉ cần nếu bạn deploy prod
 npm install
 npm run build
 ```
