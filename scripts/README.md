@@ -1,58 +1,21 @@
-# LCM Service - Deployment Scripts
+# Scripts
 
-## 🚀 Quick Start
+Cấu hình host/user/path/process lấy từ các biến `DEPLOY_*` trong `.env` (mẫu: [.env.example](../.env.example)).
 
-### Deploy API to all VMs from main branch
-```bash
-./scripts/deploy.sh main api all
-```
-
-### Check system status
-```bash
-./scripts/check-status.sh
-```
-
-## 📋 Available Scripts
-
-| Script | Purpose | Usage |
-|--------|---------|--------|
-| `deploy.sh` | Deploy services to production VMs | `./scripts/deploy.sh <branch> <service> <target>` |
-| `check-status.sh` | Check VM and service status | `./scripts/check-status.sh [target]` |
-
-## 🎯 Common Commands
+| Script | Việc |
+|---|---|
+| [../deploy-prod.sh](../deploy-prod.sh) | Build local → backup + rsync `dist/` lên từng host → `pm2 restart` → verify. Có `--host`, `--quiet`, `--rollback`, `--list-backups`. Xem `./deploy-prod.sh --help` |
+| [check-status.sh](check-status.sh) | Trạng thái prod: pm2, commit đang chạy (`dist/DEPLOY_INFO`), các API port, RAM/disk, public URL |
+| [lib/deploy-env.sh](lib/deploy-env.sh) | Load `DEPLOY_*` từ `.env`, dùng chung cho 2 script trên |
+| [run-tests.sh](run-tests.sh) | Chạy unit / e2e / coverage |
+| [test-database.sh](test-database.sh) | Tiện ích test DB (seed/clean) |
+| [generate-module.sh](generate-module.sh) | Sinh khung module NestJS |
 
 ```bash
-# Production deployment workflow
-./scripts/deploy.sh main api all              # Deploy API from main
-./scripts/check-status.sh                     # Verify deployment
-curl https://api.hydrabyte.co/lcm/health      # Test production endpoint
-
-# Development deployment
-./scripts/deploy.sh trangpt wrk vm1           # Deploy worker to VM1
-./scripts/check-status.sh vm1                 # Check specific VM
-
-# Emergency procedures  
-./scripts/deploy.sh main all all --rollback   # Rollback all services
-./scripts/check-status.sh                     # Verify rollback
+./deploy-prod.sh                    # deploy main lên tất cả host
+./scripts/check-status.sh           # kiểm tra sau deploy
+./scripts/check-status.sh vm2       # một host (vm1/vm2/vm3 = thứ tự trong DEPLOY_HOSTS)
+./deploy-prod.sh --rollback         # quay về bản backup mới nhất trên mọi host
 ```
 
-## 🏗️ Infrastructure
-
-- **3 Production VMs**: 10.10.0.70, 10.10.0.71, 10.10.0.72
-- **Load Balancer**: https://api.hydrabyte.co/lcm
-- **Repository Path**: `/root/apps/lcm-service/` (on all VMs)
-- **Process Manager**: PM2 with ecosystem.config.js
-
-## 🔧 Services
-
-- **lcm-api**: Main API server (port 3005) - **Required on all VMs**
-- **lcm-ms-file**: File processing microservice
-- **lcm-ms-sync**: Data synchronization microservice  
-- **lcm-wrk**: General background worker
-- **lcm-wrk:payment-migration**: Payment migration worker
-
-## 🌿 Branches
-
-- **main**: Production releases
-- **trangpt**: Development branch
-- **hotfix**: Emergency fixes
+Script cũ (git pull + build trên server, submodule, git-flow) đã chuyển vào [archive/](archive/) - không dùng nữa.
