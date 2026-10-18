@@ -105,7 +105,7 @@ src/
 │   ├── event/         # Sự kiện hệ thống
 │   └── utils/         # Tiện ích
 ├── workers/           # Background workers
-├── common/           # 📦 Git Submodule: Shared utilities (service-common.git)
+├── common/           # Shared utilities (base classes, guards, utils)
 ├── constants/        # Application constants
 └── test-utils/       # Testing infrastructure ✅ NEW
 ```
@@ -145,29 +145,15 @@ src/test-utils/
 - RabbitMQ (Message queue)
 
 ### Installation
-
-⚠️ **IMPORTANT: This repository contains a submodule at `src/common`**
-
 ```bash
-# Clone repository with submodule
-git clone --recursive https://gitlab.com/bitthing.io/lcm-service.git
-
-# Or if already cloned without recursive, initialize submodule
-git submodule init
-git submodule update
-
-# Install dependencies
+git clone https://github.com/hydrabyte-co/legacy-lcm.git lcm-service
+cd lcm-service
+cp .env.example .env   # điền giá trị thật
 npm install
-
-# Build project
 npm run build
 ```
 
-### 📦 Submodule Information
-- **Path:** `src/common`
-- **Repository:** `git@gitlab.com:bitthing.io/service-common.git`
-- **Current Commit:** `62ed02e` (heads/main)
-- **Contains:** Shared utilities, base classes, enums, guards, and common functionality across TranGPT microservices
+`src/common` là code thường trong repo (trước đây là submodule, đã gộp vào từ commit `610cc43`).
 
 ## 🏃‍♂️ Running the Application
 
@@ -201,17 +187,12 @@ npm run start:prod
 npm run deploy:prod
 ```
 
-### PM2 Management
+### Deploy production
 ```bash
-# Build containers
-./build-container.sh
-
-# Build PM2 setup
-./build-pm2.sh
-
-# Deploy production
-./deploy-prod.sh
+./deploy-prod.sh            # build local, rsync dist lên các host trong DEPLOY_HOSTS, restart pm2
+./scripts/check-status.sh   # kiểm tra sau deploy
 ```
+Chi tiết (debug prod, rollback, quy trình hotfix/CR): xem [CLAUDE.md](./CLAUDE.md).
 
 ## 🧪 Testing ✅ **Enhanced Infrastructure**
 
@@ -239,65 +220,15 @@ npm run test:debug
 - **DebtCollectionScenarios**: Complete business workflow testing
 - **PerformanceTestSuite**: Bulk operation testing
 
-## 📦 Working with Submodules
-
-### 🚨 Important Submodule Workflow
-
-**This repository uses `src/common` as a Git submodule pointing to shared TranGPT utilities.**
-
-#### Initial Setup:
-```bash
-# Always clone with recursive to get submodules
-git clone --recursive https://gitlab.com/bitthing.io/lcm-service.git
-
-# If already cloned without recursive
-git submodule update --init --recursive
-```
-
-#### Development Workflow:
-```bash
-# Check submodule status
-git submodule status
-
-# Update submodule to latest commit
-cd src/common
-git pull origin main
-cd ../..
-git add src/common
-git commit -m "Update common submodule to latest version"
-
-# Push submodule changes to service-common repo
-cd src/common  
-git push origin main
-cd ../..
-
-# Update main repo with new submodule commit
-git add src/common
-git commit -m "Update common submodule reference"
-git push origin <branch>
-```
-
-#### ⚠️ Critical Notes:
-- **Never modify files in `src/common`** directly in this repo
-- **Always make changes in the `service-common` repository** first
-- **Test thoroughly** after submodule updates để ensure compatibility
-- **Coordinate with team** before pushing submodule changes to production
-
-#### Current Submodule Status:
-- **Repository:** `service-common.git` 
-- **Branch:** `main`
-- **Commit:** `62ed02e` - LCM service build fixes & automation support
-- **Last Updated:** Contains authentication fixes, new automation resources, error handling framework
-
 ## 🔧 Development Guidelines
 
 ### Change Request Process
-**⚠️ QUAN TRỌNG:** Tất cả major changes phải tuân theo Change Request process:
-📋 **[Change Request Documentation](./change-requests/README.md)**
+Quy trình hotfix / Change Request: xem [CLAUDE.md](./CLAUDE.md#quy-trình-làm-việc).
+CR lưu tại [docs/change-requests/](./docs/change-requests/), change log tại [docs/change-logs/](./docs/change-logs/).
 
 ### DTO Design Principles
 **📐 MANDATORY:** Reference DTO design standards:
-📋 **[DTO Design Principles](./change-requests/templates/dto-design-principles.md)**
+📋 **[DTO Design Principles](./docs/dto-design-principles.md)**
 
 ### Core Development Rules
 - **ID-to-Object Resolution Pattern** cho tất cả DTOs

@@ -1,161 +1,41 @@
 #!/bin/bash
+# LCM production status: pm2 processes, deployed commit, API ports, resources, public endpoint.
+# Config from DEPLOY_* in .env (see .env.example).
+# Usage: ./scripts/check-status.sh [all|vm1|vm2|vm3|<host>]
 
-# LCM Service Status Check Script - Fixed Version
-# Usage: ./scripts/check-status-fixed.sh [target]
+source "$(dirname "$0")/lib/deploy-env.sh"
 
-set -e
+GREEN='\033[0;32m'; RED='\033[0;31m'; BLUE='\033[0;34m'; NC='\033[0m'
 
-# Configuration
-VM_HOSTS=("10.10.0.70" "10.10.0.71" "10.10.0.72")
-SSH_USER="root"
+case ${1:-all} in
+  -h|--help) sed -n 2,4p "$0"; exit 0 ;;
+  all) TARGETS=("${HOSTS[@]}") ;;
+  vm[0-9]) TARGETS=("${HOSTS[$(( ${1#vm} - 1 ))]}") ;;
+  *) TARGETS=("$1") ;;
+esac
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-# Functions
-log() {
-    echo -e "${GREEN}[INFO] $1${NC}"
-}
-
-error() {
-    echo -e "${RED}[ERROR] $1${NC}"
-}
-
-warning() {
-    echo -e "${YELLOW}[WARNING] $1${NC}"
-}
-
-info() {
-    echo -e "${BLUE}[STATUS] $1${NC}"
-}
-
-# Get target VMs
-get_target_vms() {
-    local target=${1:-all}
-    case $target in
-        all)
-            echo "${VM_HOSTS[@]}"
-            ;;
-        vm1)
-            echo "${VM_HOSTS[0]}"
-            ;;
-        vm2)
-            echo "${VM_HOSTS[1]}"
-            ;;
-        vm3)
-            echo "${VM_HOSTS[2]}"
-            ;;
-        10.10.0.70|10.10.0.71|10.10.0.72)
-            echo "$target"
-            ;;
-        *)
-            error "Invalid target: $target"
-            exit 1
-            ;;
-    esac
-}
-
-# Check single VM
-check_vm() {
-    local vm_ip=$1
-    
-    echo -e "\n${BLUE}=== VM: $vm_ip ===${NC}"
-    
-    # Test SSH connection
-    if ! ssh -o ConnectTimeout=5 $SSH_USER@$vm_ip "echo 'Connected'" > /dev/null 2>&1; then
-        error "Cannot connect to VM: $vm_ip"
-        return 1
-    fi
-    
-    # PM2 status
-    info "PM2 Services Status:"
-    ssh $SSH_USER@$vm_ip "pm2 status" | grep -E "(lcm-|online|stopped|errored|Process)" || echo "No PM2 processes found"
-    
-    # API build info and health check
-    info "API Build Info & Health:"
-    build_info=$(ssh $SSH_USER@$vm_ip "curl -s http://localhost:3005/" 2>/dev/null || echo "{}")
-    api_status=$(ssh $SSH_USER@$vm_ip "curl -s -o /dev/null -w '%{http_code}' http://localhost:3005/health" 2>/dev/null || echo "000")
-    
-    # Display build info if available
-    if [ "$build_info" != "{}" ] && [ "$build_info" != "" ]; then
-        echo "$build_info" | python3 -m json.tool 2>/dev/null || echo "$build_info"
-    fi
-    
-    # Health status
-    if [ "$api_status" = "200" ]; then
-        echo -e "${GREEN}[OK] API Health: OK (200)${NC}"
+check_host() {
+  local host=$1
+  echo -e "\n${BLUE}=== $host ===${NC}"
+  if ! remote "$host" true 2>/dev/null; then
+    echo -e "${RED}SSH failed${NC}"; return 1
+  fi
+  remote "$host" "pm2 ls 2>/dev/null | grep -E 'name|lcm-'"
+  echo '-- deployed:'
+  remote "$host" "cat $DEPLOY_APP_DIR/dist/DEPLOY_INFO 2>/dev/null || echo '(no DEPLOY_INFO - deployed before 2026-10)'"
+  for port in "${API_PORTS[@]}"; do
+    if info=$(remote "$host" "curl -fsS -m 5 http://localhost:$port/" 2>/dev/null); then
+      echo -e "${GREEN}:$port OK${NC} $info"
     else
-        echo -e "${RED}[FAILED] API Health: FAILED ($api_status)${NC}"
+      echo -e "${RED}:$port FAILED${NC}"
     fi
-    
-    # System resources
-    info "System Resources:"
-    ssh $SSH_USER@$vm_ip "
-        echo 'Memory Usage:'
-        free -h | grep -E '(Mem|Swap)'
-        echo 'Disk Usage:'
-        df -h | grep -E '(/$|/root)'
-    "
-    
-    echo -e "${BLUE}--- End VM: $vm_ip ---${NC}"
+  done
+  remote "$host" "free -h | grep Mem; df -h / | tail -1"
 }
 
-# Production endpoint check
-check_production_endpoint() {
-    echo -e "\n${BLUE}=== Production Endpoint Check ===${NC}"
-    
-    # Check build info from production
-    info "Production Build Info:"
-    prod_build_info=$(curl -s https://api.hydrabyte.co/lcm/ 2>/dev/null || echo "{}")
-    if [ "$prod_build_info" != "{}" ] && [ "$prod_build_info" != "" ]; then
-        echo "$prod_build_info" | python3 -m json.tool 2>/dev/null || echo "$prod_build_info"
-    else
-        warning "Could not fetch production build info"
-    fi
-    
-    # Health check
-    info "Checking https://api.hydrabyte.co/lcm/health"
-    response=$(curl -s -o /dev/null -w "%{http_code};%{time_total}" https://api.hydrabyte.co/lcm/health 2>/dev/null || echo "000;0")
-    http_code=$(echo $response | cut -d';' -f1)
-    response_time=$(echo $response | cut -d';' -f2)
-    
-    if [ "$http_code" = "200" ]; then
-        echo -e "${GREEN}[OK] Production API: OK - ${http_code} - ${response_time}s${NC}"
-    else
-        echo -e "${RED}[FAILED] Production API: FAILED - ${http_code}${NC}"
-    fi
-}
+for host in "${TARGETS[@]}"; do check_host "$host"; done
 
-# Main execution
-main() {
-    local target=${1:-all}
-    
-    if [ "$target" = "--help" ] || [ "$target" = "-h" ]; then
-        echo "Usage: ./scripts/check-status-fixed.sh [all|vm1|vm2|vm3|IP]"
-        exit 0
-    fi
-    
-    log "=== LCM Service Status Check Started ==="
-    
-    # Get target VMs
-    TARGET_VMS=($(get_target_vms $target))
-    
-    # Check each VM
-    for vm in "${TARGET_VMS[@]}"; do
-        check_vm "$vm"
-    done
-    
-    # Check production endpoint if checking all VMs
-    if [ "$target" = "all" ]; then
-        check_production_endpoint
-    fi
-    
-    log "=== Status check completed ==="
-}
-
-# Execute
-main "$@"
+if [[ ${1:-all} == all && -n "$DEPLOY_PUBLIC_URL" ]]; then
+  echo -e "\n${BLUE}=== $DEPLOY_PUBLIC_URL ===${NC}"
+  curl -sS -m 10 -w "\nHTTP %{http_code} in %{time_total}s\n" "$DEPLOY_PUBLIC_URL/"
+fi
