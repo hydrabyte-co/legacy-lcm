@@ -1,12 +1,12 @@
 # Scripts
 
-Cấu hình host/user/path/process lấy từ các biến `DEPLOY_*` trong `.env` (mẫu: [.env.example](../.env.example)).
+Cấu hình host/user/path/process lấy từ các biến `DEPLOY_*` trong `.env.deploy` (mẫu: [.env.deploy.example](../.env.deploy.example)).
 
 | Script | Việc |
 |---|---|
 | [../deploy-prod.sh](../deploy-prod.sh) | Build local → backup + rsync `dist/` lên từng host → `pm2 restart` → verify. Có `--host`, `--quiet`, `--rollback`, `--list-backups`. Xem `./deploy-prod.sh --help` |
 | [check-status.sh](check-status.sh) | Trạng thái prod: pm2, commit đang chạy (`dist/DEPLOY_INFO`), các API port, RAM/disk, public URL |
-| [lib/deploy-env.sh](lib/deploy-env.sh) | Load `DEPLOY_*` từ `.env`, dùng chung cho 2 script trên |
+| [lib/deploy-env.sh](lib/deploy-env.sh) | Load `DEPLOY_*` từ `.env.deploy`, dùng chung cho 2 script trên |
 | [run-tests.sh](run-tests.sh) | Chạy unit / e2e / coverage |
 | [test-database.sh](test-database.sh) | Tiện ích test DB (seed/clean) |
 | [generate-module.sh](generate-module.sh) | Sinh khung module NestJS |

@@ -3,6 +3,7 @@
 /node_modules
 # ENV
 .env
+.env.deploy
 
 # OPS
 hosts
